@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore | Travel App</title>
+    <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="../utils/css/explore.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Travel App</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="active"><a href="#"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
+                <li><a href="#"><i class="fas fa-bookmark"></i> Saved</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Plan Your Perfect Trip</h1>
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search saved trips..." class="search-input">
+                </div>
+            </header>
+            
+            <section class="page-intro">
+                <p class="subtitle">Enter your destination(s), get personalized recommendations, and build your itinerary.</p>
+            </section>
+
+            <section class="destination-input-section">
+                <div class="section-header">
+                    <h2>Where would you like to go?</h2>
+                </div>
+                <div class="card">
+                    <div class="destination-input-container">
+                        <div class="input-field destination-field">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <input type="text" id="destination-input" placeholder="Enter a city or country" autocomplete="off">
+                            <button id="add-destination-btn" class="btn-secondary">
+                                <i class="fas fa-plus"></i> Add Destination
+                            </button>
+                        </div>
+                        <div id="autocomplete-results" class="autocomplete-results"></div>
+                        <p class="instruction-text">Enter one or more destinations to see personalized recommendations.</p>
+                        <div id="selected-destinations" class="selected-destinations"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="recommendations-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Recommended Destinations</h2>
+                    <div class="view-toggle">
+                        <button class="btn-text active" data-view="grid"><i class="fas fa-th"></i></button>
+                        <button class="btn-text" data-view="list"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+                
+                <div class="recommendation-cards">
+                    <!-- Recommendation cards will be dynamically added here -->
+                </div>
+                
+                <div class="create-trip-container">
+                    <button id="create-trip-btn" class="btn-primary">
+                        <i class="fas fa-plus-circle"></i> Create Trip
+                    </button>
+                </div>
+            </section>
+
+            <section id="trip-duration-section" class="trip-duration-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Plan Your Trip Duration</h2>
+                </div>
+                <div class="card">
+                    <div class="duration-options">
+                        <div class="duration-option active" data-option="days">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Number of Days</span>
+                        </div>
+                        <div class="duration-option" data-option="dates">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Date Range</span>
+                        </div>
+                    </div>
+                    
+                    <div id="days-input" class="duration-input-container">
+                        <label for="number-of-days">How many days?</label>
+                        <input type="number" id="number-of-days" min="1" max="30" value="3" class="form-control">
+                    </div>
+                    
+                    <div id="dates-input" class="duration-input-container" style="display: none;">
+                        <div class="dates-row">
+                            <div class="date-field">
+                                <label for="start-date">Start Date</label>
+                                <input type="date" id="start-date" class="form-control">
+                            </div>
+                            <div class="date-field">
+                                <label for="end-date">End Date</label>
+                                <input type="date" id="end-date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="duration-actions">
+                        <button id="duration-back-btn" class="btn-secondary">Back</button>
+                        <button id="duration-next-btn" class="btn-primary">Continue to Itinerary</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="itinerary-section" class="itinerary-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Your Itinerary</h2>
+                    <div class="itinerary-actions">
+                        <button class="btn-secondary"><i class="fas fa-edit"></i> Edit Trip</button>
+                        <button class="btn-secondary"><i class="fas fa-save"></i> Save Trip</button>
+                    </div>
+                </div>
+                
+                <div class="itinerary-container">
+                    <div class="day-tabs">
+                        <!-- Day tabs will be generated dynamically -->
+                    </div>
+                    
+                    <div class="day-content">
+                        <!-- Day content will be generated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="itinerary-sidebar">
+                    <div class="sidebar-card">
+                        <h3>Trip Summary</h3>
+                        <div class="summary-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Destinations: <strong id="summary-destinations">3</strong></span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Duration: <strong id="summary-duration">5 days</strong></span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-map"></i>
+                            <span>Activities: <strong id="summary-activities">12</strong></span>
+                        </div>
+                        <div class="map-preview">
+                            <img src="https://via.placeholder.com/300x200?text=Trip+Map" alt="Trip Map Preview">
+                        </div>
+                        <div class="sidebar-actions">
+                            <button class="btn-secondary btn-full"><i class="fas fa-share-alt"></i> Share</button>
+                            <button class="btn-secondary btn-full"><i class="fas fa-print"></i> Export</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="explore-footer">
+                <div class="footer-links">
+                    <a href="#">About Us</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                </div>
+            </footer>
+        </main>
+
+        <!-- Modal for activity details -->
+        <div id="activity-details-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div id="activity-details-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../utils/js/explore.js"></script>
+</body>
+</html>
