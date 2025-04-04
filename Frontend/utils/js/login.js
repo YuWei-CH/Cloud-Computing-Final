@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', function () {
             //     passwordError.textContent = 'Invalid email or password';
             // });
 
-            // Simulating successful login for demo purposes
-            alert('Login successful! You will be redirected to the dashboard.');
-            // window.location.href = 'dashboard.html';
+            // Simulating successful login and redirecting to the dashboard
+            alert('Login successful! Redirecting to dashboard...');
+            window.location.href = '../dashboard/dashboard.html';
         }
     });
 
