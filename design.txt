@@ -1,0 +1,80 @@
+1. Login Page
+- User Email Field: Input for the user's email address.
+- Password Field: Secure input for the password.
+- Login Button: Triggers authentication.
+- Remember Me checkbox: Option to stay logged in.
+- Additional Links:
+  - "Forgot Password?"
+  - "Sign Up" (to navigate to the Registration page)
+
+2. Registration Page
+- User Email Field: Input for email address.
+- Username Field: Input for display name.
+- Password Field: Secure input for the password with strength indicator.
+- Confirm Password Field: Verifies the password entry.
+- Preference Selection (3 Categories):
+  - Weather Preference: Dropdown with three options (Warm & Sunny, Moderate Climate, Cool & Snowy).
+  - Environment Preference: Dropdown with three options (Urban City, Rural Countryside, Coastal Beach).
+  - Activity Preference: Dropdown with three options (Relaxing & Leisure, Adventure & Outdoors, Cultural & Historical).
+- Register Button: Submits the registration and preference selections.
+
+3. Dashboard Page
+A. Personal Info (Editable)
+- Display Section: User Email, Username, Member Since date, Trips Planned count.
+- Edit Option: Button to toggle edit mode with form to update personal details.
+
+B. Update Preference (Editable)
+- Current Preferences Overview: Displays selected options for each of the 3 categories in dropdown selects.
+  - Weather (Warm & Sunny, Moderate Climate, Cool & Snowy)
+  - Environment (Urban City, Rural Countryside, Coastal Beach)
+  - Activity (Relaxing & Leisure, Adventure & Outdoors, Cultural & Historical)
+- Save Changes Button: Confirms updates to preferences.
+
+C. History Area
+- Trip History List: Cards with images and details (destinations, dates, travelers, tags) of past trips.
+  - Trip cards categorized as Completed, Upcoming, or Planning.
+- Interaction:
+  - "View" button to see trip details
+  - "Edit" or "Clone" buttons for trip management
+
+4. Explore Page (Separate from Dashboard)
+- Destination Input Section:
+  - Smart input with auto-complete for City/Country entries.
+  - "+ Add Destination" button.
+  - Display of added destinations as tags/pills (with remove option).
+- Destination Recommendation Cards:
+  - Cards generated per destination featuring:
+    - Prominent image.
+    - Badge showing type (Landmark, Museum, Activity, etc.)
+    - Title, description with highlights and ratings.
+    - Tags/highlights of the destination.
+    - "Bookmark" option to save for later.
+  - View toggle between grid and list views.
+- Trip Creation Workflow:
+  - Create Trip Button: Initiates trip planning.
+  - Trip Duration Selection:
+    - Option 1: Number of days input.
+    - Option 2: Calendar date range picker.
+    - "Continue to Itinerary" button to proceed.
+- Itinerary Builder Interface:
+  - Day-by-Day Breakdown: Tabs for each day (labeled "Day 1," "Day 2," or with dates).
+  - Activity area for each day to add and manage activities.
+  - "Add Activity" button for adding activities to each day.
+- Sidebar Summary Panel:
+  - Overview of the entire trip including:
+    - Destinations count, duration, activities count.
+    - Map preview (placeholder image).
+    - Options to "Share" and "Export" the itinerary.
+
+5. Navigation and Layout
+- Sidebar Navigation:
+  - Travel App logo/brand.
+  - Menu items: Dashboard, Explore, Saved, Settings.
+  - Logout option.
+- Responsive Design:
+  - Mobile-friendly layout that adapts to different screen sizes.
+  - Collapsible sidebar on smaller screens.
+
+6. Footer (on Explore Page)
+- Standard Footer Links: "About Us," "Contact," "Privacy Policy," and "Terms of Service."
+- Social Media Icons: Facebook, Twitter, Instagram, Pinterest.
