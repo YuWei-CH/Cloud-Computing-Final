@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Travel App</title>
+    <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Travel App</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active"><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
+                <li><a href="#"><i class="fas fa-bookmark"></i> Saved</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Welcome, <span id="user-name">Traveler</span>!</h1>
+                <!-- Removed user avatar as requested -->
+            </header>
+
+            <section class="personal-info-section">
+                <div class="section-header">
+                    <h2>Personal Information</h2>
+                    <button id="edit-profile-btn" class="btn-secondary"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="card">
+                    <div class="personal-info-content" id="profile-view-mode">
+                        <div class="info-row">
+                            <div class="info-item">
+                                <span class="info-label">Username:</span>
+                                <span class="info-value" id="profile-username">johndoe</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value" id="profile-email">john.doe@example.com</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-item">
+                                <span class="info-label">Member Since:</span>
+                                <span class="info-value" id="profile-member-since">May 2025</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Trips Planned:</span>
+                                <span class="info-value" id="profile-trips">3</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- New editable form for user information, hidden by default -->
+                    <div class="personal-info-edit" id="profile-edit-mode" style="display:none;">
+                        <form id="profile-edit-form">
+                            <div class="info-row">
+                                <div class="info-item">
+                                    <label for="edit-username">Username:</label>
+                                    <input type="text" id="edit-username" class="form-control" required>
+                                </div>
+                                <div class="info-item">
+                                    <label for="edit-email">Email:</label>
+                                    <input type="email" id="edit-email" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn-primary">Save Changes</button>
+                                <button type="button" id="cancel-edit-btn" class="btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section class="preferences-section">
+                <div class="section-header">
+                    <h2>Travel Preferences</h2>
+                    <button id="update-prefs-btn" class="btn-secondary"><i class="fas fa-sync-alt"></i> Update</button>
+                </div>
+                <div class="card">
+                    <form id="preferences-form" class="preferences-form">
+                        <div class="preferences-grid">
+                            <div class="preference-item">
+                                <label for="weather">Weather Preference</label>
+                                <div class="select-wrapper">
+                                    <select id="weather" name="weather">
+                                        <option value="warm">Warm & Sunny</option>
+                                        <option value="moderate">Moderate Climate</option>
+                                        <option value="cold">Cool & Snowy</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label for="environment">Environment Preference</label>
+                                <div class="select-wrapper">
+                                    <select id="environment" name="environment">
+                                        <option value="city">Urban City</option>
+                                        <option value="rural">Rural Countryside</option>
+                                        <option value="beach">Coastal Beach</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label for="activity">Activity Preference</label>
+                                <div class="select-wrapper">
+                                    <select id="activity" name="activity">
+                                        <option value="relaxing">Relaxing & Leisure</option>
+                                        <option value="adventure">Adventure & Outdoors</option>
+                                        <option value="cultural">Cultural & Historical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Removed Budget Range preference -->
+                        </div>
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="history-section">
+                <div class="section-header">
+                    <h2>Trip History</h2>
+                    <button class="btn-secondary"><i class="fas fa-plus"></i> New Trip</button>
+                </div>
+                <div class="trip-cards">
+                    <div class="trip-card">
+                        <div class="trip-image">
+                            <img src="https://via.placeholder.com/300x150?text=Miami" alt="Miami Trip">
+                            <div class="trip-status completed">Completed</div>
+                        </div>
+                        <div class="trip-details">
+                            <h3>Miami Trip</h3>
+                            <div class="trip-meta">
+                                <span><i class="far fa-calendar-alt"></i> 05/01/2025 - 05/06/2025</span>
+                                <span><i class="fas fa-user-friends"></i> 2 Travelers</span>
+                            </div>
+                            <div class="trip-tags">
+                                <span class="tag">Beach</span>
+                                <span class="tag">Warm</span>
+                            </div>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn-text"><i class="fas fa-eye"></i> View</button>
+                            <button class="btn-text"><i class="fas fa-copy"></i> Clone</button>
+                        </div>
+                    </div>
+
+                    <div class="trip-card">
+                        <div class="trip-image">
+                            <img src="https://via.placeholder.com/300x150?text=New+York" alt="New York City Trip">
+                            <div class="trip-status upcoming">Upcoming</div>
+                        </div>
+                        <div class="trip-details">
+                            <h3>New York City Trip</h3>
+                            <div class="trip-meta">
+                                <span><i class="far fa-calendar-alt"></i> 06/15/2025 - 06/22/2025</span>
+                                <span><i class="fas fa-user-friends"></i> 4 Travelers</span>
+                            </div>
+                            <div class="trip-tags">
+                                <span class="tag">City</span>
+                                <span class="tag">Cultural</span>
+                            </div>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn-text"><i class="fas fa-eye"></i> View</button>
+                            <button class="btn-text"><i class="fas fa-pencil-alt"></i> Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="trip-card">
+                        <div class="trip-image">
+                            <img src="https://via.placeholder.com/300x150?text=Colorado" alt="Colorado Mountain Retreat">
+                            <div class="trip-status planning">Planning</div>
+                        </div>
+                        <div class="trip-details">
+                            <h3>Colorado Mountain Retreat</h3>
+                            <div class="trip-meta">
+                                <span><i class="far fa-calendar-alt"></i> 07/10/2025 - 07/17/2025</span>
+                                <span><i class="fas fa-user-friends"></i> 6 Travelers</span>
+                            </div>
+                            <div class="trip-tags">
+                                <span class="tag">Mountain</span>
+                                <span class="tag">Adventure</span>
+                            </div>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn-text"><i class="fas fa-eye"></i> View</button>
+                            <button class="btn-text"><i class="fas fa-pencil-alt"></i> Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../utils/js/dashboard.js"></script>
+</body>
+</html>

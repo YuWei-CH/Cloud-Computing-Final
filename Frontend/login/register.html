@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Cloud App</title>
+    <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="register-container">
+            <div class="form-header">
+                <h1>Create Account</h1>
+                <p>Plan your Trip Now!</p>
+            </div>
+            
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <div class="input-field">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    </div>
+                    <span class="error-message" id="username-error"></span>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <span class="error-message" id="email-error"></span>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Create a password" required>
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
+                    <span class="error-message" id="password-error"></span>
+                    <div class="password-strength">
+                        <div class="strength-bar" id="strength-bar"></div>
+                        <span id="strength-text">Password strength</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+                    </div>
+                    <span class="error-message" id="confirm-password-error"></span>
+                </div>
+
+                <div class="preferences-section">
+                    <h3>Your Travel Preferences</h3>
+                    <p>Help us customize your trip recommendations</p>
+                    
+                    <div class="input-group">
+                        <label for="weather">Weather Preference</label>
+                        <div class="select-wrapper">
+                            <select id="weather" name="weather" required>
+                                <option value="" disabled selected>Select weather preference</option>
+                                <option value="warm">Warm & Sunny</option>
+                                <option value="moderate">Moderate Climate</option>
+                                <option value="cold">Cool & Snowy</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="environment">Environment Preference</label>
+                        <div class="select-wrapper">
+                            <select id="environment" name="environment" required>
+                                <option value="" disabled selected>Select environment preference</option>
+                                <option value="city">Urban City</option>
+                                <option value="rural">Rural Countryside</option>
+                                <option value="beach">Coastal Beach</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="activity">Activity Preference</label>
+                        <div class="select-wrapper">
+                            <select id="activity" name="activity" required>
+                                <option value="" disabled selected>Select activity preference</option>
+                                <option value="relaxing">Relaxing & Leisure</option>
+                                <option value="adventure">Adventure & Outdoors</option>
+                                <option value="cultural">Cultural & Historical</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="register-btn">Create Account</button>
+                
+                <div class="form-footer">
+                    <p>Already have an account? <a href="login.html">Log In</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../utils/js/register.js"></script>
+</body>
+</html>
