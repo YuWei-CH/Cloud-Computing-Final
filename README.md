@@ -16,19 +16,18 @@ A microservice for optimizing multi-point routes using various transportation mo
 - ✅ RESTful API endpoints
 - ✅ Basic error handling
 - ✅ Database storage for optimized routes
+- ✅ Interactive API documentation (Swagger/OpenAPI)
 
 ### Pending Features
 - ⚠️ API Integration
   - ✅ RESTful API endpoints
-  - ❌ API documentation
+  - ✅ API documentation
   - ❌ Rate limiting
-  - ❌ Authentication/Authorization
   - ❌ Request validation
   - ⚠️ Error handling middleware (basic implementation)
 
 - ⚠️ Storage Management
   - ✅ Route history storage
-  - ❌ User preferences storage
   - ❌ Caching layer for frequently accessed routes
   - ✅ Database integration (PostgreSQL)
   - ✅ Data persistence
@@ -57,6 +56,19 @@ project/
 ├── app.py                       # FastAPI application
 └── config.py                    # Configuration settings
 ```
+
+## API Documentation
+
+The API includes interactive documentation:
+
+- **Swagger UI**: Available at `/docs` when the API is running
+- **ReDoc**: Available at `/redoc` when the API is running
+
+These interfaces allow you to:
+- Browse all available endpoints
+- View parameter details and examples
+- Make test requests directly from the browser
+- See response schemas and examples
 
 ## API Endpoints
 
@@ -202,6 +214,12 @@ alembic upgrade head
 uvicorn app:app --reload
 ```
 
+5. Access the API documentation:
+```
+Swagger UI: http://localhost:8000/docs
+ReDoc: http://localhost:8000/redoc
+```
+
 ### Running Tests
 ```bash
 pytest -v
@@ -210,9 +228,8 @@ pytest -v
 ## Next Steps
 1. ✅ Implement RESTful API endpoints
 2. ✅ Add database integration for route history
-3. Implement caching layer
-4. Add user authentication
-5. Create API documentation
+3. ✅ Create API documentation
+4. Implement caching layer
+5. Add request validation
 6. Add monitoring and logging
 7. Implement rate limiting
-8. Add request validation
