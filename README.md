@@ -13,15 +13,17 @@ A microservice for optimizing multi-point routes using various transportation mo
 - ✅ Comprehensive test coverage
 - ✅ Mock provider for testing
 - ✅ OSRM provider integration
+- ✅ RESTful API endpoints
+- ✅ Basic error handling
 
 ### Pending Features
-- ❌ API Integration
-  - RESTful API endpoints
-  - API documentation
-  - Rate limiting
-  - Authentication/Authorization
-  - Request validation
-  - Error handling middleware
+- ⚠️ API Integration
+  - ✅ RESTful API endpoints
+  - ❌ API documentation
+  - ❌ Rate limiting
+  - ❌ Authentication/Authorization
+  - ❌ Request validation
+  - ⚠️ Error handling middleware (basic implementation)
 
 - ❌ Storage Management
   - Route history storage
@@ -42,13 +44,41 @@ project/
 │   ├── base.py                  # Base classes and interfaces
 │   ├── mock_provider.py         # Mock implementation
 │   └── osrm_provider.py         # OSRM implementation
-└── test/
-    ├── test_route_optimizer.py
-    └── test_route_planner.py
+├── test/
+│   ├── test_route_optimizer.py
+│   └── test_route_planner.py
+├── app.py                       # FastAPI application
+└── config.py                    # Configuration settings
 ```
+
+## API Endpoints
+
+### Health Checks
+- `GET /health` - Check API health status
+- `GET /` - Check API health status and environment
+
+### Route Optimization
+- `POST /optimize` - Optimize a route between multiple points
+  ```json
+  {
+    "points": [
+      {"lat": 40.7128, "lon": -74.0060},
+      {"lat": 34.0522, "lon": -118.2437}
+    ],
+    "start_point": {"lat": 40.7128, "lon": -74.0060},  // Optional
+    "end_point": {"lat": 34.0522, "lon": -118.2437},   // Optional
+    "round_trip": true,                                // Optional, default: true
+    "mode": "driving"                                  // Optional, default: driving
+  }
+  ```
+
+### Matrix Calculations
+- `GET /matrix/distance?points=lat1,lon1&points=lat2,lon2` - Get distance matrix between points
+- `GET /matrix/duration?points=lat1,lon1&points=lat2,lon2` - Get duration matrix between points
 
 ## Usage
 
+### Python Client
 ```python
 from core.workflow.route_planner import RoutePlanner
 from provider.osrm_provider import OSRMProvider
@@ -72,6 +102,17 @@ route = await planner.plan_route(points)
 stats = await planner.get_route_statistics(route)
 ```
 
+### API Client
+```bash
+# Get distance matrix between New York and Los Angeles
+curl "http://localhost:8000/matrix/distance?points=40.7128,-74.0060&points=34.0522,-118.2437"
+
+# Optimize a route between multiple points
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"points": [{"lat": 40.7128, "lon": -74.0060}, {"lat": 34.0522, "lon": -118.2437}]}' \
+  http://localhost:8000/optimize
+```
+
 ## Development
 
 ### Setup
@@ -86,13 +127,18 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+3. Start the API server:
+```bash
+uvicorn app:app --reload
+```
+
 ### Running Tests
 ```bash
 pytest -v
 ```
 
 ## Next Steps
-1. Implement RESTful API endpoints
+1. ✅ Implement RESTful API endpoints
 2. Add database integration for route history
 3. Implement caching layer
 4. Add user authentication
