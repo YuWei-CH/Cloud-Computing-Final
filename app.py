@@ -1,12 +1,16 @@
 # Import necessary libraries
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 import uvicorn
 from config import settings
 from provider.osrm_provider import OSRMProvider
 from provider.base import TransportMode, Route
 from core.workflow.route_planner import RoutePlanner
+from sqlalchemy.ext.asyncio import AsyncSession
+from storage.db import get_db
+from storage.repositories.route_repository import RouteRepository
+from uuid import UUID
 
 # Initialize FastAPI application with metadata
 app = FastAPI(
@@ -48,6 +52,20 @@ class RouteResponse(BaseModel):
     coordinates: List[Tuple[float, float]] = Field(..., description="List of coordinates for the entire route")
     segments: List[RouteSegmentResponse] = Field(..., description="List of route segments")
     statistics: RouteStatistics = Field(..., description="Route statistics")
+
+class TripRouteRequest(BaseModel):
+    locations: List[UUID] = Field(..., description="List of location IDs to visit")
+    mode: TransportMode = Field(TransportMode.DRIVING, description="Transportation mode")
+    round_trip: bool = Field(True, description="Whether to return to starting point")
+
+class DayRouteResponse(BaseModel):
+    id: UUID = Field(..., description="Route ID")
+    day_number: int = Field(..., description="Day number in the trip")
+    total_distance: float = Field(..., description="Total distance in meters")
+    total_duration: float = Field(..., description="Total duration in seconds")
+    transport_mode: str = Field(..., description="Transportation mode")
+    round_trip: bool = Field(..., description="Whether this is a round trip")
+    segments: List[Dict[str, Any]] = Field(..., description="Route segments details")
 
 # Health check endpoint
 @app.get("/")
@@ -168,6 +186,129 @@ async def get_duration_matrix(points: List[str] = Query(..., description="Points
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# New endpoint for trip route optimization
+@app.post("/trips/{trip_id}/days/{day_number}/optimize")
+async def optimize_day_route(
+    trip_id: UUID,
+    day_number: int,
+    request: TripRouteRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Optimize a route for a specific day in a trip.
+    
+    - **trip_id**: ID of the trip
+    - **day_number**: Day number in the trip
+    - **locations**: List of location IDs to include in the route
+    - **mode**: Transportation mode
+    - **round_trip**: Whether to return to the starting point
+    """
+    try:
+        # TODO: Get everyday_id from trip_id and day_number
+        # This would require a query to the everyday table
+        everyday_id = None  # This would be replaced with a real ID from the database
+        
+        # TODO: Get location coordinates from location IDs
+        # This would require a query to the locations table
+        # For now, we'll use mock coordinates
+        location_coords = []
+        
+        # Calculate optimized route
+        route = await route_planner.plan_route(
+            points=location_coords,
+            round_trip=request.round_trip,
+            mode=request.mode
+        )
+        
+        # Store the optimized route in the database
+        route_repo = RouteRepository(db)
+        db_route = await route_repo.create_route(
+            everyday_id=everyday_id,
+            route=route,
+            transport_mode=request.mode,
+            round_trip=request.round_trip
+        )
+        
+        return {
+            "message": "Route optimized and stored successfully",
+            "route_id": db_route.id,
+            "total_distance": route.total_distance,
+            "total_duration": route.total_duration
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Get route for a specific day in a trip
+@app.get("/trips/{trip_id}/days/{day_number}/route")
+async def get_day_route(
+    trip_id: UUID,
+    day_number: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get the optimized route for a specific day in a trip.
+    
+    - **trip_id**: ID of the trip
+    - **day_number**: Day number in the trip
+    """
+    try:
+        route_repo = RouteRepository(db)
+        route = await route_repo.get_route_for_day(trip_id, day_number)
+        
+        if not route:
+            raise HTTPException(status_code=404, detail="Route not found for this day")
+        
+        # Format the response
+        segments = []
+        for segment in route.segments:
+            segments.append({
+                "id": segment.id,
+                "order": segment.segment_order,
+                "start_location_id": segment.start_location_id,
+                "end_location_id": segment.end_location_id,
+                "distance": segment.distance,
+                "duration": segment.duration,
+                "coordinates": segment.coordinates
+            })
+        
+        return DayRouteResponse(
+            id=route.id,
+            day_number=day_number,
+            total_distance=route.total_distance,
+            total_duration=route.total_duration,
+            transport_mode=route.transport_mode,
+            round_trip=route.round_trip,
+            segments=segments
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Get all routes for a trip
+@app.get("/trips/{trip_id}/routes")
+async def get_trip_routes(
+    trip_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get all optimized routes for a trip.
+    
+    - **trip_id**: ID of the trip
+    """
+    try:
+        route_repo = RouteRepository(db)
+        routes = await route_repo.get_routes_by_trip_id(trip_id)
+        
+        if not routes:
+            return {"routes": []}
+        
+        return {"routes": routes}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

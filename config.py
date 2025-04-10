@@ -31,6 +31,14 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     DEBUG: bool = False
     
+    # Database settings
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = "postgres"
+    DB_NAME: str = "tripplanner"
+    DB_ECHO_SQL: bool = False
+    
     class Config:
         env_file = ".env"
 
