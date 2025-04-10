@@ -117,4 +117,70 @@ async def test_get_locations_for_everyday(route_repository, mock_db_session):
     assert result[0]["name"] == "New York"
     assert result[0]["address"] == "New York, NY"
     assert result[1]["name"] == "Los Angeles"
-    assert result[1]["address"] == "Los Angeles, CA" 
+    assert result[1]["address"] == "Los Angeles, CA"
+
+@pytest.mark.asyncio
+async def test_get_everyday_location_ids(route_repository, mock_db_session):
+    """Test the get_everyday_location_ids method"""
+    # Create a mock everyday ID
+    everyday_id = uuid4()
+    
+    # Create mock location IDs to return
+    mock_location_ids = [uuid4(), uuid4(), uuid4()]
+    
+    # Configure the session execute to return mock rows for location_ids
+    mock_db_session.execute.return_value = MagicMock()
+    mock_rows = [(mock_location_ids[0],), (mock_location_ids[1],), (mock_location_ids[2],)]
+    mock_db_session.execute.return_value.__iter__.return_value = mock_rows
+    
+    # Call the method
+    result = await route_repository.get_everyday_location_ids(everyday_id)
+    
+    # Check the database was queried
+    mock_db_session.execute.assert_called_once()
+    
+    # Check the result contains the expected location IDs
+    assert len(result) == 3
+    assert result[0] == mock_location_ids[0]
+    assert result[1] == mock_location_ids[1]
+    assert result[2] == mock_location_ids[2]
+
+@pytest.mark.asyncio
+async def test_get_everyday_location_ids_empty(route_repository, mock_db_session):
+    """Test the get_everyday_location_ids method when there are no locations"""
+    # Create a mock everyday ID
+    everyday_id = uuid4()
+    
+    # Configure the session execute to return empty result
+    mock_db_session.execute.return_value = MagicMock()
+    mock_rows = []
+    mock_db_session.execute.return_value.__iter__.return_value = mock_rows
+    
+    # Call the method
+    result = await route_repository.get_everyday_location_ids(everyday_id)
+    
+    # Check the database was queried
+    mock_db_session.execute.assert_called_once()
+    
+    # Check the result is an empty list
+    assert isinstance(result, list)
+    assert len(result) == 0
+
+@pytest.mark.asyncio
+async def test_get_everyday_location_ids_db_error(route_repository, mock_db_session):
+    """Test the get_everyday_location_ids method when the database query fails"""
+    # Create a mock everyday ID
+    everyday_id = uuid4()
+    
+    # Configure the session execute to raise an exception
+    mock_db_session.execute.side_effect = Exception("Database error")
+    
+    # Call the method and expect an exception
+    with pytest.raises(Exception) as exc_info:
+        await route_repository.get_everyday_location_ids(everyday_id)
+    
+    # Check the exception message
+    assert "Database error" in str(exc_info.value)
+    
+    # Check the database query was attempted
+    mock_db_session.execute.assert_called_once() 

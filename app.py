@@ -16,6 +16,15 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 from pydantic import validator, root_validator
 
+# Initialize logger
+logger = logging.getLogger(__name__)
+
+# Configure basic logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
 # Initialize FastAPI application with metadata
 app = FastAPI(
     title="TripPlanner Route Optimization API",

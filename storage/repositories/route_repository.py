@@ -295,3 +295,27 @@ class RouteRepository:
                 coordinates.append((0, 0))
         
         return coordinates 
+
+    async def get_everyday_location_ids(self, everyday_id: UUID) -> List[UUID]:
+        """
+        Get all location IDs for a specific day
+        """
+        query = """
+        SELECT 
+            location_id
+        FROM 
+            everyday_locations
+        WHERE 
+            everyday_id = :everyday_id
+        ORDER BY
+            id
+        """
+        
+        result = await self.session.execute(
+            text(query), 
+            {"everyday_id": everyday_id}
+        )
+        
+        # Extract UUIDs from the result
+        location_ids = [row[0] for row in result]
+        return location_ids 
