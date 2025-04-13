@@ -15,6 +15,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from pydantic import validator, root_validator
+from core.visualization.route_visualizer import RouteVisualizer
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -59,6 +60,7 @@ app.add_middleware(
 # Initialize providers and planner
 osrm_provider = OSRMProvider()
 route_planner = RoutePlanner(osrm_provider)
+route_visualizer = RouteVisualizer()
 
 # Define data models using Pydantic
 class Point(BaseModel):
@@ -188,6 +190,10 @@ class DayRouteResponse(BaseModel):
 class DayTransportMode(BaseModel):
     day_number: int = Field(..., description="Day number in the trip", example=1)
     mode: TransportMode = Field(..., description="Transportation mode for this day", example="driving")
+
+class RouteVisualizationResponse(BaseModel):
+    """Response model for route visualization"""
+    image_data: str = Field(..., description="Base64-encoded PNG image of the route visualization")
 
 # Organize endpoints by tags
 tags_metadata = [
@@ -889,6 +895,44 @@ def custom_openapi():
     return app.openapi_schema
 
 app.openapi = custom_openapi
+
+# New endpoint for route visualization
+@app.get("/routes/{route_id}/visualize", response_model=RouteVisualizationResponse, tags=["routes"])
+async def visualize_route(
+    route_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Generate a visualization of a stored route.
+    
+    Args:
+        route_id: UUID of the route to visualize
+        db: Database session
+        
+    Returns:
+        RouteVisualizationResponse containing the base64-encoded PNG image
+        
+    Raises:
+        404 Not Found: If the route doesn't exist
+        500 Internal Server Error: If there's an error generating the visualization
+    """
+    try:
+        route_repo = RouteRepository(db)
+        route = await route_repo.get_route(route_id)
+        
+        if not route:
+            raise HTTPException(status_code=404, detail="Route not found")
+            
+        # Generate visualization
+        image_data = route_visualizer.visualize_route(route)
+        
+        return RouteVisualizationResponse(image_data=image_data)
+    except HTTPException as e:
+        # Re-raise HTTP exceptions as is
+        raise e
+    except Exception as e:
+        logger.error(f"Error generating route visualization: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Application entry point
 if __name__ == "__main__":

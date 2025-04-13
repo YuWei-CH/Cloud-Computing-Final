@@ -8,7 +8,15 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 # Import your models metadata
-from storage.models import Base
+from storage.models import (
+    Base,
+    Trip,
+    Everyday,
+    Location,
+    EverydayLocation,
+    OptimizedRoute,
+    RouteSegment
+)
 from storage.db import DATABASE_URL
 
 # this is the Alembic Config object, which provides
