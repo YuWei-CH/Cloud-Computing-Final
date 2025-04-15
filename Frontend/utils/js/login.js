@@ -37,28 +37,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('Login form submitted with data:', formData);
 
-            // In a real application, you would send this data to your AWS backend
-            // Example:
-            // fetch('https://your-aws-api-endpoint.com/login', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(formData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     // Handle successful login
-            //     // Redirect to dashboard or home page
-            // })
-            // .catch(error => {
-            //     // Handle login error
-            //     passwordError.textContent = 'Invalid email or password';
-            // });
+            const poolData = config.cognito;
 
-            // Simulating successful login and redirecting to the dashboard
-            alert('Login successful! Redirecting to dashboard...');
-            window.location.href = '../dashboard/dashboard.html';
+            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+            const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
+                Username: emailInput.value,
+                Password: passwordInput.value,
+            });
+
+            const userData = {
+                Username: emailInput.value,
+                Pool: userPool,
+            };
+
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+            cognitoUser.authenticateUser(authenticationDetails, {
+                onSuccess: function (result) {
+                    console.log("access token: " + result.getAccessToken().getJwtToken());
+
+                    // Store the token for future API calls
+                    localStorage.setItem('userToken', result.getAccessToken().getJwtToken());
+
+                    alert("Login successful!");
+                    // Redirect only after successful authentication
+                    window.location.href = '../dashboard/dashboard.html';
+                },
+
+                onFailure: function (err) {
+                    alert(err.message || JSON.stringify(err));
+                },
+            });
         }
     });
 

@@ -75,26 +75,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('Form submitted with data:', formData);
 
-            // In a real application, you would send this data to your AWS backend
-            // Example:
-            // fetch('https://your-aws-api-endpoint.com/register', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(formData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     // Handle successful registration
-            // })
-            // .catch(error => {
-            //     // Handle error
-            // });
+            const poolData = config.cognito;
 
-            alert('Registration successful! You will be redirected to login page.');
-            // Simulate redirect
-            // window.location.href = 'login.html';
+            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+            const attributeList = [
+                new AmazonCognitoIdentity.CognitoUserAttribute({
+                    Name: "email",
+                    Value: emailInput.value
+                })
+            ];
+            userPool.signUp(emailInput.value, passwordInput.value, attributeList, null, function (err, result) {
+                if (err) {
+                    alert(err.message || JSON.stringify(err));
+                    return;
+                }
+                const cognitoUser = result.user;
+                console.log("User name is " + cognitoUser.getUsername());
+                alert("Signup success! Please check your email to confirm your account.");
+                window.location.href = 'login.html';
+            });
         }
     });
 

@@ -1,0 +1,11 @@
+# Ignore config file with credentials
+/Frontend/utils/js/config.js
+
+# Ignore Yuwei's Command file
+yuwei_commands.md
+
+# Common files to ignore
+node_modules/
+.env
+.DS_Store
+*.log
