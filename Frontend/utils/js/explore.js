@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Check authentication before loading page content
+    const token = checkAuthentication();
+    if (!token) {
+        // This redirect should not happen since checkAuthentication already redirects
+        return;
+    }
+
     // Initialize page elements and event listeners
     initDestinationInput();
     initViewToggle();
@@ -8,6 +15,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // Load sample data for demonstration
     loadSampleDestinations();
 });
+
+// Authentication check function
+function checkAuthentication() {
+    // Check localStorage first (for remembered users)
+    let token = localStorage.getItem('userToken');
+
+    // If not in localStorage, check sessionStorage
+    if (!token) {
+        token = sessionStorage.getItem('userToken');
+    }
+
+    if (!token) {
+        // No token found, redirect to login
+        console.log("No authentication token found, redirecting to login");
+        window.location.href = '../login/login.html';
+        return null;
+    }
+
+    return token;
+}
 
 // Destination Input and Autocomplete
 function initDestinationInput() {

@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Get user data - in a real app, this would be fetched from your backend
-    const userData = getUserData();
+    // Check authentication before loading page content
+    const token = checkAuthentication();
+    if (!token) {
+        // This redirect should not happen since checkAuthentication already redirects
+        return;
+    }
+
+    // Get user data - in a real app, this would be fetched using the token
+    const userData = getUserData(token);
 
     // Populate user information
     populateUserInfo(userData);
@@ -11,6 +18,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // Load trip history - in a real app, this would be fetched from your backend
     // loadTripHistory();
 });
+
+// Authentication check function
+function checkAuthentication() {
+    // Check localStorage first (for remembered users)
+    let token = localStorage.getItem('userToken');
+
+    // If not in localStorage, check sessionStorage
+    if (!token) {
+        token = sessionStorage.getItem('userToken');
+    }
+
+    if (!token) {
+        // No token found, redirect to login
+        console.log("No authentication token found, redirecting to login");
+        window.location.href = '../login/login.html';
+        return null;
+    }
+
+    return token;
+}
 
 // Simulate getting user data (in a real app, this would make an API call)
 function getUserData() {
