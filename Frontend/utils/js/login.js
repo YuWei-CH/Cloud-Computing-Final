@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const isPasswordValid = validatePassword(passwordInput.value);
 
         if (isEmailValid && isPasswordValid) {
-            // Here you would typically send data to your backend for authentication
             const formData = {
                 email: emailInput.value,
                 password: passwordInput.value,
@@ -38,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Login form submitted with data:', formData);
 
             const poolData = config.cognito;
-
             const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
             const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
                 Username: emailInput.value,
                 Password: passwordInput.value,
@@ -54,19 +53,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
             cognitoUser.authenticateUser(authenticationDetails, {
                 onSuccess: function (result) {
-                    console.log("access token: " + result.getAccessToken().getJwtToken());
+                    console.log("Access token received successfully.");
 
-                    // Store the token for future API calls
-                    localStorage.setItem('userToken', result.getAccessToken().getJwtToken());
+                    // Get the remember me preference
+                    const rememberMe = document.getElementById('remember').checked;
+                    console.log("Remember me:", rememberMe);
+
+                    // Store auth data with appropriate persistence
+                    if (rememberMe) {
+                        // Store tokens in localStorage for longer persistence
+                        localStorage.setItem('userToken', result.getAccessToken().getJwtToken());
+                        localStorage.setItem('refreshToken', result.getRefreshToken().getToken());
+                        localStorage.setItem('idToken', result.getIdToken().getJwtToken());
+                    } else {
+                        // Store tokens in sessionStorage for browser session only
+                        sessionStorage.setItem('userToken', result.getAccessToken().getJwtToken());
+                        sessionStorage.setItem('refreshToken', result.getRefreshToken().getToken());
+                        sessionStorage.setItem('idToken', result.getIdToken().getJwtToken());
+
+                        // Remove any existing local storage tokens
+                        localStorage.removeItem('userToken');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('idToken');
+                    }
 
                     alert("Login successful!");
-                    // Redirect only after successful authentication
                     window.location.href = '../dashboard/dashboard.html';
                 },
 
                 onFailure: function (err) {
                     alert(err.message || JSON.stringify(err));
-                },
+                }
             });
         }
     });
