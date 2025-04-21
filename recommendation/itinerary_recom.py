@@ -1,8 +1,9 @@
 import os
 import json
 from openai import OpenAI
+from pymemcache.client.base import Client
 
-# 1) Initialize the DeepSeek client once at cold start
+# 1) Initialize the DeepSeek client and Memcache client once at cold start
 deepseek = OpenAI(
     api_key=os.environ['DEEPSEEK_API_KEY'],
     base_url=os.environ['DEEPSEEK_BASE_URL']
@@ -26,6 +27,13 @@ E.g.:
 
 Do not include any extra text, markdown, or explanation—just the JSON object.
 """
+
+CACHE_HOST = os.environ['MEMCACHED_ENDPOINT']
+CACHE_PORT = int(os.environ.get('MEMCACHED_PORT', 11211))
+cache = Client((CACHE_HOST, CACHE_PORT))
+
+# How long to cache (in seconds)
+CACHE_TTL = int(os.environ.get('CACHE_TTL_SECONDS', 3600))
 
 def lambda_handler(event, context):
     # 2) Parse incoming JSON (supports both proxy & direct invocation)
@@ -58,7 +66,24 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": "Missing one of: location, weather, environment, activity"})
         }
 
-    # 4) Build prompt with JSON‐format instruction
+    # 4) Build a cache key
+    cache_key = f"{city}:{weather}:{environment}:{activity}"
+
+    # 5) Try cache lookup
+    cached = cache.get(cache_key)
+    if cached:
+        print("Cache HIT")
+        # cached is bytes; decode to str
+        body_str = cached.decode('utf-8')
+        return {
+            "statusCode": 200,
+            "headers": {"Content-Type":"application/json"},
+            "body": body_str
+        }
+
+    print("Cache MISS")
+    
+    # 6) Build prompt with JSON‐format instruction
     user_prompt = (
         f"Can you please recommend me 10 places that I should visit in {city}, "
         f"based on these three preferences?\n"
@@ -67,7 +92,7 @@ def lambda_handler(event, context):
         f"3. Activity: {activity}\n"
     )
 
-    # 5) Call DeepSeek via the OpenAI‑compatible SDK
+    # 7) Call DeepSeek via the OpenAI‑compatible SDK
     try:
         resp = deepseek.chat.completions.create(
             model="deepseek-chat",
@@ -85,11 +110,10 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": f"DeepSeek API error: {e}"})
         }
     
-    # 6) Parse the JSON directly
+    # 8) Parse the JSON directly
     try:
         data = json.loads(raw)
         places = data.get("places")
-        # Optional: validate shape
         assert isinstance(places, list)
         for item in places:
             assert "name" in item and "address" in item
@@ -102,9 +126,13 @@ def lambda_handler(event, context):
             })
         }
 
-    # 7) Return structured result
+    # 9) Cache the response body string
+    body_str = json.dumps({"places": places})
+    cache.set(cache_key, body_str, expire=CACHE_TTL)
+
+    # 10) Return structured result
     return {
         "statusCode": 200,
         "headers": {"Content-Type":"application/json"},
-        "body": json.dumps({"places": places})
+        "body": body_str
     }
