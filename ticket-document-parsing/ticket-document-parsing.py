@@ -1,6 +1,8 @@
 import json
 import os
 import uuid
+import base64
+import mimetypes
 import pymysql
 import boto3
 from openai import OpenAI
@@ -50,39 +52,48 @@ def lambda_handler(event, context):
     except s3.exceptions.NoSuchKey:
         raise FileNotFoundError(f"{file_name} not found in {bucket}")
 
-    # 3) upload the file to OpenAI and obtain the file_id
-    upload = openai.files.create(
-        file=(file_name, resp["Body"], "application/pdf"),
-        purpose="user_data"
+    # 3) figure out mime / extension
+    ext = file_name.lower().rsplit(".",1)[-1]
+    mime = mimetypes.guess_type(file_name)[0] or (
+        "application/pdf" if ext=="pdf" else f"image/{ext}"
     )
-    file_id = upload.id
 
-    # 4) call openAI API with the uploaded file
+    # 4) prepare the chat “file” or “image_url” chunk
+    if ext == "pdf":
+        upload = openai.files.create(
+            file=(file_name, resp["Body"], mime),
+            purpose="user_data"
+        )
+        content_chunk = {
+            "type": "file",
+            "file": { "file_id": upload.id }
+        }
+    elif ext in ("png","jpg","jpeg","gif","webp"):
+        img_bytes = resp["Body"].read()
+        b64 = base64.b64encode(img_bytes).decode("utf-8")
+        data_url = f"data:{mime};base64,{b64}"
+
+        content_chunk = {
+            "type": "image_url",
+            "image_url": { "url": data_url }
+        }
+    else:
+        raise ValueError("Unsupported file type; only PDF or common images allowed")
+
+    # 5) call openAI API with the corresponding file
     chat_resp = openai.chat.completions.create(
         model="gpt-4.1-nano",
         messages=[
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT
-            },
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "file",
-                        "file": { "file_id": file_id }
-                    },
-                    {
-                        "type": "text",
-                        "text": USER_PROMPT
-                    }
-                ]
-            }
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": [
+                content_chunk,
+                {"type": "text", "text": USER_PROMPT}
+            ]}
         ]
     )
     raw = chat_resp.choices[0].message.content
 
-    # 5) parse & validate JSON
+    # 6) parse & validate JSON
     tickets = json.loads(raw)
     if not isinstance(tickets, list):
         raise ValueError("Expected a JSON array of tickets")
@@ -94,7 +105,7 @@ def lambda_handler(event, context):
         if missing:
             raise ValueError(f"Ticket #{idx} missing fields: {missing}")
 
-    # 6) insert into MySQL
+    # 7) insert into MySQL
     conn = pymysql.connect(
         host=db_config['host'],
         user=db_config['user'],
