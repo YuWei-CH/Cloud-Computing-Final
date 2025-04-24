@@ -251,15 +251,33 @@ async function updateUserPreferences(preferences) {
     try {
         showLoading("Updating your preferences...");
 
+        // Get email and verify it exists before proceeding
         const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+        console.log("Email from storage for preferences update:", email);
 
-        const response = await fetch('https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/user/preferences', {
+        if (!email) {
+            console.error("No email found in storage for preferences update!");
+            throw new Error("User email not found. Please login again.");
+        }
+
+        // Add email to query parameters AND include in the body
+        const updatedPreferences = {
+            ...preferences,
+            email: email  // Include email in the request body too
+        };
+
+        console.log("Full preferences payload:", updatedPreferences);
+
+        const url = `https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/users/preferences?email=${encodeURIComponent(email)}`;
+        console.log("Request URL:", url);
+
+        const response = await fetch(url, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-User-Email': email
             },
-            body: JSON.stringify(preferences)
+            body: JSON.stringify(updatedPreferences)
         });
 
         console.log("Response status:", response.status);
@@ -298,7 +316,6 @@ async function updateUserPreferences(preferences) {
 
         hideLoading();
         return result;
-
     } catch (error) {
         console.error('Error updating preferences:', error);
         hideLoading();
@@ -312,15 +329,33 @@ async function updateUserProfile(profileData) {
     try {
         showLoading("Updating your profile...");
 
+        // Get email and verify it exists before proceeding
         const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+        console.log("Email from storage for profile update:", email);
 
-        const response = await fetch('https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/user/profile', {
+        if (!email) {
+            console.error("No email found in storage for profile update!");
+            throw new Error("User email not found. Please login again.");
+        }
+
+        // Add email to query parameters AND include in the body
+        const updatedProfileData = {
+            ...profileData,
+            email: email  // Include email in the request body too
+        };
+
+        console.log("Full profile payload:", updatedProfileData);
+
+        const url = `https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/users/profile?email=${encodeURIComponent(email)}`;
+        console.log("Request URL:", url);
+
+        const response = await fetch(url, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-User-Email': email
             },
-            body: JSON.stringify(profileData)
+            body: JSON.stringify(updatedProfileData)
         });
 
         console.log("Response status:", response.status);
@@ -359,7 +394,6 @@ async function updateUserProfile(profileData) {
 
         hideLoading();
         return result;
-
     } catch (error) {
         console.error('Error updating profile:', error);
         hideLoading();
@@ -373,7 +407,7 @@ function loadTripHistory() {
     // This would fetch trip history from your backend
     // fetch('https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/trips', {
     //     headers: {
-    //         'Authorization': `Bearer ${getAuthToken()}`
+    //         'Authorization': `Bearer ${ getAuthToken() }`
     //     }
     // })
     // .then(response => response.json())
@@ -404,8 +438,8 @@ function showLoading(message = "Loading...") {
         const overlay = document.createElement('div');
         overlay.id = 'loading-overlay';
         overlay.innerHTML = `
-            <div class="loading-spinner"></div>
-            <div class="loading-message">${message}</div>
+        < div class= "loading-spinner" ></div >
+        <div class="loading-message">${message}</div>
         `;
         document.body.appendChild(overlay);
     } else {
