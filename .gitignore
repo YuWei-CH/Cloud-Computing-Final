@@ -37,3 +37,8 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db 
+
+*.zip
+
+layers/
+layer/
