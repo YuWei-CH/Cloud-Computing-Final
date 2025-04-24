@@ -38,22 +38,28 @@ def handler(event, context):
             city   = trip['City']
             flight = trip.get('FlightNumber', '')
 
-            # Weather API call
+            # Weather API (unchanged)
             w = requests.get(
                 'https://api.openweathermap.org/data/2.5/weather',
                 params={'q': city, 'appid': WEATHER_API_KEY}
             ).json()
-            cond = w.get('weather', [{}])[0].get('main', '')
-            if cond in ('Rain', 'Snow', 'Thunderstorm'):
+            cond = w.get('weather',[{}])[0].get('main','')
+            if cond in ('Rain','Snow','Thunderstorm'):
                 abnormal['weather'] = cond
 
-            # Flight API call (placeholder URL)
+            # Flight API via AviationStack
             f = requests.get(
-                'https://api.example.com/flight/status',
-                params={'flight': flight, 'apikey': FLIGHT_API_KEY}
+                'http://api.aviationstack.com/v1/flights',
+                params={
+                    'access_key': FLIGHT_API_KEY,
+                    'flight_iata': flight,
+                    'limit': 1
+                }
             ).json()
-            status = f.get('status', '').lower()
-            if status not in ('scheduled', 'active', 'on time'):
+            status = ''
+            if f.get('data'):
+                status = f['data'][0].get('flight_status','').lower()
+            if status and status not in ('scheduled','active','on time'):
                 abnormal['flight'] = status
 
             # 4) Send to SQS if anything abnormal

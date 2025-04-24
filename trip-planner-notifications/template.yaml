@@ -2,18 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Trip Planner – Abnormal Weather/Flight Notification Pipeline
 
 Parameters:
-  S3BucketForCode: trip-planner-artifacts-cc
+  S3BucketForCode:
     Type: String
     Description: S3 bucket where Lambda code zips are stored
-  SenderEmail: dc4806@nyu.edu
+
+  SenderEmail:
     Type: String
     Description: SES-verified “From” email address
-  WeatherApiKey: 
-    Type: String
-    Description: OpenWeatherMap API key
-  FlightApiKey: 
-    Type: String
-    Description: Flight-status API key
+
 
 Resources:
   # 1) SQS queue
@@ -53,13 +49,13 @@ Resources:
         S3Key: write_abnormal_data.zip
       Environment:
         Variables:
-          QUEUE_URL:        !Ref AbnormalDataQueue
-          DB_HOST:          "database-1.czosuqseg7y8.us-east-2.rds.amazonaws.com"
-          DB_USER:          "admin"
-          DB_PASSWORD:      "admin2025cc"
-          DB_NAME:          "Trip_Planner"
-          WEATHER_API_KEY:  !Ref WeatherApiKey
-          FLIGHT_API_KEY:   !Ref FlightApiKey
+          QUEUE_URL:    !Ref AbnormalDataQueue
+          DB_HOST:      "database-1.czosuqseg7y8.us-east-2.rds.amazonaws.com"
+          DB_USER:      "admin"
+          DB_PASSWORD:  "admin2025cc"
+          DB_NAME:      "Trip_Planner"
+          WEATHER_API_KEY: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/weather-api-keys-2514yj:SecretString:WEATHER_API_KEY}}"
+          FLIGHT_API_KEY:  "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-es3rtQ:SecretString:FLIGHT_API_KEY}}"
 
   # 3) EventBridge rule → Lambda A
   ScheduleWriteAbnormalData:
