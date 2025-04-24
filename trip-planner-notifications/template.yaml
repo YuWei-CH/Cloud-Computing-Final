@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Trip Planner – Abnormal Weather/Flight Notification Pipeline
+
+Parameters:
+  S3BucketForCode: trip-planner-artifacts-cc
+    Type: String
+    Description: S3 bucket where Lambda code zips are stored
+  SenderEmail: dc4806@nyu.edu
+    Type: String
+    Description: SES-verified “From” email address
+  WeatherApiKey: 
+    Type: String
+    Description: OpenWeatherMap API key
+  FlightApiKey: 
+    Type: String
+    Description: Flight-status API key
+
+Resources:
+  # 1) SQS queue
+  AbnormalDataQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: abnormal-data-queue
+
+  # 2) IAM Role & Lambda A (write_abnormal_data)
+  WriteAbnormalDataRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSQSSend
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt AbnormalDataQueue.Arn
+
+  WriteAbnormalDataFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: WriteAbnormalData
+      Runtime: python3.9
+      Handler: app.handler
+      Role: !GetAtt WriteAbnormalDataRole.Arn
+      Code:
+        S3Bucket: !Ref S3BucketForCode
+        S3Key: write_abnormal_data.zip
+      Environment:
+        Variables:
+          QUEUE_URL:        !Ref AbnormalDataQueue
+          DB_HOST:          "database-1.czosuqseg7y8.us-east-2.rds.amazonaws.com"
+          DB_USER:          "admin"
+          DB_PASSWORD:      "admin2025cc"
+          DB_NAME:          "Trip_Planner"
+          WEATHER_API_KEY:  !Ref WeatherApiKey
+          FLIGHT_API_KEY:   !Ref FlightApiKey
+
+  # 3) EventBridge rule → Lambda A
+  ScheduleWriteAbnormalData:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(4 hours)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt WriteAbnormalDataFunction.Arn
+          Id: WriteAbnormalData
+
+  PermissionAllowEventsToInvokeWrite:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WriteAbnormalDataFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduleWriteAbnormalData.Arn
+
+  # 4) IAM Role & Lambda B (fetch_and_email)
+  FetchAndEmailRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSQSReceiveAndSES
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                Resource: !GetAtt AbnormalDataQueue.Arn
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+
+  FetchAndEmailFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: FetchAndEmail
+      Runtime: python3.9
+      Handler: app.handler
+      Role: !GetAtt FetchAndEmailRole.Arn
+      Code:
+        S3Bucket: !Ref S3BucketForCode
+        S3Key: fetch_and_email.zip
+      Environment:
+        Variables:
+          QUEUE_URL:    !Ref AbnormalDataQueue
+          SENDER_EMAIL: !Ref SenderEmail
+
+  # 5) EventBridge rule → Lambda B
+  ScheduleFetchAndEmail:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(4 hours)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt FetchAndEmailFunction.Arn
+          Id: FetchAndEmail
+
+  PermissionAllowEventsToInvokeFetch:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FetchAndEmailFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduleFetchAndEmail.Arn
+
+Outputs:
+  QueueURL:
+    Description: URL of the SQS queue
+    Value: !Ref AbnormalDataQueue
