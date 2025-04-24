@@ -53,28 +53,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             cognitoUser.authenticateUser(authenticationDetails, {
                 onSuccess: function (result) {
-                    console.log("Access token received successfully.");
+                    console.log("Login successful.");
 
                     // Get the remember me preference
                     const rememberMe = document.getElementById('remember').checked;
-                    console.log("Remember me:", rememberMe);
 
-                    // Store auth data with appropriate persistence
+                    // Get user email from form
+                    const userEmail = emailInput.value;
+
+                    // Store email with appropriate persistence
                     if (rememberMe) {
-                        // Store tokens in localStorage for longer persistence
-                        localStorage.setItem('userToken', result.getAccessToken().getJwtToken());
-                        localStorage.setItem('refreshToken', result.getRefreshToken().getToken());
-                        localStorage.setItem('idToken', result.getIdToken().getJwtToken());
+                        // Store in localStorage for longer persistence
+                        localStorage.setItem('userEmail', userEmail);
                     } else {
-                        // Store tokens in sessionStorage for browser session only
-                        sessionStorage.setItem('userToken', result.getAccessToken().getJwtToken());
-                        sessionStorage.setItem('refreshToken', result.getRefreshToken().getToken());
-                        sessionStorage.setItem('idToken', result.getIdToken().getJwtToken());
-
-                        // Remove any existing local storage tokens
-                        localStorage.removeItem('userToken');
-                        localStorage.removeItem('refreshToken');
-                        localStorage.removeItem('idToken');
+                        // Store in sessionStorage for browser session only
+                        sessionStorage.setItem('userEmail', userEmail);
                     }
 
                     alert("Login successful!");

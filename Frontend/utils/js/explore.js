@@ -19,21 +19,21 @@ document.addEventListener('DOMContentLoaded', function () {
 // Authentication check function
 function checkAuthentication() {
     // Check localStorage first (for remembered users)
-    let token = localStorage.getItem('userToken');
+    let email = localStorage.getItem('userEmail');
 
     // If not in localStorage, check sessionStorage
-    if (!token) {
-        token = sessionStorage.getItem('userToken');
+    if (!email) {
+        email = sessionStorage.getItem('userEmail');
     }
 
-    if (!token) {
-        // No token found, redirect to login
-        console.log("No authentication token found, redirecting to login");
+    if (!email) {
+        // No email found, redirect to login
+        console.log("No authentication email found, redirecting to login");
         window.location.href = '../login/login.html';
         return null;
     }
 
-    return token;
+    return email;
 }
 
 // Destination Input and Autocomplete
