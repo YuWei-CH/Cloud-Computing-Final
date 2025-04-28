@@ -7,11 +7,11 @@ mkdir -p lambda_package
 cp lambda_function.py lambda_package/
 
 # Create zip file
-cd lambda_package
+cd lambda
 zip -r ../lambda_function.zip .
 cd ..
 
 # Clean up
-rm -rf lambda_package
+rm -rf lambda
 
 echo "Lambda function package created: lambda_function.zip" 
