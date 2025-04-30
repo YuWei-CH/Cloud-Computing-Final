@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trip Route</title>
+
+  <!-- ✅ Core styles -->
+  <link rel="stylesheet" href="../utils/css/styles.css">
+
+  <!-- ✅ Google Maps API -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkvM2ebkRQKnG3e73FCFIMbKlpTLM3IzI&libraries=geometry"></script>
+
+  <!-- ✅ Ensure map and body have full height -->
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+    }
+
+    #sidebar {
+      width: 250px;
+      background: #f5f5f5;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    #map {
+      flex: 1;
+      height: 100%;
+    }
+
+    .day-button {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      border: none;
+      background-color: #ffffff;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 0 3px rgba(0,0,0,0.1);
+    }
+
+    .day-button:hover {
+      background-color: #e0f7fa;
+    }
+
+    .action-buttons {
+      margin-top: 20px;
+    }
+
+    .action-buttons button {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="sidebar">
+    <div id="route-status" style="margin-bottom: 10px; font-size: 14px; color: #555;">
+        Loading trip...
+    </div>
+
+    <h3>Trip Days</h3>
+    <div id="day-buttons">Loading...</div>
+
+    <div class="action-buttons">
+      <button onclick="showAllRoutes()">Show Entire Trip</button>
+      <button onclick="clearMap()">Clear Map</button>
+    </div>
+
+    <!-- ✅ Back to Dashboard -->
+    <div style="margin-top: 20px;">
+      <button onclick="window.location.href = '../dashboard/dashboard.html'" class="btn-secondary" style="width: 100%; padding: 10px;">
+        ← Back to Dashboard
+      </button>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- ✅ Trip script -->
+  <script src="../utils/js/trip_card.js"></script>
+</body>
+</html>
