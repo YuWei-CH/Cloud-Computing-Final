@@ -223,23 +223,23 @@ function setupEventListeners() {
             }
         });
     }
-    
+
     // Trip card actions
     const viewButtons = document.querySelectorAll('.trip-actions button:first-child');
     viewButtons.forEach(button => {
-    button.addEventListener('click', function () {
-        const tripCard = this.closest('.trip-card');
-        const tripName = tripCard.querySelector('h3').textContent;
+        button.addEventListener('click', function () {
+            const tripCard = this.closest('.trip-card');
+            const tripName = tripCard.querySelector('h3').textContent;
 
-        const tripId = mapTripNameToTripId(tripName); // 静态映射函数
+            // const tripId = mapTripNameToTripId(tripName); // 静态映射函数
 
-        if (!tripId) {
-        alert(`Trip ID not found for "${tripName}"`);
-        return;
-        }
+            if (!tripId) {
+                alert(`Trip ID not found for "${tripName}"`);
+                return;
+            }
 
-        // ✅ jump to
-        window.location.href = `../trip_card/trip_card.html?trip_id=${tripId}`;
+            // ✅ jump to
+            // window.location.href = `../trip_card/trip_card.html?trip_id=${tripId}`;
         });
     });
 
@@ -484,9 +484,9 @@ function showError(message) {
 
 function mapTripNameToTripId(name) {
     const tripMap = {
-      "Miami Trip": "11111111-1111-1111-1111-111111111111",
-      "New York City Trip": "22222222-2222-2222-2222-222222222222",
-      "Colorado Mountain Retreat": "33333333-3333-3333-3333-333333333333"
+        "Miami Trip": "11111111-1111-1111-1111-111111111111",
+        "New York City Trip": "22222222-2222-2222-2222-222222222222",
+        "Colorado Mountain Retreat": "33333333-3333-3333-3333-333333333333"
     };
     return tripMap[name] || null;
-  }
+}

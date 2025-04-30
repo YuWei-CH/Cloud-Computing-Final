@@ -633,3 +633,288 @@
         max-width: none;
     }
 }
+
+/* Selection styles */
+.selection-instructions {
+    background-color: #f0f9ff;
+    border-left: 4px solid #3498db;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.selection-instructions p {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.recommendation-card {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-card.selected {
+    border: 2px solid #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+.selection-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.selection-indicator i {
+    color: #3498db;
+    font-size: 20px;
+}
+
+.recommendation-card.selected .selection-indicator {
+    opacity: 1;
+}
+
+.recommendation-card.selected .select-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.create-trip-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.selection-summary {
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.selection-summary #selected-count {
+    font-weight: bold;
+    color: #3498db;
+}
+
+/* Sidebar and attraction styles */
+.available-attractions {
+    margin: 20px 0;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}
+
+.available-attractions h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.sidebar-attraction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: grab;
+    transition: all 0.2s;
+}
+
+.sidebar-attraction-item:hover {
+    background-color: #e9ecef;
+}
+
+.sidebar-attraction-item.dragging {
+    opacity: 0.6;
+}
+
+.attraction-item-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.attraction-name {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.no-attractions {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.custom-destination-form {
+    margin: 20px 0;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}
+
+.custom-destination-form h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.custom-destination-form input,
+.custom-destination-form select {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.start-date-field {
+    margin-top: 15px;
+}
+
+.custom-activity {
+    background-color: #fff8e1;
+}
+
+.routing-info {
+    margin: 15px 0;
+    padding: 12px;
+    background-color: #f0f9ff;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+}
+
+.routing-info h4 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+    font-size: 15px;
+}
+
+.routing-info p {
+    color: #5a6a7a;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.save-trip-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.btn-save-trip {
+    font-size: 18px;
+    padding: 14px 30px;
+    background-color: #27ae60;
+    border-color: #27ae60;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    transition: all 0.3s;
+    border-radius: 30px;
+}
+
+.btn-save-trip:hover {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+}
+
+#back-to-recommendations {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.attraction-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.remove-btn {
+    color: #e74c3c;
+}
+
+.remove-btn:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.btn-save-trip.disabled {
+    background-color: #95a5a6;
+    border-color: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-save-trip.disabled:hover {
+    background-color: #95a5a6;
+    transform: none;
+}
+
+/* Simplified recommendation cards without images */
+.recommendation-card {
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.recommendation-card .card-content {
+    padding: 0;
+}
+
+.recommendation-card .card-title {
+    margin-top: 0;
+}
+
+.activity-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #fff;
+}
+
+/* Current date display styles */
+.current-date-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: #495057;
+    background-color: #f8f9fa;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.current-date-display i {
+    color: var(--primary-color);
+}
