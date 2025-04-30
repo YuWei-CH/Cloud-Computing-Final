@@ -328,57 +328,246 @@ function addAttractionToDay(attraction, dayId) {
 
 function saveTripToDatabase() {
     try {
-        // Get all activities from the itinerary
-        const activities = Array.from(document.querySelectorAll('.activity-item')).map(item => {
-            const dayId = item.closest('.day-content-item').id.replace('day-', '');
-            const time = item.querySelector('.activity-time')?.textContent || '12:00 PM';
-            const name = item.querySelector('h4')?.textContent || 'Unnamed Activity';
+        // Get trip details from session storage and page elements
+        const startCity = sessionStorage.getItem('planning_destination') || 'Unknown City';
+        const endCity = startCity; // Default to same city, can be updated if multi-city trip
 
-            // Fix: Handle missing tag element by using the attraction type or a default
-            let type = 'Attraction'; // Default type
+        // Parse duration text to get number of days
+        const durationText = document.getElementById('summary-duration')?.textContent || '';
+        const durationMatch = durationText.match(/(\d+)/);
+        const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
 
-            // Try to get type from the tag element (if it exists)
-            const tagElement = item.querySelector('.tag');
-            if (tagElement) {
-                type = tagElement.textContent;
+        // Extract start date from either days option or date range option
+        let startDate;
+        const activeOption = document.querySelector('.duration-option.active');
+        if (activeOption) {
+            const optionType = activeOption.getAttribute('data-option');
+            if (optionType === 'days') {
+                startDate = new Date(document.getElementById('days-start-date').value);
             } else {
-                // If no tag element, check if it's a custom activity
-                if (item.classList.contains('custom-activity')) {
-                    type = 'Custom';
-                }
+                startDate = new Date(document.getElementById('start-date').value);
             }
+            // Format date as ISO string (YYYY-MM-DD)
+            startDate = startDate.toISOString().split('T')[0];
+        } else {
+            startDate = new Date().toISOString().split('T')[0]; // Default to today
+        }
 
-            return {
-                day: parseInt(dayId),
-                time: time,
-                name: name,
-                type: type,
-                attractionId: item.getAttribute('data-attraction-id') || null
-            };
-        });
-
-        // Get trip details
-        const destination = sessionStorage.getItem('planning_destination') || 'Unknown Destination';
-        const duration = document.getElementById('summary-duration')?.textContent || 'Unknown Duration';
-
-        // Create trip object
+        // Create the main trip object
         const trip = {
-            destination: destination,
+            user_id: sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail'), // Would be UUID in real implementation
+            start_city: startCity,
+            end_city: endCity,
             duration: duration,
-            activities: activities,
-            createdAt: new Date().toISOString()
+            status: 'Planning', // Default status for new trips
+            start_date: startDate
         };
 
-        console.log('Saving trip:', trip);
-        alert('Trip saved successfully! In a real app, this would be saved to the database.');
+        // Collect all locations from activities
+        const locations = [];
+        const locationMap = new Map(); // To track already added locations
 
-        // In a real app, you would send this to the server
-        // For now, just redirect to dashboard
-        window.location.href = '../dashboard/dashboard.html';
+        // Collect everyday data for each day
+        const everyday = [];
+
+        // Collect relationships between days and locations
+        const everydayLocations = [];
+
+        // Process each day in the itinerary
+        for (let day = 1; day <= duration; day++) {
+            const dayContent = document.getElementById(`day-${day}`);
+            if (!dayContent) continue;
+
+            // Create an everyday entry for this day
+            const everydayEntry = {
+                id: `day-${day}-${Date.now()}`, // Temporary ID, would be UUID in real implementation 
+                trip_id: null, // Will be set after trip is created
+                current_city: startCity, // Default to trip's city
+                day_number: day,
+                start_location: null // Optional, can be updated if needed
+            };
+            everyday.push(everydayEntry);
+
+            // Process activities for this day
+            const activityItems = dayContent.querySelectorAll('.activity-item');
+            activityItems.forEach((item, index) => {
+                const name = item.querySelector('h4')?.textContent || 'Unnamed Activity';
+                // In a real app, we'd have more complete address info
+                const address = `${name} Address, ${startCity}`;
+                const attractionId = item.getAttribute('data-attraction-id');
+
+                // Create or reuse location
+                let locationId;
+                if (attractionId && locationMap.has(attractionId)) {
+                    // Reuse existing location
+                    locationId = locationMap.get(attractionId);
+                } else {
+                    // Create new location
+                    locationId = `loc-${attractionId || name.replace(/\s+/g, '-')}-${Date.now()}`; // Temporary ID
+                    locationMap.set(attractionId || name, locationId);
+
+                    locations.push({
+                        id: locationId,
+                        name: name,
+                        address: address
+                    });
+                }
+
+                // Create everyday_locations mapping
+                everydayLocations.push({
+                    id: `map-${day}-${index}-${Date.now()}`, // Temporary ID
+                    everyday_id: everydayEntry.id,
+                    location_id: locationId
+                });
+            });
+        }
+
+        // Prepare the complete data package to send to backend
+        const tripData = {
+            trip: trip,
+            locations: locations,
+            everyday: everyday,
+            everyday_locations: everydayLocations
+        };
+
+        console.log('Saving trip data:', tripData);
+
+        // Replace this alert and redirect with actual API call
+        // alert('Trip saved successfully! In a real app, this would be saved to the database.');
+        // window.location.href = '../dashboard/dashboard.html';
+
+        // Show loading indicator
+        showLoading("Saving your trip...");
+
+        // Make the actual API call to save the trip
+        saveTripToAPI(tripData)
+            .then(response => {
+                hideLoading();
+                console.log('Trip saved successfully:', response);
+                alert('Trip saved successfully!');
+                window.location.href = '../dashboard/dashboard.html';
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error saving trip:', error);
+                alert('An error occurred while saving your trip. Please try again.');
+            });
     } catch (error) {
-        console.error('Error saving trip:', error);
+        hideLoading();
+        console.error('Error preparing trip data:', error);
         alert('An error occurred while saving your trip. Please try again.');
     }
+}
+
+// Function to save trip data to the API
+function saveTripToAPI(tripData) {
+    // Get email from storage for authentication
+    const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+
+    // Your API Gateway endpoint for creating trips
+    const apiUrl = 'https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips';
+
+    return fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-User-Email': email  // Add user email for authentication
+        },
+        body: JSON.stringify(tripData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Server response:', response.status);
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Failed to save trip');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle potential API Gateway Lambda proxy response format
+            if (data.statusCode && data.body) {
+                if (data.statusCode !== 200) {
+                    const errorBody = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+                    throw new Error(errorBody.message || 'Failed to save trip');
+                }
+                // Parse the body if it's a string
+                return typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+            }
+            return data;
+        });
+}
+
+// Add loading indicator functions (similar to dashboard.js)
+function showLoading(message = "Loading...") {
+    // Create loading overlay if it doesn't exist
+    if (!document.getElementById('loading-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'loading-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.zIndex = '9999';
+
+        overlay.innerHTML = `
+            <div style="background-color: white; padding: 20px; border-radius: 5px; text-align: center;">
+                <div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+                <div class="loading-message" style="margin-top: 10px;">${message}</div>
+            </div>
+        `;
+
+        // Add the keyframe animation for the spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.body.appendChild(overlay);
+    } else {
+        document.querySelector('#loading-overlay .loading-message').textContent = message;
+        document.getElementById('loading-overlay').style.display = 'flex';
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+
+// Function to save trip data to the API (implementation would depend on your API)
+function saveTripToAPI(tripData) {
+    return fetch('https://your-api-gateway-url/trips', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify(tripData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save trip');
+            }
+            return response.json();
+        });
+}
+
+// Helper function to get auth token (you might already have this elsewhere)
+function getAuthToken() {
+    // Get token from localStorage or sessionStorage
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
 }
 
 // Helper function for formatting dates

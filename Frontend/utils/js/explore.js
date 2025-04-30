@@ -292,6 +292,10 @@ function initTripDurationSelection() {
         sessionStorage.setItem('planning_destination', destination);
         sessionStorage.setItem('planning_attractions', JSON.stringify(selectedIds));
 
+        // Store city information for the database schema
+        sessionStorage.setItem('start_city', destination);
+        sessionStorage.setItem('end_city', destination);
+
         // Check if any attractions are selected
         if (selectedIds.length === 0) {
             alert("Please select at least one attraction before planning your trip.");
@@ -930,39 +934,8 @@ function initBackButton() {
     }
 }
 
-// Dummy function for saving trip to database
+// Dummy function for saving trip to database - no longer needed as it's moved to planning.js
 function saveTripToDatabase() {
-    // Get all activities from the itinerary
-    const activities = Array.from(document.querySelectorAll('.activity-item')).map(item => {
-        const dayId = item.closest('.day-content-item').id.replace('day-', '');
-        const time = item.querySelector('.activity-time').textContent;
-        const name = item.querySelector('h4').textContent;
-        const type = item.querySelector('.tag').textContent;
-
-        return {
-            day: parseInt(dayId),
-            time: time,
-            name: name,
-            type: type,
-            attractionId: item.getAttribute('data-attraction-id') || null
-        };
-    });
-
-    // Get trip details
-    const destination = document.querySelector('.destination-tag').textContent.trim();
-    const duration = document.getElementById('summary-duration').textContent;
-
-    // Create trip object
-    const trip = {
-        destination: destination,
-        duration: duration,
-        activities: activities,
-        createdAt: new Date().toISOString()
-    };
-
-    console.log('Saving trip:', trip);
-    alert('Trip saved successfully! In a real app, this would be saved to the database.');
-
-    // Redirect to dashboard in a real application
-    // window.location.href = '../dashboard/dashboard.html';
+    // This is now handled in planning.js with the new database structure
+    console.log('This function has been moved to planning.js to match the new database schema');
 }
