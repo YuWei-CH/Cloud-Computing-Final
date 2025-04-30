@@ -75,26 +75,79 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('Form submitted with data:', formData);
 
-            // In a real application, you would send this data to your AWS backend
-            // Example:
-            // fetch('https://your-aws-api-endpoint.com/register', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(formData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     // Handle successful registration
-            // })
-            // .catch(error => {
-            //     // Handle error
-            // });
+            // Add specific logging for preference values
+            console.log('Weather preference:', document.getElementById('weather').value);
+            console.log('Environment preference:', document.getElementById('environment').value);
+            console.log('Activity preference:', document.getElementById('activity').value);
 
-            alert('Registration successful! You will be redirected to login page.');
-            // Simulate redirect
-            // window.location.href = 'login.html';
+            const poolData = config.cognito;
+
+            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+            const attributeList = [
+                new AmazonCognitoIdentity.CognitoUserAttribute({
+                    Name: "email",
+                    Value: emailInput.value
+                }),
+                new AmazonCognitoIdentity.CognitoUserAttribute({
+                    Name: "custom:weather",
+                    Value: document.getElementById('weather').value
+                }),
+                new AmazonCognitoIdentity.CognitoUserAttribute({
+                    Name: "custom:environment",
+                    Value: document.getElementById('environment').value
+                }),
+                new AmazonCognitoIdentity.CognitoUserAttribute({
+                    Name: "custom:activity",
+                    Value: document.getElementById('activity').value
+                })
+            ];
+
+            // Log the custom attributes being sent to Cognito
+            console.log('Sending to Cognito - custom:weather:', document.getElementById('weather').value);
+            console.log('Sending to Cognito - custom:environment:', document.getElementById('environment').value);
+            console.log('Sending to Cognito - custom:activity:', document.getElementById('activity').value);
+
+            userPool.signUp(emailInput.value, passwordInput.value, attributeList, null, function (err, result) {
+                if (err) {
+                    alert(err.message || JSON.stringify(err));
+                    return;
+                }
+                const cognitoUser = result.user;
+                console.log("User name is " + cognitoUser.getUsername());
+
+                // After successful Cognito registration, save user data to database
+                const userData = {
+                    username: usernameInput.value,
+                    email: emailInput.value,
+                    weather: document.getElementById('weather').value,
+                    environment: document.getElementById('environment').value,
+                    activity: document.getElementById('activity').value
+                };
+
+                // API Gateway endpoint
+                const apiEndpoint = 'https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/users';
+
+                fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('User data saved to database:', data);
+                        alert("Signup success! Please check your email to confirm your account.");
+                        window.location.href = 'login.html';
+                    })
+                    .catch(error => {
+                        console.error('Error saving user data to database:', error);
+                        // Still redirect user since Cognito registration was successful
+                        alert("Account created but failed to save preferences. Please update your preferences after login.");
+                        window.location.href = 'login.html';
+                    });
+            });
         }
     });
 

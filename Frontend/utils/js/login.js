@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const isPasswordValid = validatePassword(passwordInput.value);
 
         if (isEmailValid && isPasswordValid) {
-            // Here you would typically send data to your backend for authentication
             const formData = {
                 email: emailInput.value,
                 password: passwordInput.value,
@@ -37,28 +36,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('Login form submitted with data:', formData);
 
-            // In a real application, you would send this data to your AWS backend
-            // Example:
-            // fetch('https://your-aws-api-endpoint.com/login', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(formData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     // Handle successful login
-            //     // Redirect to dashboard or home page
-            // })
-            // .catch(error => {
-            //     // Handle login error
-            //     passwordError.textContent = 'Invalid email or password';
-            // });
+            const poolData = config.cognito;
+            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-            // Simulating successful login and redirecting to the dashboard
-            alert('Login successful! Redirecting to dashboard...');
-            window.location.href = '../dashboard/dashboard.html';
+            const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
+                Username: emailInput.value,
+                Password: passwordInput.value,
+            });
+
+            const userData = {
+                Username: emailInput.value,
+                Pool: userPool,
+            };
+
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+            cognitoUser.authenticateUser(authenticationDetails, {
+                onSuccess: function (result) {
+                    console.log("Login successful.");
+
+                    // Get the remember me preference
+                    const rememberMe = document.getElementById('remember').checked;
+
+                    // Get user email from form
+                    const userEmail = emailInput.value;
+
+                    // Store email with appropriate persistence
+                    if (rememberMe) {
+                        // Store in localStorage for longer persistence
+                        localStorage.setItem('userEmail', userEmail);
+                    } else {
+                        // Store in sessionStorage for browser session only
+                        sessionStorage.setItem('userEmail', userEmail);
+                    }
+
+                    alert("Login successful!");
+                    window.location.href = '../dashboard/dashboard.html';
+                },
+
+                onFailure: function (err) {
+                    alert(err.message || JSON.stringify(err));
+                }
+            });
         }
     });
 

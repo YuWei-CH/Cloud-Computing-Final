@@ -1,0 +1,13 @@
+{
+    "PoolName": "MyUserPool",
+    "AutoVerifiedAttributes": [
+        "email"
+    ],
+    "Schema": [
+        {
+            "Name": "email",
+            "Required": true,
+            "Mutable": true
+        }
+    ]
+}
