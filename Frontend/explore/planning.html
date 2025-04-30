@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore | Travel App</title>
+    <title>Plan Trip | Travel App</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
     <link rel="stylesheet" href="../utils/css/explore.css">
+    <link rel="stylesheet" href="../utils/css/planning.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -17,7 +18,7 @@
             </div>
             <ul class="sidebar-menu">
                 <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li class="active"><a href="#"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
+                <li class="active"><a href="explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
                 <li><a href="#"><i class="fas fa-bookmark"></i> Saved</a></li>
                 <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
                 <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -25,66 +26,25 @@
         </nav>
 
         <main class="main-content">
-            <header class="dashboard-header">
-                <h1>Plan Your Perfect Trip</h1>
+            <header class="dashboard-header planning-header">
+                <div class="planning-title">
+                    <a href="explore.html" id="back-to-recommendations" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Recommendations
+                    </a>
+                    <h1>Plan Your Adventure</h1>
+                </div>
                 <div class="current-date-display">
                     <i class="far fa-calendar-alt"></i>
                     <span id="current-date">Today's Date</span>
                 </div>
-            </header>
-            
-            <section class="page-intro">
-                <p class="subtitle">Enter your destination, get personalized recommendations, and build your itinerary.</p>
-            </section>
-
-            <section class="destination-input-section">
-                <div class="section-header">
-                    <h2>Where would you like to go?</h2>
-                </div>
-                <div class="card">
-                    <div class="destination-input-container">
-                        <div class="input-field destination-field">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <input type="text" id="destination-input" placeholder="Enter a city or country" autocomplete="off">
-                            <button id="add-destination-btn" class="btn-primary">
-                                <i class="fas fa-compass"></i> Discover Attractions
-                            </button>
-                        </div>
-                        <div id="autocomplete-results" class="autocomplete-results"></div>
-                        <p class="instruction-text">Enter a destination to see personalized recommendations.</p>
-                        <div id="selected-destinations" class="selected-destinations"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="recommendations-section" style="display: none;">
-                <div class="section-header">
-                    <h2>Select Attractions for Your Trip</h2>
-                    <div class="view-toggle">
-                        <button class="btn-text active" data-view="grid"><i class="fas fa-th"></i></button>
-                        <button class="btn-text" data-view="list"><i class="fas fa-list"></i></button>
-                    </div>
-                </div>
-                
-                <div class="selection-instructions">
-                    <p><i class="fas fa-info-circle"></i> Click on attractions to select them for your trip. Selected attractions will be included in your itinerary.</p>
-                </div>
-                
-                <div class="recommendation-cards">
-                    <!-- Recommendation cards will be dynamically added here -->
-                </div>
-                
-                <div class="create-trip-container">
-                    <div class="selection-summary">
-                        <span id="selected-count">0</span> attractions selected
-                    </div>
-                    <button id="create-trip-btn" class="btn-primary">
-                        <i class="fas fa-route"></i> Plan My Trip
+                <div class="planning-actions">
+                    <button class="btn-primary btn-save-trip">
+                        <i class="fas fa-save"></i> Save Trip
                     </button>
                 </div>
-            </section>
-
-            <section id="trip-duration-section" class="trip-duration-section" style="display: none;">
+            </header>
+            
+            <section id="trip-duration-section" class="trip-duration-section">
                 <div class="section-header">
                     <h2>Plan Your Trip Duration</h2>
                 </div>
@@ -124,22 +84,12 @@
                     </div>
                     
                     <div class="duration-actions">
-                        <button id="duration-back-btn" class="btn-secondary">Back</button>
                         <button id="duration-next-btn" class="btn-primary">Continue to Itinerary</button>
                     </div>
                 </div>
             </section>
 
             <section id="itinerary-section" class="itinerary-section" style="display: none;">
-                <div class="section-header">
-                    <h2>Plan Your Adventure</h2>
-                    <div class="itinerary-actions">
-                        <button id="back-to-recommendations" class="btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Recommendations
-                        </button>
-                    </div>
-                </div>
-                
                 <div class="itinerary-container">
                     <div class="day-tabs">
                         <!-- Day tabs will be generated dynamically -->
@@ -150,19 +100,12 @@
                     </div>
                 </div>
                 
-                <!-- Floating save button (initially hidden) -->
-                <div id="save-trip-container" class="save-trip-container" style="display: none;">
-                    <button id="save-trip-btn" class="btn-primary btn-save-trip disabled" disabled title="Add all selected attractions to your itinerary before saving">
-                        <i class="fas fa-save"></i> Save Trip
-                    </button>
-                </div>
-                
                 <div class="itinerary-sidebar">
                     <div class="sidebar-card">
                         <h3>Trip Summary</h3>
                         <div class="summary-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>Destinations: <strong id="summary-destinations">3</strong></span>
+                            <span>Destinations: <strong id="summary-destinations">1</strong></span>
                         </div>
                         <div class="summary-item">
                             <i class="fas fa-calendar-day"></i>
@@ -170,7 +113,7 @@
                         </div>
                         <div class="summary-item">
                             <i class="fas fa-map"></i>
-                            <span>Activities: <strong id="summary-activities">12</strong></span>
+                            <span>Activities: <strong id="summary-activities">0</strong></span>
                         </div>
                         
                         <div class="routing-info">
@@ -180,7 +123,8 @@
                         
                         <!-- Available attractions section -->
                         <div class="available-attractions">
-                            <h4>Selected Attractions</h4>
+                            <h4>Selected Attractions from Explore</h4>
+                            <p class="selection-hint">Add these attractions to your daily itinerary</p>
                             <div id="selected-attractions-list">
                                 <!-- Selected attractions will appear here -->
                             </div>
@@ -189,6 +133,7 @@
                         <!-- Add custom destination form -->
                         <div class="custom-destination-form">
                             <h4>Add Custom Activity</h4>
+                            <p class="form-hint">Add additional activities not in our database</p>
                             <input type="text" id="custom-destination-name" placeholder="Activity name" class="form-control">
                             <select id="custom-destination-type" class="form-control">
                                 <option value="Attraction">Attraction</option>
@@ -206,11 +151,8 @@
                         </div>
                         
                         <div class="map-preview">
-                            <img src="https://via.placeholder.com/300x200?text=Trip+Map" alt="Trip Map Preview">
-                        </div>
-                        <div class="sidebar-actions">
-                            <button class="btn-secondary btn-full"><i class="fas fa-share-alt"></i> Share</button>
-                            <button class="btn-secondary btn-full"><i class="fas fa-print"></i> Export</button>
+                            <!-- Replace with a base64 encoded placeholder image to avoid 404 errors -->
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQEzJycn20/3y3kMw/uf+Wbzrby5Tp9vxsvxeDnO1XXx4IhFHD08zWJecxphAYYFGBYgLMCwAMMCDAsQFmBYgGEBhgUICzAswLCAKXn58uV2PB7XM6zJxL/9Ojw8rG9W8+Xx/vvlOKuPsmFWXUMMj4r6fHTvbh2e/36jju9uflvHhw+PXsRrDiMswLAAYQGGBRgWYFiAsADDAgwLEBZgWIBhAYYFCAsQVhWO9TwMy2/FN5uvD3YdjIYfp/Lgn2H5tnE+K0cE6/Nst6yXz5NfXy7f47qM5TbdTdgoS4UFCAsQFmBYgGEBhgUICzAswLAAYQGGBRgWYFiAsIBv6f8XlsrBvOlL+4DP5cG+ZVwua1PLvJarKQf7lnG5yr188E85+Ndut12dKofzSljlXL4vYQGGBQgLMCzAsADDAoQFGBZgWICwAMMCDAsQFiAsQFjVcDRcl7AWSXkDnVU5jLca/zocl9XB8GF9gGbbeHOZulrWlwe3/RhXdRwM2/Lya1U+uNbC0s7Oer38xw+EBRgWICzAsADDAgwLEBZgWIBhAcICDAsQFmBYgLAAYVWLOzfrGVb5UN2/8oG8w8ePvvrNsv3x3xtV+WDcauvEtWFN+XDfWQ1rPt/b6+v9bF1X1pYPEC7r19fXa2jtH7cICzAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChFV9fPhNfYP68jf/l/Xb9aZ6//79Om5v1OvjHuabpnJoMB3O21ktyvn82tpyAHAb7t27V8dHjx7Vdfl7Gw6H9RbjYQhLWIBhAcIChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
                         </div>
                     </div>
                 </div>
@@ -231,16 +173,10 @@
                 </div>
             </footer>
         </main>
-
-        <!-- Modal for activity details -->
-        <div id="activity-details-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <div id="activity-details-content"></div>
-            </div>
-        </div>
     </div>
 
-    <script src="../utils/js/explore.js"></script>
+<!-- Load only planning.js since we've made it self-contained -->
+<script src="../utils/js/planning.js"></script>
+
 </body>
 </html>

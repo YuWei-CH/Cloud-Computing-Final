@@ -6,14 +6,19 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Initialize page elements and event listeners
-    initDestinationInput();
-    initViewToggle();
-    initTripDurationSelection();
-    initItineraryBuilder();
+    // Display current date
+    updateCurrentDateDisplay();
 
-    // Load sample data for demonstration
-    loadSampleDestinations();
+    // Check if we're on the explore page (not planning page)
+    const isExplorePage = document.getElementById('destination-input') !== null;
+
+    if (isExplorePage) {
+        // Only initialize explore-specific components if we're on explore page
+        initDestinationInput();
+        initViewToggle();
+        initTripDurationSelection();
+        initItineraryBuilder();
+    }
 });
 
 // Authentication check function
@@ -36,27 +41,96 @@ function checkAuthentication() {
     return email;
 }
 
+// Function to update the current date display
+function updateCurrentDateDisplay() {
+    const currentDateElement = document.getElementById('current-date');
+    if (currentDateElement) {
+        const now = new Date();
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    }
+}
+
+// NYC attractions data (simulated backend data)
+const nycAttractions = [
+    {
+        id: 1,
+        name: 'Empire State Building',
+        description: 'Iconic 102-story landmark with an observation deck offering panoramic NYC views.'
+    },
+    {
+        id: 2,
+        name: 'Central Park',
+        description: 'Sprawling park with paths, lakes, and recreational facilities.'
+    },
+    {
+        id: 3,
+        name: 'Metropolitan Museum of Art',
+        description: 'World-renowned art museum with vast collection spanning 5,000 years.'
+    },
+    {
+        id: 4,
+        name: 'Statue of Liberty',
+        description: 'Iconic copper statue on Liberty Island symbolizing freedom and democracy.'
+    },
+    {
+        id: 5,
+        name: 'Brooklyn Bridge',
+        description: 'Historic bridge connecting Manhattan and Brooklyn with pedestrian walkway.'
+    },
+    {
+        id: 6,
+        name: 'Times Square',
+        description: 'Bustling commercial intersection known for bright lights and Broadway theaters.'
+    },
+    {
+        id: 7,
+        name: 'Museum of Modern Art (MoMA)',
+        description: 'Leading modern art museum with famous works by Van Gogh, Picasso, and more.'
+    },
+    {
+        id: 8,
+        name: 'High Line',
+        description: 'Elevated linear park built on a former railroad track with gardens and art.'
+    },
+    {
+        id: 9,
+        name: 'One World Observatory',
+        description: 'Observation deck atop One World Trade Center with 360° views of the city.'
+    },
+    {
+        id: 10,
+        name: 'Broadway Show',
+        description: 'World-class theatrical performances in the Theater District.'
+    }
+];
+
 // Destination Input and Autocomplete
 function initDestinationInput() {
     const destinationInput = document.getElementById('destination-input');
+    // Add null checks to prevent errors
+    if (!destinationInput) return;
+
     const addDestinationBtn = document.getElementById('add-destination-btn');
     const selectedDestinations = document.getElementById('selected-destinations');
     const autocompleteResults = document.getElementById('autocomplete-results');
     const recommendationsSection = document.querySelector('.recommendations-section');
 
-    // Sample destinations for autocomplete
-    const destinations = [
-        'New York, USA', 'Paris, France', 'Tokyo, Japan', 'London, UK',
-        'Rome, Italy', 'Sydney, Australia', 'Barcelona, Spain', 'Dubai, UAE',
-        'Singapore', 'Hong Kong', 'Bangkok, Thailand', 'Vancouver, Canada',
-        'Amsterdam, Netherlands', 'Berlin, Germany', 'Istanbul, Turkey'
-    ];
+    if (!addDestinationBtn || !selectedDestinations || !autocompleteResults || !recommendationsSection) {
+        console.error('Missing required elements for destination input functionality');
+        return;
+    }
 
     // Show autocomplete results on input
     destinationInput.addEventListener('input', function () {
         const value = this.value.trim();
 
-        // Clear previous results
+        // Clear previous results 
         autocompleteResults.innerHTML = '';
 
         if (value.length < 2) {
@@ -64,7 +138,10 @@ function initDestinationInput() {
             return;
         }
 
-        // Filter destinations based on input
+        // In a real app, this would be a call to an API or a more comprehensive list
+        // For now, just include NYC as our example
+        const destinations = ['New York City, USA'];
+
         const filteredDestinations = destinations.filter(destination =>
             destination.toLowerCase().includes(value.toLowerCase())
         );
@@ -96,22 +173,36 @@ function initDestinationInput() {
         }
     });
 
-    // Add destination tag when button is clicked
+    // Get recommendations when button is clicked
     addDestinationBtn.addEventListener('click', function () {
         const value = destinationInput.value.trim();
 
         if (value) {
-            addDestinationTag(value);
-            destinationInput.value = '';
+            // Default to NYC for demo purposes if no destination entered
+            const destination = value || "New York City, USA";
 
-            // Show recommendations section when at least one destination is added
-            if (selectedDestinations.children.length > 0) {
-                recommendationsSection.style.display = 'block';
-            }
+            // Clear any previous selections
+            selectedDestinations.innerHTML = '';
+
+            // Add the new destination as the only selection
+            addDestinationTag(destination);
+
+            // Show recommendations section
+            recommendationsSection.style.display = 'block';
+
+            // Reset selected count
+            document.getElementById('selected-count').textContent = '0';
+        } else {
+            // If input is empty, still show NYC recommendations
+            const destination = "New York City, USA";
+            selectedDestinations.innerHTML = '';
+            addDestinationTag(destination);
+            recommendationsSection.style.display = 'block';
+            document.getElementById('selected-count').textContent = '0';
         }
     });
 
-    // Also add destination on Enter key
+    // Also get recommendations on Enter key
     destinationInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -121,14 +212,8 @@ function initDestinationInput() {
 
     // Function to add destination tag
     function addDestinationTag(destination) {
-        // Check if this destination already exists
-        const existingTags = Array.from(selectedDestinations.children).map(tag =>
-            tag.textContent.trim().replace('×', '').trim()
-        );
-
-        if (existingTags.includes(destination)) {
-            return;
-        }
+        // Clear previous destination cards
+        document.querySelector('.recommendation-cards').innerHTML = '';
 
         const tag = document.createElement('div');
         tag.classList.add('destination-tag');
@@ -140,17 +225,13 @@ function initDestinationInput() {
         // Remove tag when clicking the X
         tag.querySelector('i').addEventListener('click', function () {
             selectedDestinations.removeChild(tag);
-
-            // Hide recommendations if no destinations are selected
-            if (selectedDestinations.children.length === 0) {
-                recommendationsSection.style.display = 'none';
-            }
+            recommendationsSection.style.display = 'none';
         });
 
         selectedDestinations.appendChild(tag);
 
-        // Load recommendation cards for the new destination
-        loadRecommendationCards(destination);
+        // Load NYC recommendations (regardless of input for demo)
+        loadRecommendationCards();
     }
 }
 
@@ -158,6 +239,8 @@ function initDestinationInput() {
 function initViewToggle() {
     const viewButtons = document.querySelectorAll('.view-toggle button');
     const recommendationCards = document.querySelector('.recommendation-cards');
+
+    if (!viewButtons.length || !recommendationCards) return;
 
     viewButtons.forEach(button => {
         button.addEventListener('click', function () {
@@ -182,6 +265,8 @@ function initViewToggle() {
 // Trip Duration Selection
 function initTripDurationSelection() {
     const createTripBtn = document.getElementById('create-trip-btn');
+    if (!createTripBtn) return;
+
     const durationSection = document.getElementById('trip-duration-section');
     const recommendationsSection = document.querySelector('.recommendations-section');
 
@@ -195,6 +280,45 @@ function initTripDurationSelection() {
 
     // Show duration section when Create Trip button is clicked
     createTripBtn.addEventListener('click', function () {
+        // Store selected attractions in sessionStorage for the planning page
+        const selectedCards = document.querySelectorAll('.recommendation-card.selected');
+        const selectedIds = Array.from(selectedCards).map(card => card.getAttribute('data-id'));
+
+        // Store the full attractions data as well
+        sessionStorage.setItem('attractions_data', JSON.stringify(nycAttractions));
+
+        // Store selected attractions IDs separately
+        const destination = document.querySelector('.destination-tag').textContent.trim();
+        sessionStorage.setItem('planning_destination', destination);
+        sessionStorage.setItem('planning_attractions', JSON.stringify(selectedIds));
+
+        // Check if any attractions are selected
+        if (selectedIds.length === 0) {
+            alert("Please select at least one attraction before planning your trip.");
+            return;
+        }
+
+        // Navigate to planning page
+        window.location.href = 'planning.html';
+    });
+
+    // Handle back button click in planning mode
+    const backToRecsBtn = document.getElementById('back-to-recommendations');
+    if (backToRecsBtn) {
+        backToRecsBtn.addEventListener('click', function () {
+            // Navigate back to explore page
+            window.location.href = 'explore.html';
+        });
+    }
+
+    // Show duration section when Create Trip button is clicked
+    createTripBtn.addEventListener('click', function () {
+        // Get selected attractions before moving to next step
+        const selectedAttractions = document.querySelectorAll('.recommendation-card.selected');
+
+        // Update summary destinations count (always 1 in single destination mode)
+        document.getElementById('summary-destinations').textContent = '1';
+
         recommendationsSection.style.display = 'none';
         durationSection.style.display = 'block';
 
@@ -203,6 +327,8 @@ function initTripDurationSelection() {
         const endDate = new Date();
         endDate.setDate(today.getDate() + 3);
 
+        // Set both start date inputs (for days and date range options)
+        document.getElementById('days-start-date').valueAsDate = today;
         document.getElementById('start-date').valueAsDate = today;
         document.getElementById('end-date').valueAsDate = endDate;
     });
@@ -236,16 +362,29 @@ function initTripDurationSelection() {
         const activeOption = document.querySelector('.duration-option.active');
         const optionType = activeOption.getAttribute('data-option');
         let duration = '';
+        let startDate, days;
 
         if (optionType === 'days') {
-            const days = document.getElementById('number-of-days').value;
-            duration = `${days} days`;
+            days = parseInt(document.getElementById('number-of-days').value);
+            startDate = new Date(document.getElementById('days-start-date').value);
 
-            // Generate day tabs based on number of days
-            generateDayTabs(parseInt(days));
+            if (isNaN(startDate.getTime())) {
+                alert('Please select a valid start date');
+                return;
+            }
+
+            duration = `${days} days (starting ${formatDate(startDate)})`;
+
+            // Generate day tabs based on number of days and start date
+            generateDayTabs(days, startDate);
         } else {
-            const startDate = new Date(document.getElementById('start-date').value);
+            startDate = new Date(document.getElementById('start-date').value);
             const endDate = new Date(document.getElementById('end-date').value);
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                alert('Please select valid dates');
+                return;
+            }
 
             if (startDate > endDate) {
                 alert('End date must be after start date');
@@ -254,7 +393,7 @@ function initTripDurationSelection() {
 
             // Calculate number of days
             const dayDiff = (endDate - startDate) / (1000 * 60 * 60 * 24);
-            const days = Math.round(dayDiff) + 1;
+            days = Math.round(dayDiff) + 1;
 
             duration = `${days} days (${formatDate(startDate)} - ${formatDate(endDate)})`;
 
@@ -264,9 +403,13 @@ function initTripDurationSelection() {
 
         // Update summary
         document.getElementById('summary-duration').textContent = duration;
-        document.getElementById('summary-activities').textContent = '0';
-        document.getElementById('summary-destinations').textContent =
-            document.getElementById('selected-destinations').children.length;
+
+        // Count selected activities
+        const selectedCount = document.querySelectorAll('.recommendation-card.selected').length;
+        document.getElementById('summary-activities').textContent = selectedCount;
+
+        // Populate selected attractions in the sidebar
+        populateSelectedAttractions();
 
         // Switch to itinerary view
         durationSection.style.display = 'none';
@@ -293,187 +436,339 @@ function initItineraryBuilder() {
             showDayContent(dayId);
         }
     });
-}
 
-// Helper Functions
-function loadSampleDestinations() {
-    // Add sample destinations for demonstration
-    const sampleDestinations = ['Paris, France', 'Amsterdam, Netherlands'];
-    const selectedDestinations = document.getElementById('selected-destinations');
-    const recommendationsSection = document.querySelector('.recommendations-section');
+    // Handle adding custom destinations
+    const addCustomBtn = document.getElementById('add-custom-destination');
+    if (addCustomBtn) {
+        addCustomBtn.addEventListener('click', function () {
+            const name = document.getElementById('custom-destination-name').value.trim();
+            const type = document.getElementById('custom-destination-type').value;
 
-    sampleDestinations.forEach(destination => {
-        const tag = document.createElement('div');
-        tag.classList.add('destination-tag');
-        tag.innerHTML = `
-            ${destination}
-            <i class="fas fa-times"></i>
-        `;
-
-        // Remove tag when clicking the X
-        tag.querySelector('i').addEventListener('click', function () {
-            selectedDestinations.removeChild(tag);
-
-            // Hide recommendations if no destinations are selected
-            if (selectedDestinations.children.length === 0) {
-                recommendationsSection.style.display = 'none';
+            if (!name) {
+                alert('Please enter an activity name');
+                return;
             }
+
+            // Get active day
+            const activeDay = document.querySelector('.day-tab.active').getAttribute('data-day');
+
+            // Add custom activity to that day
+            addCustomActivity(name, type, activeDay);
+
+            // Clear form
+            document.getElementById('custom-destination-name').value = '';
         });
-
-        selectedDestinations.appendChild(tag);
-
-        // Load recommendation cards
-        loadRecommendationCards(destination);
-    });
-
-    // Show recommendations section
-    recommendationsSection.style.display = 'block';
-}
-
-function loadRecommendationCards(destination) {
-    // In a real app, you would fetch recommendations from an API
-    // Here we'll generate sample cards based on the destination
-
-    const cardContainer = document.querySelector('.recommendation-cards');
-
-    // Sample attractions based on destination
-    let attractions = [];
-
-    if (destination.includes('Paris')) {
-        attractions = [
-            {
-                name: 'Eiffel Tower',
-                image: 'https://via.placeholder.com/400x300?text=Eiffel+Tower',
-                description: 'Iconic iron tower offering city views from observation decks.',
-                rating: 4.7,
-                highlights: ['Panoramic View', 'Iconic Landmark'],
-                type: 'Landmark'
-            },
-            {
-                name: 'Louvre Museum',
-                image: 'https://via.placeholder.com/400x300?text=Louvre+Museum',
-                description: 'World\'s largest art museum and historic monument in Paris.',
-                rating: 4.8,
-                highlights: ['Mona Lisa', 'Ancient Artifacts'],
-                type: 'Museum'
-            },
-            {
-                name: 'Notre-Dame Cathedral',
-                image: 'https://via.placeholder.com/400x300?text=Notre+Dame',
-                description: 'Medieval Catholic cathedral known for its French Gothic architecture.',
-                rating: 4.6,
-                highlights: ['Gothic Architecture', 'Religious Site'],
-                type: 'Landmark'
-            }
-        ];
-    } else if (destination.includes('Amsterdam')) {
-        attractions = [
-            {
-                name: 'Van Gogh Museum',
-                image: 'https://via.placeholder.com/400x300?text=Van+Gogh+Museum',
-                description: 'Museum dedicated to the works of Vincent van Gogh and his contemporaries.',
-                rating: 4.6,
-                highlights: ['Sunflowers', 'Self-Portraits'],
-                type: 'Museum'
-            },
-            {
-                name: 'Anne Frank House',
-                image: 'https://via.placeholder.com/400x300?text=Anne+Frank+House',
-                description: 'Biographical museum dedicated to Jewish wartime diarist Anne Frank.',
-                rating: 4.5,
-                highlights: ['Historical Site', 'Moving Experience'],
-                type: 'Museum'
-            },
-            {
-                name: 'Canal Cruise',
-                image: 'https://via.placeholder.com/400x300?text=Amsterdam+Canals',
-                description: 'Scenic boat trip through Amsterdam\'s famous canal ring.',
-                rating: 4.7,
-                highlights: ['UNESCO World Heritage', 'City Views'],
-                type: 'Activity'
-            }
-        ];
-    } else {
-        // Generic attractions for any other destination
-        attractions = [
-            {
-                name: 'City Tour',
-                image: `https://via.placeholder.com/400x300?text=${destination}+Tour`,
-                description: 'Explore the highlights of the city with a guided tour.',
-                rating: 4.5,
-                highlights: ['Local Guide', 'City Highlights'],
-                type: 'Activity'
-            },
-            {
-                name: 'Local Museum',
-                image: `https://via.placeholder.com/400x300?text=${destination}+Museum`,
-                description: 'Discover the history and culture of the region.',
-                rating: 4.3,
-                highlights: ['Cultural Experience', 'Artifacts'],
-                type: 'Museum'
-            },
-            {
-                name: 'Food Experience',
-                image: `https://via.placeholder.com/400x300?text=${destination}+Food`,
-                description: 'Taste the local cuisine and traditional dishes.',
-                rating: 4.6,
-                highlights: ['Local Cuisine', 'Culinary Tour'],
-                type: 'Food'
-            }
-        ];
     }
 
-    // Create cards for each attraction
-    attractions.forEach(attraction => {
-        // Check if card already exists (avoid duplicates)
-        const existingCard = document.querySelector(`.recommendation-card[data-name="${attraction.name}"]`);
-        if (existingCard) {
-            return;
-        }
+    // Initialize back button
+    initBackButton();
 
-        const card = document.createElement('div');
-        card.classList.add('recommendation-card');
-        card.setAttribute('data-name', attraction.name);
-        card.setAttribute('data-destination', destination);
+    // Initially hide save button until activities are added
+    const saveContainer = document.getElementById('save-trip-container');
+    if (saveContainer) {
+        saveContainer.style.display = 'none';
+    }
 
-        card.innerHTML = `
-            <div class="card-image">
-                <img src="${attraction.image}" alt="${attraction.name}">
-                <div class="card-badge">${attraction.type}</div>
-            </div>
-            <div class="card-content">
-                <h3 class="card-title">${attraction.name}</h3>
-                <p class="card-description">${attraction.description}</p>
-                <div class="card-info">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${destination}</span>
-                </div>
-                <div class="card-tags">
-                    ${attraction.highlights.map(highlight => `<span class="tag">${highlight}</span>`).join('')}
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="card-rating">
-                    <i class="fas fa-star"></i>
-                    <span>${attraction.rating}</span>
-                </div>
-                <button class="btn-text bookmark-btn">
-                    <i class="far fa-bookmark"></i>
-                </button>
-            </div>
-        `;
-
-        // Add event listener to bookmark button
-        const bookmarkBtn = card.querySelector('.bookmark-btn');
-        bookmarkBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const icon = this.querySelector('i');
-            icon.classList.toggle('far');
-            icon.classList.toggle('fas');
+    // Initialize save trip button
+    const saveBtn = document.getElementById('save-trip-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            saveTripToDatabase();
         });
+    }
+}
 
-        cardContainer.appendChild(card);
+// Helper function to populate selected attractions in sidebar
+function populateSelectedAttractions() {
+    const container = document.getElementById('selected-attractions-list');
+    container.innerHTML = '';
+
+    // Get all selected attractions
+    const selectedCards = document.querySelectorAll('.recommendation-card.selected');
+
+    if (selectedCards.length === 0) {
+        container.innerHTML = '<p class="no-attractions">No attractions selected</p>';
+        return;
+    }
+
+    // Create a draggable list of selected attractions
+    selectedCards.forEach(card => {
+        const attractionId = parseInt(card.getAttribute('data-id'));
+        const attraction = nycAttractions.find(a => a.id === attractionId);
+
+        if (attraction) {
+            const item = document.createElement('div');
+            item.classList.add('sidebar-attraction-item');
+            item.setAttribute('draggable', 'true');
+            item.setAttribute('data-id', attraction.id);
+
+            item.innerHTML = `
+                <div class="attraction-item-content">
+                    <span class="attraction-name">${attraction.name}</span>
+                </div>
+                <div class="attraction-actions">
+                    <button class="btn-text remove-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="btn-text add-to-day-btn">
+                        <i class="fas fa-plus-circle"></i>
+                    </button>
+                </div>
+            `;
+
+            // Add event listener to remove this attraction completely
+            const removeBtn = item.querySelector('.remove-btn');
+            removeBtn.addEventListener('click', function () {
+                // Remove this attraction from the selection
+                removeSelectedAttraction(attraction.id);
+                container.removeChild(item);
+                updateSaveButtonState();
+
+                // If no more attractions are selected, show message
+                if (container.children.length === 0) {
+                    container.innerHTML = '<p class="no-attractions">No attractions selected</p>';
+                }
+            });
+
+            // Add event listener to the add button
+            const addBtn = item.querySelector('.add-to-day-btn');
+            addBtn.addEventListener('click', function () {
+                // Get current active day
+                const activeDay = document.querySelector('.day-tab.active').getAttribute('data-day');
+                addAttractionToDay(attraction, activeDay);
+            });
+
+            // Setup drag events
+            item.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/plain', attraction.id);
+                this.classList.add('dragging');
+            });
+
+            item.addEventListener('dragend', function () {
+                this.classList.remove('dragging');
+            });
+
+            container.appendChild(item);
+        }
     });
+
+    // Initialize tracking for save button state
+    initSaveButtonTracking();
+}
+
+// Function to remove a selected attraction
+function removeSelectedAttraction(attractionId) {
+    // Find any activities containing this attraction and remove them
+    const activities = document.querySelectorAll(`[data-attraction-id="${attractionId}"]`);
+    activities.forEach(activity => {
+        activity.parentNode.removeChild(activity);
+    });
+
+    // Update activity counter
+    updateActivityCounter();
+
+    // Also unselect it in the recommendations view (if we go back)
+    const recommendationCard = document.querySelector(`.recommendation-card[data-id="${attractionId}"]`);
+    if (recommendationCard) {
+        recommendationCard.classList.remove('selected');
+        const selectBtn = recommendationCard.querySelector('.select-btn span');
+        if (selectBtn) {
+            selectBtn.textContent = 'Select';
+        }
+    }
+}
+
+// Track which attractions have been added to the itinerary
+let addedAttractions = new Set();
+
+// Initialize tracking for save button
+function initSaveButtonTracking() {
+    addedAttractions.clear();
+}
+
+// Function to add an attraction to a specific day
+function addAttractionToDay(attraction, dayId) {
+    const dayContent = document.getElementById(`day-${dayId}`);
+    const activityList = dayContent.querySelector('.activity-list');
+
+    // Check if this attraction is already in this day
+    const existingActivities = dayContent.querySelectorAll(`[data-attraction-id="${attraction.id}"]`);
+    if (existingActivities.length > 0) {
+        alert(`${attraction.name} is already in your Day ${dayId} itinerary`);
+        return;
+    }
+
+    // Create a time for the activity (simple approach - could be improved)
+    const activitiesCount = activityList.querySelectorAll('.activity-item').length;
+    let activityTime;
+
+    // Start at 9:00 AM and add 2 hours for each existing activity
+    const startHour = 9;
+    const hoursToAdd = activitiesCount * 2;
+    const hour = (startHour + hoursToAdd) % 12 || 12; // Convert 0 to 12
+    const period = (startHour + hoursToAdd) < 12 ? 'AM' : 'PM';
+    activityTime = `${hour}:00 ${period}`;
+
+    const activityItem = document.createElement('div');
+    activityItem.classList.add('activity-item');
+    activityItem.setAttribute('data-attraction-id', attraction.id);
+
+    activityItem.innerHTML = `
+        <div class="activity-time">${activityTime}</div>
+        <div class="activity-details">
+            <h4>${attraction.name}</h4>
+            <p>${attraction.description || ''}</p>
+        </div>
+        <div class="activity-actions">
+            <button class="btn-text edit-time-btn"><i class="fas fa-clock"></i></button>
+            <button class="btn-text remove-activity-btn"><i class="fas fa-trash-alt"></i></button>
+        </div>
+    `;
+
+    // Add before the "Add Activity" button
+    const addButton = activityList.querySelector('.add-activity-btn');
+    activityList.insertBefore(activityItem, addButton);
+
+    // Add event listeners for edit and remove buttons
+    const removeBtn = activityItem.querySelector('.remove-activity-btn');
+    removeBtn.addEventListener('click', function () {
+        if (confirm(`Remove ${attraction.name} from Day ${dayId}?`)) {
+            activityList.removeChild(activityItem);
+            updateActivityCounter();
+            checkShowSaveButton();
+        }
+    });
+
+    const editBtn = activityItem.querySelector('.edit-time-btn');
+    editBtn.addEventListener('click', function () {
+        const newTime = prompt('Enter new time (e.g., "10:30 AM"):', activityTime);
+        if (newTime) {
+            activityItem.querySelector('.activity-time').textContent = newTime;
+        }
+    });
+
+    // Update the activity counter in the summary
+    updateActivityCounter();
+
+    // Show save button when activities exist
+    showSaveButton();
+
+    // Mark this attraction as added to the itinerary
+    addedAttractions.add(attraction.id);
+
+    // Update save button state
+    updateSaveButtonState();
+}
+
+// Function to add a custom activity to a day
+function addCustomActivity(name, type, dayId) {
+    const dayContent = document.getElementById(`day-${dayId}`);
+    const activityList = dayContent.querySelector('.activity-list');
+
+    // Create a time for the activity
+    const activitiesCount = activityList.querySelectorAll('.activity-item').length;
+    let activityTime;
+
+    // Start at 9:00 AM and add 2 hours for each existing activity
+    const startHour = 9;
+    const hoursToAdd = activitiesCount * 2;
+    const hour = (startHour + hoursToAdd) % 12 || 12; // Convert 0 to 12
+    const period = (startHour + hoursToAdd) < 12 ? 'AM' : 'PM';
+    activityTime = `${hour}:00 ${period}`;
+
+    const activityItem = document.createElement('div');
+    activityItem.classList.add('activity-item', 'custom-activity');
+
+    activityItem.innerHTML = `
+        <div class="activity-time">${activityTime}</div>
+        <div class="activity-details">
+            <h4>${name}</h4>
+            <p>Custom activity added by you</p>
+        </div>
+        <div class="activity-actions">
+            <button class="btn-text edit-time-btn"><i class="fas fa-clock"></i></button>
+            <button class="btn-text remove-activity-btn"><i class="fas fa-trash-alt"></i></button>
+        </div>
+    `;
+
+    // Add before the "Add Activity" button
+    const addButton = activityList.querySelector('.add-activity-btn');
+    activityList.insertBefore(activityItem, addButton);
+
+    // Add event listeners for edit and remove buttons
+    const removeBtn = activityItem.querySelector('.remove-activity-btn');
+    removeBtn.addEventListener('click', function () {
+        if (confirm(`Remove ${name} from Day ${dayId}?`)) {
+            activityList.removeChild(activityItem);
+            updateActivityCounter();
+            checkShowSaveButton();
+        }
+    });
+
+    const editBtn = activityItem.querySelector('.edit-time-btn');
+    editBtn.addEventListener('click', function () {
+        const newTime = prompt('Enter new time (e.g., "10:30 AM"):', activityTime);
+        if (newTime) {
+            activityItem.querySelector('.activity-time').textContent = newTime;
+        }
+    });
+
+    // Update the activity counter in the summary
+    updateActivityCounter();
+
+    // Show save button when activities exist
+    showSaveButton();
+}
+
+// Function to show the save button
+function showSaveButton() {
+    const saveContainer = document.getElementById('save-trip-container');
+    if (saveContainer) {
+        saveContainer.style.display = 'flex';
+        updateSaveButtonState();
+    }
+}
+
+// Function to check if all selected attractions have been added
+function updateSaveButtonState() {
+    const saveBtn = document.getElementById('save-trip-btn');
+    const selectedCards = document.querySelectorAll('.recommendation-card.selected');
+    const selectedAttractionIds = Array.from(selectedCards).map(card => parseInt(card.getAttribute('data-id')));
+
+    // Check if there are activities and if all selected attractions have been added
+    const allActivitiesAdded = selectedAttractionIds.every(id => addedAttractions.has(id));
+    const hasActivities = document.querySelectorAll('.activity-item').length > 0;
+
+    if (saveBtn) {
+        if (allActivitiesAdded && hasActivities) {
+            saveBtn.classList.remove('disabled');
+            saveBtn.disabled = false;
+            saveBtn.title = "Save your trip";
+        } else {
+            saveBtn.classList.add('disabled');
+            saveBtn.disabled = true;
+            saveBtn.title = "Add all selected attractions to your itinerary before saving";
+        }
+    }
+
+    // Also check if we need to show or hide the save button
+    checkShowSaveButton();
+}
+
+// Function to check if save button should be shown or hidden
+function checkShowSaveButton() {
+    const activityItems = document.querySelectorAll('.activity-item');
+    const saveContainer = document.getElementById('save-trip-container');
+
+    if (saveContainer) {
+        if (activityItems.length > 0) {
+            saveContainer.style.display = 'flex';
+        } else {
+            saveContainer.style.display = 'none';
+            // Also clear the added attractions tracking
+            addedAttractions.clear();
+        }
+    }
 }
 
 function generateDayTabs(days, startDate = null) {
@@ -513,8 +808,13 @@ function generateDayTabs(days, startDate = null) {
         content.setAttribute('id', `day-${i}`);
         content.style.display = i === 1 ? 'block' : 'none';
 
+        // Setup empty day content
         content.innerHTML = `
             <h3>Day ${i} - Activities</h3>
+            <div class="empty-day-message">
+                <i class="fas fa-info-circle"></i>
+                <p>Drag attractions from the sidebar or click the "+" button on any attraction to add it to this day.</p>
+            </div>
             <div class="activity-list">
                 <div class="add-activity-btn">
                     <i class="fas fa-plus-circle"></i>
@@ -523,8 +823,83 @@ function generateDayTabs(days, startDate = null) {
             </div>
         `;
 
+        // Make day content droppable for drag-and-drop
+        content.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        content.addEventListener('dragleave', function () {
+            this.classList.remove('dragover');
+        });
+
+        content.addEventListener('drop', function (e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+
+            const attractionId = parseInt(e.dataTransfer.getData('text/plain'));
+            const attraction = nycAttractions.find(a => a.id === attractionId);
+
+            if (attraction) {
+                addAttractionToDay(attraction, i);
+            }
+        });
+
         contentContainer.appendChild(content);
     }
+}
+
+// Helper Functions
+function loadRecommendationCards() {
+    const cardContainer = document.querySelector('.recommendation-cards');
+    const selectedCount = document.getElementById('selected-count');
+    let selectionCounter = 0;
+
+    // Limit attractions to 9 results maximum
+    const limitedAttractions = nycAttractions.slice(0, 9);
+
+    // Create cards for NYC attractions (limited to 9)
+    limitedAttractions.forEach(attraction => {
+        const card = document.createElement('div');
+        card.classList.add('recommendation-card');
+        card.setAttribute('data-id', attraction.id);
+
+        card.innerHTML = `
+            <div class="card-content">
+                <h3 class="card-title">${attraction.name}</h3>
+                <p class="card-description">${attraction.description}</p>
+                <div class="card-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>New York City, USA</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn-text select-btn">
+                    <span>Select</span>
+                </button>
+            </div>
+        `;
+
+        // Add click handler for the whole card to toggle selection
+        card.addEventListener('click', function () {
+            this.classList.toggle('selected');
+
+            // Update the button text based on selection state
+            const selectBtn = this.querySelector('.select-btn span');
+            if (this.classList.contains('selected')) {
+                selectBtn.textContent = 'Selected';
+                selectionCounter++;
+            } else {
+                selectBtn.textContent = 'Select';
+                selectionCounter--;
+            }
+
+            // Update selection counter display
+            selectedCount.textContent = selectionCounter;
+        });
+
+        cardContainer.appendChild(card);
+    });
 }
 
 function showDayContent(dayId) {
@@ -540,4 +915,54 @@ function showDayContent(dayId) {
 function formatDate(date) {
     const options = { month: 'short', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
+}
+
+// Initialize back to recommendations button
+function initBackButton() {
+    const backBtn = document.getElementById('back-to-recommendations');
+    if (backBtn) {
+        backBtn.addEventListener('click', function () {
+            // Go back to recommendations section
+            document.getElementById('itinerary-section').style.display = 'none';
+            document.getElementById('trip-duration-section').style.display = 'none';
+            document.querySelector('.recommendations-section').style.display = 'block';
+        });
+    }
+}
+
+// Dummy function for saving trip to database
+function saveTripToDatabase() {
+    // Get all activities from the itinerary
+    const activities = Array.from(document.querySelectorAll('.activity-item')).map(item => {
+        const dayId = item.closest('.day-content-item').id.replace('day-', '');
+        const time = item.querySelector('.activity-time').textContent;
+        const name = item.querySelector('h4').textContent;
+        const type = item.querySelector('.tag').textContent;
+
+        return {
+            day: parseInt(dayId),
+            time: time,
+            name: name,
+            type: type,
+            attractionId: item.getAttribute('data-attraction-id') || null
+        };
+    });
+
+    // Get trip details
+    const destination = document.querySelector('.destination-tag').textContent.trim();
+    const duration = document.getElementById('summary-duration').textContent;
+
+    // Create trip object
+    const trip = {
+        destination: destination,
+        duration: duration,
+        activities: activities,
+        createdAt: new Date().toISOString()
+    };
+
+    console.log('Saving trip:', trip);
+    alert('Trip saved successfully! In a real app, this would be saved to the database.');
+
+    // Redirect to dashboard in a real application
+    // window.location.href = '../dashboard/dashboard.html';
 }
