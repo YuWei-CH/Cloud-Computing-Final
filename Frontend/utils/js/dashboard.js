@@ -57,34 +57,48 @@ async function getUserData(email) {
 
         console.log("Sending request with email:", email);
 
-        // Try with both header and query parameter
+        // Try with both header and query parameter for maximum compatibility
         const url = `https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/users?email=${encodeURIComponent(email)}`;
         console.log("Request URL:", url);
 
+        // Only use the headers that are allowed by your API Gateway CORS configuration
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'X-User-Email': email,
                 'Content-Type': 'application/json'
+                // Removed X-Debug-Info header which was causing CORS issues
             }
         });
 
         console.log("Response status:", response.status);
-        const responseData = await response.json();
-        console.log("Raw response data:", responseData);
+        const responseText = await response.text(); // Get raw text first for debugging
+        console.log("Raw response text:", responseText);
+
+        let responseData;
+        try {
+            responseData = JSON.parse(responseText);
+            console.log("Parsed response data:", responseData);
+        } catch (e) {
+            console.error("Failed to parse response as JSON:", e);
+            throw new Error("Invalid JSON response from server");
+        }
 
         // Check if we received the Lambda proxy structure (statusCode, headers, body)
         let userData;
-        if (responseData.statusCode && responseData.statusCode === 200 && responseData.body) {
-            // The body is a JSON string that needs to be parsed
+        if (responseData.statusCode && responseData.body) {
             try {
-                userData = JSON.parse(responseData.body);
+                // Handle both string and object body formats
+                userData = typeof responseData.body === 'string'
+                    ? JSON.parse(responseData.body)
+                    : responseData.body;
                 console.log("Extracted user data from API Gateway response:", userData);
             } catch (e) {
                 console.error("Failed to parse response body:", e);
                 throw new Error("Invalid response format from server");
             }
         } else if (!response.ok) {
+            console.error("Error response:", responseData);
             throw new Error(`Failed to fetch user data: ${response.status}`);
         } else {
             // Direct response (not wrapped by API Gateway)
@@ -92,17 +106,25 @@ async function getUserData(email) {
         }
 
         hideLoading();
+
+        // Make sure we have the email in the user data for display
+        if (userData && !userData.email) {
+            userData.email = email;
+        }
+
         return userData;
     } catch (error) {
         console.error('Error fetching user data:', error);
         hideLoading();
-        showError("Couldn't load your profile. Please try again later.");
+
+        // Show error message to user
+        showError(`Couldn't load your profile: ${error.message}. Please check console for details.`);
 
         // Return minimal data structure to avoid errors
         return {
             name: "User",
             username: "",
-            email: "",
+            email: email, // At least pass the email through
             memberSince: "",
             tripsCount: 0,
             preferences: {
@@ -116,33 +138,40 @@ async function getUserData(email) {
 
 // Populate user information in the UI
 function populateUserInfo(userData) {
+    console.log("Populating user info with data:", JSON.stringify(userData));
+
     // Store the user data for later use
     currentUserData = userData;
 
-    // Set user name in the header
-    document.getElementById('user-name').textContent = userData.name;
+    // Safety check for empty userData
+    if (!userData) {
+        console.error("userData is null or undefined");
+        return;
+    }
 
-    // Set profile information
-    document.getElementById('profile-username').textContent = userData.username;
-    document.getElementById('profile-email').textContent = userData.email;
-    document.getElementById('profile-member-since').textContent = userData.memberSince;
-    document.getElementById('profile-trips').textContent = userData.tripsCount;
+    // Set user name in the header - use email as fallback
+    document.getElementById('user-name').textContent = userData.name || userData.username || userData.email || "User";
+
+    // Set profile information with fallbacks for missing data
+    document.getElementById('profile-username').textContent = userData.username || "Not set";
+    document.getElementById('profile-email').textContent = userData.email || "Not set";
+    document.getElementById('profile-member-since').textContent = userData.memberSince || "Not set";
+    document.getElementById('profile-trips').textContent = userData.tripsCount || "0";
 
     // Also populate the edit form fields
     if (document.getElementById('edit-username')) {
-        document.getElementById('edit-username').value = userData.username;
+        document.getElementById('edit-username').value = userData.username || "";
     }
 
     if (document.getElementById('edit-email')) {
-        document.getElementById('edit-email').value = userData.email;
+        document.getElementById('edit-email').value = userData.email || "";
     }
 
-    // Set preferences
+    // Set preferences with safety checks
     if (userData.preferences) {
-        document.getElementById('weather').value = userData.preferences.weather;
-        document.getElementById('environment').value = userData.preferences.environment;
-        document.getElementById('activity').value = userData.preferences.activity;
-        // Removed budget preference setting
+        document.getElementById('weather').value = userData.preferences.weather || "warm";
+        document.getElementById('environment').value = userData.preferences.environment || "city";
+        document.getElementById('activity').value = userData.preferences.activity || "relaxing";
     }
 }
 
