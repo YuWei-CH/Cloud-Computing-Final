@@ -602,29 +602,21 @@ function addAttractionToDay(attraction, dayId) {
         return;
     }
 
-    // Create a time for the activity (simple approach - could be improved)
-    const activitiesCount = activityList.querySelectorAll('.activity-item').length;
-    let activityTime;
-
-    // Start at 9:00 AM and add 2 hours for each existing activity
-    const startHour = 9;
-    const hoursToAdd = activitiesCount * 2;
-    const hour = (startHour + hoursToAdd) % 12 || 12; // Convert 0 to 12
-    const period = (startHour + hoursToAdd) < 12 ? 'AM' : 'PM';
-    activityTime = `${hour}:00 ${period}`;
+    // Get the date for this day from the day tab
+    const dayTab = document.querySelector(`.day-tab[data-day="${dayId}"]`);
+    let dateText = dayTab ? dayTab.querySelector('small').textContent : `Day ${dayId}`;
 
     const activityItem = document.createElement('div');
     activityItem.classList.add('activity-item');
     activityItem.setAttribute('data-attraction-id', attraction.id);
 
     activityItem.innerHTML = `
-        <div class="activity-time">${activityTime}</div>
+        <div class="activity-date">${dateText}</div>
         <div class="activity-details">
             <h4>${attraction.name}</h4>
             <p>${attraction.description || ''}</p>
         </div>
         <div class="activity-actions">
-            <button class="btn-text edit-time-btn"><i class="fas fa-clock"></i></button>
             <button class="btn-text remove-activity-btn"><i class="fas fa-trash-alt"></i></button>
         </div>
     `;
@@ -633,21 +625,13 @@ function addAttractionToDay(attraction, dayId) {
     const addButton = activityList.querySelector('.add-activity-btn');
     activityList.insertBefore(activityItem, addButton);
 
-    // Add event listeners for edit and remove buttons
+    // Add event listener for remove button
     const removeBtn = activityItem.querySelector('.remove-activity-btn');
     removeBtn.addEventListener('click', function () {
         if (confirm(`Remove ${attraction.name} from Day ${dayId}?`)) {
             activityList.removeChild(activityItem);
             updateActivityCounter();
             checkShowSaveButton();
-        }
-    });
-
-    const editBtn = activityItem.querySelector('.edit-time-btn');
-    editBtn.addEventListener('click', function () {
-        const newTime = prompt('Enter new time (e.g., "10:30 AM"):', activityTime);
-        if (newTime) {
-            activityItem.querySelector('.activity-time').textContent = newTime;
         }
     });
 
@@ -669,28 +653,20 @@ function addCustomActivity(name, type, dayId) {
     const dayContent = document.getElementById(`day-${dayId}`);
     const activityList = dayContent.querySelector('.activity-list');
 
-    // Create a time for the activity
-    const activitiesCount = activityList.querySelectorAll('.activity-item').length;
-    let activityTime;
-
-    // Start at 9:00 AM and add 2 hours for each existing activity
-    const startHour = 9;
-    const hoursToAdd = activitiesCount * 2;
-    const hour = (startHour + hoursToAdd) % 12 || 12; // Convert 0 to 12
-    const period = (startHour + hoursToAdd) < 12 ? 'AM' : 'PM';
-    activityTime = `${hour}:00 ${period}`;
+    // Get the date for this day from the day tab
+    const dayTab = document.querySelector(`.day-tab[data-day="${dayId}"]`);
+    let dateText = dayTab ? dayTab.querySelector('small').textContent : `Day ${dayId}`;
 
     const activityItem = document.createElement('div');
     activityItem.classList.add('activity-item', 'custom-activity');
 
     activityItem.innerHTML = `
-        <div class="activity-time">${activityTime}</div>
+        <div class="activity-date">${dateText}</div>
         <div class="activity-details">
             <h4>${name}</h4>
             <p>Custom activity added by you</p>
         </div>
         <div class="activity-actions">
-            <button class="btn-text edit-time-btn"><i class="fas fa-clock"></i></button>
             <button class="btn-text remove-activity-btn"><i class="fas fa-trash-alt"></i></button>
         </div>
     `;
@@ -699,21 +675,13 @@ function addCustomActivity(name, type, dayId) {
     const addButton = activityList.querySelector('.add-activity-btn');
     activityList.insertBefore(activityItem, addButton);
 
-    // Add event listeners for edit and remove buttons
+    // Add event listener for remove button
     const removeBtn = activityItem.querySelector('.remove-activity-btn');
     removeBtn.addEventListener('click', function () {
         if (confirm(`Remove ${name} from Day ${dayId}?`)) {
             activityList.removeChild(activityItem);
             updateActivityCounter();
             checkShowSaveButton();
-        }
-    });
-
-    const editBtn = activityItem.querySelector('.edit-time-btn');
-    editBtn.addEventListener('click', function () {
-        const newTime = prompt('Enter new time (e.g., "10:30 AM"):', activityTime);
-        if (newTime) {
-            activityItem.querySelector('.activity-time').textContent = newTime;
         }
     });
 
