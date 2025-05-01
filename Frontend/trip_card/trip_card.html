@@ -12,13 +12,23 @@
   <link rel="stylesheet" href="../utils/css/trip_card.css">
 
   <!-- Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyes&libraries=geometry"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdHip545rMJ1fJXIa5o&libraries=geometry,places"></script>
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
   <div id="sidebar">
+    <div id="trip-summary">
+      <h2 id="trip-title">Loading trip...</h2>
+      <div id="trip-dates" class="trip-info"></div>
+      <div id="trip-duration" class="trip-info"></div>
+      <div id="trip-status" class="trip-info"></div>
+    </div>
+
     <div id="route-status" style="margin-bottom: 10px; font-size: 14px; color: #555;">
-        Loading trip...
+      Loading trip...
     </div>
 
     <h3>Trip Days</h3>
@@ -27,6 +37,11 @@
     <div class="action-buttons">
       <button onclick="showAllRoutes()">Show Entire Trip</button>
       <button onclick="clearMap()">Clear Map</button>
+    </div>
+
+    <div id="weather-info" class="weather-section">
+      <h3>Weather Forecast</h3>
+      <div id="weather-content"></div>
     </div>
 
     <!-- Back to Dashboard -->
@@ -41,6 +56,14 @@
   </div>
 
   <div id="map"></div>
+
+  <!-- Photo Gallery Modal -->
+  <div id="photo-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="photo-gallery"></div>
+    </div>
+  </div>
 
   <!-- Trip script -->
   <script src="../utils/js/trip_card.js"></script>
