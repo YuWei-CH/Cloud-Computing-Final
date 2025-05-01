@@ -11,9 +11,6 @@
   <!-- Trip card specific styles -->
   <link rel="stylesheet" href="../utils/css/trip_card.css">
 
-  <!-- Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdHip545rMJ1fJXIa5o&libraries=geometry,places"></script>
-  
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -21,35 +18,42 @@
 <body>
   <div id="sidebar">
     <div id="trip-summary">
-      <h2 id="trip-title">Loading trip...</h2>
-      <div id="trip-dates" class="trip-info"></div>
-      <div id="trip-duration" class="trip-info"></div>
-      <div id="trip-status" class="trip-info"></div>
+      <h2 id="trip-title">Trip Details</h2>
+      <div id="trip-dates" class="trip-info">
+        <i class="fas fa-calendar"></i> -
+      </div>
+      <div id="trip-duration" class="trip-info">
+        <i class="fas fa-clock"></i> -
+      </div>
+      <div id="trip-status" class="trip-info">
+        <i class="fas fa-info-circle"></i> -
+      </div>
     </div>
 
-    <div id="route-status" style="margin-bottom: 10px; font-size: 14px; color: #555;">
-      Loading trip...
+    <div id="route-status" class="status-message">
+      Select a day to view route
     </div>
 
-    <h3>Trip Days</h3>
-    <div id="day-buttons">Loading...</div>
+    <div class="section">
+      <h3><i class="fas fa-map-marked-alt"></i> Trip Days</h3>
+      <div id="day-buttons" class="day-buttons-container"></div>
+    </div>
 
     <div class="action-buttons">
-      <button onclick="showAllRoutes()">Show Entire Trip</button>
-      <button onclick="clearMap()">Clear Map</button>
-    </div>
-
-    <div id="weather-info" class="weather-section">
-      <h3>Weather Forecast</h3>
-      <div id="weather-content"></div>
+      <button onclick="showAllRoutes()" class="btn-primary">
+        <i class="fas fa-route"></i> Show Entire Trip
+      </button>
+      <button onclick="clearMap()" class="btn-secondary">
+        <i class="fas fa-eraser"></i> Clear Map
+      </button>
     </div>
 
     <!-- Back to Dashboard -->
-    <div style="margin-top: 20px;">
-      <button onclick="window.location.href = '../dashboard/dashboard.html'" class="btn-secondary" style="width: 100%; padding: 10px;">
-        ← Back to Dashboard
+    <div class="navigation-buttons">
+      <button onclick="window.location.href = '../dashboard/dashboard.html'" class="btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
       </button>
-      <button onclick="window.location.href = '../settings/settings.html'" class="btn-secondary" style="width: 100%; padding: 10px; margin-top: 10px;">
+      <button onclick="window.location.href = '../settings/settings.html'" class="btn-secondary">
         <i class="fas fa-cog"></i> Settings
       </button>
     </div>
@@ -65,7 +69,24 @@
     </div>
   </div>
 
+  <!-- Error Modal -->
+  <div id="error-modal" class="modal">
+    <div class="modal-content error-content">
+      <span class="close">&times;</span>
+      <h3><i class="fas fa-exclamation-circle"></i> Error</h3>
+      <p id="error-message"></p>
+      <button onclick="document.getElementById('error-modal').style.display='none'" class="btn-primary">
+        OK
+      </button>
+    </div>
+  </div>
+
   <!-- Trip script -->
   <script src="../utils/js/trip_card.js"></script>
+  
+  <!-- Load Google Maps JavaScript API with required libraries -->
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCd&libraries=places,geometry&callback=initMap">
+  </script>
 </body>
 </html>
