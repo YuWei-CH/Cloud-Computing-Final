@@ -125,3 +125,23 @@
     justify-content: center;
     gap: 8px;
 }
+
+/* Style for the custom destination textarea */
+#custom-destination-description {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    resize: vertical;
+    min-height: 60px;
+    font-size: 14px;
+}
+
+/* Style for the activity date display (replacing activity time) */
+.activity-date {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-right: 10px;
+}
