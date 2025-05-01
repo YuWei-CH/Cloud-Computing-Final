@@ -18,10 +18,25 @@ def lambda_handler(event, context):
     # Handle direct Lambda invocation for testing
     if not event or (isinstance(event, dict) and len(event) == 0):
         print("Empty event received - likely direct Lambda invocation")
-        # For testing, you can hardcode an email here
-        test_email = "ys4680@nyu.edu"  # Replace with a valid test email
-        print(f"Using test email for direct invocation: {test_email}")
-        event = {"headers": {"X-User-Email": test_email}}
+        # For API debugging purposes, return diagnostic information
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-User-Email',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({
+                'message': 'API Gateway Integration Test - No data received',
+                'event': event,
+                'context': str(context),
+                'note': 'This Lambda is receiving an empty event. Check API Gateway integration.'
+            })
+        }
+    
+    # Add special diagnostics for API Gateway integration issues
+    print("EVENT STRUCTURE:", {k: type(v).__name__ for k, v in event.items()})
+    print("EVENT KEYS:", list(event.keys()))
     
     # Handle OPTIONS method for CORS preflight requests
     if event.get('httpMethod') == 'OPTIONS':
