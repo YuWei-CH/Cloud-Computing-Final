@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Populate user information
         populateUserInfo(userData);
 
+        // Load user's trips
+        const trips = await loadUserTrips(email);
+
+        // Update the trip count in the profile section
+        updateTripCount(trips.length);
+
         // Set up event listeners
         setupEventListeners();
 
@@ -231,15 +237,15 @@ function setupEventListeners() {
             const tripCard = this.closest('.trip-card');
             const tripName = tripCard.querySelector('h3').textContent;
 
-            // const tripId = mapTripNameToTripId(tripName); // 静态映射函数
+            const tripId = mapTripNameToTripId(tripName); // This function maps trip names to IDs
 
             if (!tripId) {
                 alert(`Trip ID not found for "${tripName}"`);
                 return;
             }
 
-            // ✅ jump to
-            // window.location.href = `../trip_card/trip_card.html?trip_id=${tripId}`;
+            // jump to
+            window.location.href = `../trip_card/trip_card.html?trip_id=${tripId}`;
         });
     });
 
@@ -254,6 +260,14 @@ function setupEventListeners() {
             }
         });
     });
+
+    // New Trip button
+    const newTripBtn = document.querySelector('.history-section .btn-secondary');
+    if (newTripBtn) {
+        newTripBtn.addEventListener('click', function () {
+            window.location.href = '../explore/explore.html';
+        });
+    }
 }
 
 // Update user preferences in the database
@@ -412,21 +426,119 @@ async function updateUserProfile(profileData) {
     }
 }
 
-// Function to load trip history from API
-function loadTripHistory() {
-    // This would fetch trip history from your backend
-    // fetch('https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/trips', {
-    //     headers: {
-    //         'Authorization': `Bearer ${ getAuthToken() }`
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(trips => {
-    //     renderTripCards(trips);
-    // })
-    // .catch(error => {
-    //     console.error('Error loading trip history:', error);
-    // });
+// Function to load trips for current user from API
+async function loadUserTrips(email) {
+    try {
+        showLoading("Loading your trips...");
+
+        // Get userId from email - just use email as userId
+        const userId = email;
+
+        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips?user_id=${encodeURIComponent(userId)}`;
+        console.log("Fetching trips from:", url);
+
+        // Fetch trips from API
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log("Trips API response status:", response.status);
+        const data = await response.json();
+        console.log("Trips API raw response:", data);
+
+        // Extract trips from the response with improved parsing
+        let trips = [];
+
+        if (data.statusCode && data.body) {
+            // Handle Lambda proxy response format
+            console.log("Parsing Lambda proxy response");
+            try {
+                // Handle both string and object body
+                const bodyContent = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+                console.log("Parsed body content:", bodyContent);
+
+                if (bodyContent.trips) {
+                    trips = bodyContent.trips;
+                }
+            } catch (e) {
+                console.error("Failed to parse response body:", e);
+            }
+        } else if (data.trips) {
+            // Direct response with trips array
+            console.log("Found trips directly in response");
+            trips = data.trips;
+        } else {
+            // Unknown format, try to find trips anywhere in the response
+            console.log("Looking for trips in unknown response format");
+            const responseStr = JSON.stringify(data);
+            if (responseStr.includes("trips")) {
+                try {
+                    // As a last resort, try to find a trips array in the response
+                    const matches = responseStr.match(/"trips"\s*:\s*(\[.*?\])/);
+                    if (matches && matches[1]) {
+                        trips = JSON.parse(matches[1]);
+                    }
+                } catch (e) {
+                    console.error("Failed to extract trips from response:", e);
+                }
+            }
+        }
+
+        console.log(`Found ${trips.length} trips:`, trips);
+
+        // Update UI with trips
+        renderTripCards(trips);
+
+        hideLoading();
+        return trips;
+    } catch (error) {
+        console.error('Error loading trips:', error);
+        hideLoading();
+        showError("Couldn't load your trips. Please try again later.");
+
+        // Return empty array to avoid errors
+        return [];
+    }
+}
+
+// Calculate trip status based on dates
+function calculateTripStatus(tripData) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to beginning of day for accurate comparison
+
+    // Parse the start date
+    const startDate = new Date(tripData.start_date);
+    startDate.setHours(0, 0, 0, 0);
+
+    // Calculate end date (start date + duration)
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + (tripData.duration || 0));
+
+    // Determine status
+    if (endDate < today) {
+        return "completed";
+    } else if (startDate <= today && today <= endDate) {
+        return "now";
+    } else {
+        return "upcoming";
+    }
+}
+
+// Format dates for display
+function formatDateRange(startDateStr, duration) {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + (duration || 0));
+
+    // Format as MM/DD/YYYY
+    const formatDate = (date) => {
+        return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+    };
+
+    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 }
 
 // Helper function to render trip cards from data
@@ -434,10 +546,87 @@ function renderTripCards(trips) {
     const tripCardsContainer = document.querySelector('.trip-cards');
     tripCardsContainer.innerHTML = ''; // Clear existing cards
 
+    if (!trips || trips.length === 0) {
+        tripCardsContainer.innerHTML = '<div class="no-trips-message">You have no trips yet. Create your first trip!</div>';
+        return;
+    }
+
     trips.forEach(trip => {
-        // Create and append trip cards using the data
-        const tripCard = createTripCardElement(trip);
+        // Calculate trip status
+        const status = calculateTripStatus(trip);
+
+        // Map status to display text
+        const statusText = {
+            "completed": "Completed",
+            "now": "In Progress",
+            "upcoming": "Upcoming"
+        }[status];
+
+        // Format date range
+        const dateRange = formatDateRange(trip.start_date, trip.duration);
+
+        // Get trip image URL or use placeholder
+        const imageUrl = trip.cover_url || `https://via.placeholder.com/300x150?text=${encodeURIComponent(trip.start_city)}`;
+
+        // Create trip card HTML
+        const tripCard = document.createElement('div');
+        tripCard.className = 'trip-card';
+        tripCard.dataset.tripId = trip.id;
+        tripCard.innerHTML = `
+            <div class="trip-image">
+                <img src="${imageUrl}" alt="${trip.title || 'Trip'}">
+                <div class="trip-status ${status}">${statusText}</div>
+            </div>
+            <div class="trip-details">
+                <h3>${trip.title || `Trip to ${trip.start_city}`}</h3>
+                <div class="trip-meta">
+                    <span><i class="far fa-calendar-alt"></i> ${dateRange}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${trip.start_city} to ${trip.end_city}</span>
+                </div>
+                <div class="trip-tags">
+                    <span class="tag">${trip.duration} Days</span>
+                    <span class="tag">${trip.start_city}</span>
+                </div>
+            </div>
+            <div class="trip-actions">
+                <button class="btn-text view-trip"><i class="fas fa-eye"></i> View</button>
+                ${status === "upcoming" ? '<button class="btn-text edit-trip"><i class="fas fa-pencil-alt"></i> Edit</button>' :
+                '<button class="btn-text clone-trip"><i class="fas fa-copy"></i> Clone</button>'}
+            </div>
+        `;
+
         tripCardsContainer.appendChild(tripCard);
+    });
+
+    // Add event listeners to the new trip action buttons
+    document.querySelectorAll('.view-trip').forEach(button => {
+        button.addEventListener('click', function () {
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+
+            if (!tripId) {
+                alert('Trip ID not found');
+                return;
+            }
+
+            window.location.href = `../trip_card/trip_card.html?trip_id=${tripId}`;
+        });
+    });
+
+    document.querySelectorAll('.edit-trip, .clone-trip').forEach(button => {
+        button.addEventListener('click', function () {
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+            const tripName = tripCard.querySelector('h3').textContent;
+
+            if (this.classList.contains('edit-trip')) {
+                alert(`Editing ${tripName} (ID: ${tripId})`);
+                // Future implementation: window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+            } else {
+                alert(`Creating a new trip based on ${tripName} (ID: ${tripId})`);
+                // Future implementation: window.location.href = `../explore/explore.html?clone_from=${tripId}`;
+            }
+        });
     });
 }
 
@@ -448,7 +637,7 @@ function showLoading(message = "Loading...") {
         const overlay = document.createElement('div');
         overlay.id = 'loading-overlay';
         overlay.innerHTML = `
-        < div class= "loading-spinner" ></div >
+        <div class="loading-spinner"></div>
         <div class="loading-message">${message}</div>
         `;
         document.body.appendChild(overlay);
@@ -482,11 +671,18 @@ function showError(message) {
     }, 5000);
 }
 
-function mapTripNameToTripId(name) {
-    const tripMap = {
-        "Miami Trip": "11111111-1111-1111-1111-111111111111",
-        "New York City Trip": "22222222-2222-2222-2222-222222222222",
-        "Colorado Mountain Retreat": "33333333-3333-3333-3333-333333333333"
-    };
-    return tripMap[name] || null;
+// Function to update the trip count in the UI
+function updateTripCount(count) {
+    // Update the trip count in the profile
+    const tripCountElement = document.getElementById('profile-trips');
+    if (tripCountElement) {
+        tripCountElement.textContent = count;
+    }
+
+    // Also update the stored user data
+    if (currentUserData) {
+        currentUserData.tripsCount = count;
+    }
+
+    console.log(`Updated trip count to: ${count}`);
 }

@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Trip Route</title>
 
-  <!-- ✅ Core styles -->
+  <!-- Core styles -->
   <link rel="stylesheet" href="../utils/css/styles.css">
 
-  <!-- ✅ Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyes=geometry"></script>
+  <!-- Google Maps API -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyes&libraries=geometry"></script>
 
-  <!-- ✅ Ensure map and body have full height -->
+  <!-- Ensure map and body have full height -->
   <style>
     html, body {
       height: 100%;
@@ -84,7 +84,7 @@
       <button onclick="clearMap()">Clear Map</button>
     </div>
 
-    <!-- ✅ Back to Dashboard -->
+    <!-- Back to Dashboard -->
     <div style="margin-top: 20px;">
       <button onclick="window.location.href = '../dashboard/dashboard.html'" class="btn-secondary" style="width: 100%; padding: 10px;">
         ← Back to Dashboard
@@ -94,7 +94,7 @@
 
   <div id="map"></div>
 
-  <!-- ✅ Trip script -->
-  <!-- <script src="../utils/js/trip_card.js"></script> -->
+  <!-- Trip script -->
+  <script src="../utils/js/trip_card.js"></script>
 </body>
 </html>

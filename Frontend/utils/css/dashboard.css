@@ -8,6 +8,7 @@
     --status-completed: #28a745;
     --status-upcoming: #fd7e14;
     --status-planning: #17a2b8;
+    --status-now: #007bff;
 }
 
 body {
@@ -261,6 +262,10 @@ section {
 
 .trip-status.planning {
     background-color: var(--status-planning);
+}
+
+.trip-status.now {
+    background-color: var(--status-now);
 }
 
 .trip-details {

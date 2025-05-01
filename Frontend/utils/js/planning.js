@@ -432,9 +432,7 @@ function saveTripToDatabase() {
 
         console.log('Saving trip data:', tripData);
 
-        // Replace this alert and redirect with actual API call
-        // alert('Trip saved successfully! In a real app, this would be saved to the database.');
-        // window.location.href = '../dashboard/dashboard.html';
+
 
         // Show loading indicator
         showLoading("Saving your trip...");
@@ -546,9 +544,9 @@ function hideLoading() {
     }
 }
 
-// Function to save trip data to the API (implementation would depend on your API)
+// Function to save trip data to the API
 function saveTripToAPI(tripData) {
-    return fetch('https://your-api-gateway-url/trips', {
+    return fetch('https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
