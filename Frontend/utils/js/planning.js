@@ -273,7 +273,7 @@ function addAttractionToDay(attraction, dayId) {
         return;
     }
 
-    // Check if this attraction is already in this day
+    // Check if this attraction is already in this day - ensure string comparison
     const existingActivities = dayContent.querySelectorAll(`[data-attraction-id="${attraction.id}"]`);
     if (existingActivities.length > 0) {
         alert(`${attraction.name} is already in your Day ${dayId} itinerary`);
@@ -676,10 +676,13 @@ function generateDayTabs(days, startDate = null) {
             e.preventDefault();
             this.classList.remove('dragover');
 
-            const attractionId = parseInt(e.dataTransfer.getData('text/plain'));
+            // Get attraction ID as string without parseInt to support custom IDs
+            const attractionId = e.dataTransfer.getData('text/plain');
 
-            // Get the attraction from planningSelectedAttractions instead of nycAttractions
-            const attraction = window.planningSelectedAttractions.find(a => a.id === attractionId);
+            // Get the attraction from planningSelectedAttractions
+            const attraction = window.planningSelectedAttractions.find(a =>
+                a.id.toString() === attractionId
+            );
 
             if (attraction) {
                 addAttractionToDay(attraction, i);
@@ -725,20 +728,21 @@ function setupDayTabNavigation() {
     });
 }
 
-// Update this function to validate all attractions are added
+// Update this function to validate all attractions are added and handle mixed ID types
 function updateSaveButtonState() {
     const saveBtn = document.querySelector('.btn-save-trip');
     if (!saveBtn) return;
 
     // Check if all selected attractions have been added to the itinerary
-    const selectedAttractionIds = window.planningSelectedAttractions?.map(a => a.id) || [];
+    const selectedAttractionIds = window.planningSelectedAttractions?.map(a => a.id.toString()) || [];
     const addedActivityIds = Array.from(document.querySelectorAll('.activity-item'))
         .map(item => item.getAttribute('data-attraction-id'))
         .filter(id => id); // Filter out null/undefined
 
     // Check if every selected attraction has been added
+    // Use string comparison for consistency
     const allActivitiesAdded = selectedAttractionIds.every(id =>
-        addedActivityIds.includes(id.toString()));
+        addedActivityIds.includes(id));
     const hasActivities = document.querySelectorAll('.activity-item').length > 0;
 
     if (allActivitiesAdded && hasActivities) {
