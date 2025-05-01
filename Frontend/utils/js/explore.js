@@ -126,51 +126,34 @@ function initDestinationInput() {
         return;
     }
 
-    // Show autocomplete results on input
-    destinationInput.addEventListener('input', function () {
-        const value = this.value.trim();
+    // Initialize Google Places Autocomplete
+    const autocomplete = new google.maps.places.Autocomplete(destinationInput, {
+        types: ['(cities)'],
+        componentRestrictions: { country: 'us' }
+    });
 
-        // Clear previous results 
-        autocompleteResults.innerHTML = '';
-
-        if (value.length < 2) {
-            autocompleteResults.style.display = 'none';
+    // Handle place selection
+    autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+            console.log("No details available for input: '" + place.name + "'");
             return;
         }
 
-        // In a real app, this would be a call to an API or a more comprehensive list
-        // For now, just include NYC as our example
-        const destinations = ['New York City, USA'];
+        // Get the formatted address
+        const destination = place.formatted_address;
+        
+        // Clear any previous selections
+        selectedDestinations.innerHTML = '';
 
-        const filteredDestinations = destinations.filter(destination =>
-            destination.toLowerCase().includes(value.toLowerCase())
-        );
+        // Add the new destination as the only selection
+        addDestinationTag(destination);
 
-        if (filteredDestinations.length > 0) {
-            autocompleteResults.style.display = 'block';
+        // Show recommendations section
+        recommendationsSection.style.display = 'block';
 
-            filteredDestinations.forEach(destination => {
-                const item = document.createElement('div');
-                item.classList.add('autocomplete-item');
-                item.textContent = destination;
-
-                item.addEventListener('click', function () {
-                    destinationInput.value = destination;
-                    autocompleteResults.style.display = 'none';
-                });
-
-                autocompleteResults.appendChild(item);
-            });
-        } else {
-            autocompleteResults.style.display = 'none';
-        }
-    });
-
-    // Hide autocomplete when clicking outside
-    document.addEventListener('click', function (e) {
-        if (e.target !== destinationInput && e.target !== autocompleteResults) {
-            autocompleteResults.style.display = 'none';
-        }
+        // Reset selected count
+        document.getElementById('selected-count').textContent = '0';
     });
 
     // Get recommendations when button is clicked
@@ -178,26 +161,16 @@ function initDestinationInput() {
         const value = destinationInput.value.trim();
 
         if (value) {
-            // Default to NYC for demo purposes if no destination entered
-            const destination = value || "New York City, USA";
-
             // Clear any previous selections
             selectedDestinations.innerHTML = '';
 
             // Add the new destination as the only selection
-            addDestinationTag(destination);
+            addDestinationTag(value);
 
             // Show recommendations section
             recommendationsSection.style.display = 'block';
 
             // Reset selected count
-            document.getElementById('selected-count').textContent = '0';
-        } else {
-            // If input is empty, still show NYC recommendations
-            const destination = "New York City, USA";
-            selectedDestinations.innerHTML = '';
-            addDestinationTag(destination);
-            recommendationsSection.style.display = 'block';
             document.getElementById('selected-count').textContent = '0';
         }
     });
@@ -230,7 +203,7 @@ function initDestinationInput() {
 
         selectedDestinations.appendChild(tag);
 
-        // Load NYC recommendations (regardless of input for demo)
+        // Load recommendations for the selected destination
         loadRecommendationCards();
     }
 }

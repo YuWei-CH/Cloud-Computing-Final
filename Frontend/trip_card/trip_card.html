@@ -69,6 +69,45 @@
     </div>
   </div>
 
+  <!-- Location Details Modal -->
+  <div id="location-modal" class="modal">
+    <div class="modal-content location-content">
+      <span class="close">&times;</span>
+      <div class="location-header">
+        <h3 id="location-name"></h3>
+        <div id="location-rating" class="rating"></div>
+      </div>
+      <div class="location-body">
+        <div class="location-info">
+          <div id="location-address" class="info-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span></span>
+          </div>
+          <div id="location-phone" class="info-item">
+            <i class="fas fa-phone"></i>
+            <span></span>
+          </div>
+          <div id="location-website" class="info-item">
+            <i class="fas fa-globe"></i>
+            <a href="#" target="_blank"></a>
+          </div>
+          <div id="location-hours" class="info-item">
+            <i class="fas fa-clock"></i>
+            <div class="hours-list"></div>
+          </div>
+        </div>
+        <div class="location-photos">
+          <h4>Photos</h4>
+          <div id="location-photos-gallery" class="photos-grid"></div>
+        </div>
+        <div class="location-reviews">
+          <h4>Reviews</h4>
+          <div id="location-reviews-list" class="reviews-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Error Modal -->
   <div id="error-modal" class="modal">
     <div class="modal-content error-content">
@@ -86,7 +125,7 @@
   
   <!-- Load Google Maps JavaScript API with required libraries -->
   <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCd&libraries=places,geometry&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=&libraries=places,geometry&callback=initMap">
   </script>
 </body>
 </html>
