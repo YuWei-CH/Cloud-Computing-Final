@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Tickets | Travel App</title>
+    <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="../utils/css/ticket_upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Travel App</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
+                <li class="active"><a href="#"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
+                <li><a href="#"><i class="fas fa-bookmark"></i> Saved</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Upload Travel Tickets</h1>
+            </header>
+
+            <div class="upload-container">
+                <section class="card">
+                    <div class="section-header">
+                        <h2>Select Trip</h2>
+                    </div>
+                    <div class="trip-selector" id="trip-selector">
+                        <!-- Upcoming trips will be loaded here -->
+                        <div class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin"></i> Loading your upcoming trips...
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card" id="upload-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Upload Tickets for <span id="selected-trip-name">Selected Trip</span></h2>
+                    </div>
+                    <div class="upload-section">
+                        <div class="upload-success" id="upload-success">
+                            <i class="fas fa-check-circle"></i> Your tickets have been uploaded successfully!
+                        </div>
+                        
+                        <div class="file-drop-area" id="drop-area">
+                            <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                            <p>Drag & drop files here or click to browse</p>
+                            <p class="small">Supported formats: JPG, JPEG, PNG, PDF</p>
+                            <input type="file" class="file-input" id="file-input" accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        
+                        <div id="file-preview">
+                            <!-- Selected files will appear here -->
+                        </div>
+                        
+                        <div class="file-error" id="file-error" style="display:none;"></div>
+                        
+                        <div class="upload-progress" style="display:none;" id="upload-progress">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn-primary" id="upload-btn" disabled>Upload Tickets</button>
+                            <button class="btn-secondary" id="cancel-btn">Cancel</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="../tickets/ticket_upload.js"></script>
+</body>
+</html>
