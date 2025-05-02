@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings | Travel App</title>
+    <title>Settings | Travel Planner</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
     <link rel="stylesheet" href="../utils/css/settings.css">
@@ -17,7 +17,7 @@
     <div class="dashboard-container">
         <nav class="sidebar">
             <div class="sidebar-header">
-                <h2>Travel App</h2>
+                <h2>Travel Planner</h2>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -26,89 +26,102 @@
                 <li class="active"><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
                 <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
+            
+            <!-- Add footer links to sidebar -->
+            <div class="sidebar-footer">
+                <ul class="sidebar-footer-links">
+                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
+                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
+                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
+                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
+                </ul>
+            </div>
         </nav>
 
-        <main class="main-content">
-            <header class="dashboard-header">
-                <h1>Settings</h1>
-            </header>
+        <main class="main-content settings-page">
+            <div class="content-wrapper centered-content">
+                <header class="dashboard-header">
+                    <h1>Settings</h1>
+                </header>
 
-            <section class="appearance-section">
-                <div class="section-header">
-                    <h2>Appearance</h2>
-                </div>
-                <div class="card">
-                    <div class="settings-group">
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <h3>Dark Mode</h3>
-                                <p>Switch between light and dark theme</p>
+                <section class="appearance-section">
+                    <div class="section-header">
+                        <h2>Appearance</h2>
+                    </div>
+                    <div class="card">
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <h3>Dark Mode</h3>
+                                    <p>Switch between light and dark theme</p>
+                                </div>
+                                <div class="setting-control">
+                                    <label class="switch">
+                                        <input type="checkbox" id="dark-mode-toggle">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
                             </div>
-                            <div class="setting-control">
-                                <label class="switch">
-                                    <input type="checkbox" id="dark-mode-toggle">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <h3>Font Size</h3>
-                                <p>Adjust the font size of the app</p>
-                            </div>
-                            <div class="setting-control">
-                                <div class="font-size-options">
-                                    <button class="font-size-btn" data-size="small">Small</button>
-                                    <button class="font-size-btn active" data-size="medium">Medium</button>
-                                    <button class="font-size-btn" data-size="large">Large</button>
+                            
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <h3>Font Size</h3>
+                                    <p>Adjust the font size of the app</p>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="font-size-options">
+                                        <button class="font-size-btn" data-size="small">Small</button>
+                                        <button class="font-size-btn active" data-size="medium">Medium</button>
+                                        <button class="font-size-btn" data-size="large">Large</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section class="notification-section">
-                <div class="section-header">
-                    <h2>Notifications</h2>
-                </div>
-                <div class="card">
-                    <div class="settings-group">
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <h3>Browser Notifications</h3>
-                                <p>Receive in-browser notifications and alerts</p>
-                            </div>
-                            <div class="setting-control">
-                                <label class="switch">
-                                    <input type="checkbox" id="browser-notifications-toggle" checked>
-                                    <span class="slider round"></span>
-                                </label>
+                <section class="notification-section">
+                    <div class="section-header">
+                        <h2>Notifications</h2>
+                    </div>
+                    <div class="card">
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <h3>Browser Notifications</h3>
+                                    <p>Receive in-browser notifications and alerts</p>
+                                </div>
+                                <div class="setting-control">
+                                    <label class="switch">
+                                        <input type="checkbox" id="browser-notifications-toggle" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section class="actions-section">
-                <div class="section-header">
-                    <h2>Account Actions</h2>
-                </div>
-                <div class="card">
-                    <div class="settings-group">
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <h3>Clear Local Data</h3>
-                                <p>Clear all locally stored data and preferences</p>
-                            </div>
-                            <div class="setting-control">
-                                <button id="clear-data-btn" class="btn-secondary">Clear Data</button>
+                <section class="actions-section">
+                    <div class="section-header">
+                        <h2>Account Actions</h2>
+                    </div>
+                    <div class="card">
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <h3>Clear Local Data</h3>
+                                    <p>Clear all locally stored data and preferences</p>
+                                </div>
+                                <div class="setting-control">
+                                    <button id="clear-data-btn" class="btn-secondary">Clear Data</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
+
         </main>
     </div>
     

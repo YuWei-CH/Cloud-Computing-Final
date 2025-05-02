@@ -65,7 +65,7 @@ p,
 }
 
 .btn-secondary {
-    color: var(--dark-primary);
+    color: var (--dark-primary);
     border-color: var(--dark-primary);
 }
 
@@ -249,4 +249,72 @@ input[type="date"] {
 .current-date-display {
     background-color: rgba(52, 152, 219, 0.1);
     color: var(--dark-text);
+}
+
+/* Footer dark theme enhancements */
+.footer-container {
+    background-color: rgba(33, 33, 33, 0.85);
+    border-color: rgba(66, 66, 66, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.footer-links a {
+    color: var(--dark-primary);
+}
+
+.footer-links a:hover {
+    color: #7f9eff;
+}
+
+.footer-links a::after {
+    background-color: var(--dark-primary);
+}
+
+/* Static pages content styling */
+.page-content h2,
+.page-content h3 {
+    color: var(--dark-text);
+}
+
+.page-content p,
+.page-content li,
+.page-content span:not(.info-value) {
+    color: var(--dark-text-secondary);
+}
+
+.page-content a {
+    color: var(--dark-primary);
+}
+
+.contact-info .contact-detail i {
+    color: var(--dark-primary);
+}
+
+/* Contact page specific */
+.contact-form {
+    background-color: var(--dark-surface) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.contact-form h2 {
+    color: var(--dark-text) !important;
+}
+
+.contact-form p,
+.contact-form li,
+.contact-form span,
+.contact-form div {
+    color: var(--dark-text-secondary) !important;
+}
+
+.contact-form a {
+    color: var(--dark-primary) !important;
+}
+
+.faq-section .faq-item h3 {
+    color: var(--dark-text) !important;
+}
+
+.faq-section .faq-item p {
+    color: var(--dark-text-secondary) !important;
 }

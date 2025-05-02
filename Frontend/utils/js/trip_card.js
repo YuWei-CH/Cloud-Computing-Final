@@ -5,6 +5,7 @@ let markers = [];
 let infoWindows = [];
 let currentDayIndex = -1;
 let placesService;
+let pendingTripId = null; // Store the trip ID until Google Maps is ready
 
 // Initialize loading state
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,8 +20,14 @@ async function initializeApp() {
             return;
         }
 
-        // Start loading data immediately
-        loadTripData(tripId);
+        // Show loading state
+        showLoading("Loading your trip...");
+
+        // Store the trip ID for later use when Google Maps is ready
+        pendingTripId = tripId;
+
+        // We'll wait for initMap to be called by the Google Maps API
+        // Don't call loadTripData here because google is not defined yet
     } catch (error) {
         console.error("Error in initialization:", error);
         showError("Failed to initialize the app. Please refresh the page.");
@@ -44,26 +51,61 @@ async function initMap() {
             ]
         });
 
+        // Ensure map fills available space
+        google.maps.event.addListenerOnce(map, 'idle', function () {
+            google.maps.event.trigger(map, 'resize');
+        });
+
+        // Fix for map not taking full size
+        window.addEventListener('resize', function () {
+            google.maps.event.trigger(map, 'resize');
+            // Recenter the map if needed
+            if (currentBounds) {
+                map.fitBounds(currentBounds);
+            }
+        });
+
         // Initialize Places service
         placesService = new google.maps.places.PlacesService(map);
 
-        // Start loading trip data
-        const tripId = getTripIdFromURL();
-        if (!tripId) {
-            showError("Trip ID is missing in URL");
-            return;
+        // Now that Google Maps is loaded, we can proceed with the trip data
+        if (pendingTripId) {
+            await loadTripData(pendingTripId);
+        } else {
+            const tripId = getTripIdFromURL();
+            if (!tripId) {
+                showError("Trip ID is missing in URL");
+                return;
+            }
+            await loadTripData(tripId);
         }
-
-        // Show loading state
-        showLoading("Loading your trip...");
-
-        // Load and render trip data
-        await loadTripData(tripId);
     } catch (error) {
         console.error("Error initializing map:", error);
         showError("Failed to initialize the map. Please refresh the page.");
     }
 }
+
+// Add this code to the initMap function or after the map is created
+
+// Force resize the map to fit container after initialization
+function resizeMap() {
+    if (typeof google !== 'undefined' && map) {
+        google.maps.event.trigger(map, 'resize');
+        if (currentBounds) {
+            map.fitBounds(currentBounds);
+        }
+    }
+}
+
+// Call resize on window load and resize events
+window.addEventListener('load', resizeMap);
+window.addEventListener('resize', resizeMap);
+
+// Check for DOM content loaded to fix map sizing
+document.addEventListener('DOMContentLoaded', function () {
+    // Add a slight delay to ensure the map container is fully rendered
+    setTimeout(resizeMap, 100);
+});
 
 function showError(message) {
     hideLoading(); // Ensure loading is hidden when showing error

@@ -4,6 +4,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    overflow: hidden;
 }
 
 body {
@@ -24,7 +25,8 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    pointer-events: none; /* Allow clicks to pass through */
+    pointer-events: none;
+    /* Allow clicks to pass through */
 }
 
 .loading-spinner {
@@ -47,8 +49,13 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Loading placeholder */
@@ -63,27 +70,39 @@ body {
 }
 
 @keyframes loading-pulse {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 #sidebar {
-    width: 300px;
-    height: 100vh;
-    background: #fff;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    overflow-y: auto;
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 1000;
+    bottom: 0;
+    width: 350px;
+    background-color: white;
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
 }
 
 #map {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 350px;
+    /* Match the sidebar width */
     height: 100vh;
-    width: calc(100% - 300px);
-    margin-left: 300px;
+    width: calc(100% - 350px);
+    /* Calculate remaining width */
+    z-index: 1;
 }
 
 #trip-summary {
@@ -112,7 +131,7 @@ body {
     padding: 10px;
     background: #fff;
     border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .weather-icon {
@@ -136,20 +155,20 @@ body {
     text-align: left;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .day-button:hover {
     background: #f8f9fa;
     border-color: #1a73e8;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .day-button.active {
     background: #e8f0fe;
     border-color: #1a73e8;
-    box-shadow: 0 2px 8px rgba(26,115,232,0.2);
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
 }
 
 .day-button i {
@@ -193,12 +212,12 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 2000;
+    z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
 .modal-content {
@@ -209,7 +228,7 @@ body {
     max-width: 1000px;
     border-radius: 12px;
     position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content h3 {
@@ -245,7 +264,7 @@ body {
     padding-bottom: 75%;
     overflow: hidden;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .photo-item img {
@@ -280,7 +299,7 @@ body {
     font-family: 'Arial', sans-serif;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .info-window-image {
@@ -462,6 +481,30 @@ body {
     .photos-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    #sidebar {
+        width: 280px;
+    }
+
+    #map {
+        left: 280px;
+        width: calc(100% - 280px);
+    }
+}
+
+@media (max-width: 576px) {
+    #sidebar {
+        width: 100%;
+        height: 200px;
+        bottom: auto;
+    }
+
+    #map {
+        left: 0;
+        top: 200px;
+        height: calc(100vh - 200px);
+        width: 100%;
+    }
 }
 
 /* Enhance route line appearance */
@@ -477,8 +520,15 @@ body {
 
 /* Add animation for markers */
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
 }
 
 .marker-bounce {

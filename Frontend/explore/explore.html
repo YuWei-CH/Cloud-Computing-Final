@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore | Travel App</title>
+    <title>Explore | Travel Planner</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
     <link rel="stylesheet" href="../utils/css/explore.css">
@@ -12,13 +12,33 @@
     <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
     <!-- Common script for global settings -->
     <script src="../utils/js/common.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+    <!-- Config file with API keys -->
+    <script src="../utils/js/config.js"></script>
+    <script>
+        // Load Google Maps API dynamically with key from config and callback
+        document.addEventListener('DOMContentLoaded', function() {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMaps.apiKey}&libraries=places&callback=initializeApp`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        });
+        
+        // Global initialization function that will be called after API loads
+        window.initializeApp = function() {
+            console.log("Google Maps API loaded successfully");
+            // Now that Google API is loaded, initialize explore functionality
+            if (window.initExploreApp) {
+                window.initExploreApp();
+            }
+        };
+    </script>
 </head>
 <body>
     <div class="dashboard-container">
         <nav class="sidebar">
             <div class="sidebar-header">
-                <h2>Travel App</h2>
+                <h2>Travel Planner</h2>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -27,6 +47,16 @@
                 <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
                 <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
+            
+            <!-- Add footer links to sidebar -->
+            <div class="sidebar-footer">
+                <ul class="sidebar-footer-links">
+                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
+                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
+                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
+                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
+                </ul>
+            </div>
         </nav>
 
         <main class="main-content">
@@ -211,7 +241,7 @@
                         </div>
                         
                         <div class="map-preview">
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
                         </div>
                         <div class="sidebar-actions">
                             <button class="btn-secondary btn-full"><i class="fas fa-share-alt"></i> Share</button>
@@ -221,29 +251,14 @@
                 </div>
             </section>
 
-            <footer class="explore-footer">
-                <div class="footer-links">
-                    <a href="#">About Us</a>
-                    <a href="#">Contact</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
+            <!-- Modal for activity details -->
+            <div id="activity-details-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <div id="activity-details-content"></div>
                 </div>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-pinterest"></i></a>
-                </div>
-            </footer>
-        </main>
-
-        <!-- Modal for activity details -->
-        <div id="activity-details-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <div id="activity-details-content"></div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="../utils/js/explore.js"></script>
