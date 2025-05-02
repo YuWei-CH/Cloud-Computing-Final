@@ -5,6 +5,7 @@ let markers = [];
 let infoWindows = [];
 let currentDayIndex = -1;
 let placesService;
+let pendingTripId = null; // Store the trip ID until Google Maps is ready
 
 // Initialize loading state
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,8 +20,14 @@ async function initializeApp() {
             return;
         }
 
-        // Start loading data immediately
-        loadTripData(tripId);
+        // Show loading state
+        showLoading("Loading your trip...");
+
+        // Store the trip ID for later use when Google Maps is ready
+        pendingTripId = tripId;
+
+        // We'll wait for initMap to be called by the Google Maps API
+        // Don't call loadTripData here because google is not defined yet
     } catch (error) {
         console.error("Error in initialization:", error);
         showError("Failed to initialize the app. Please refresh the page.");
@@ -47,18 +54,17 @@ async function initMap() {
         // Initialize Places service
         placesService = new google.maps.places.PlacesService(map);
 
-        // Start loading trip data
-        const tripId = getTripIdFromURL();
-        if (!tripId) {
-            showError("Trip ID is missing in URL");
-            return;
+        // Now that Google Maps is loaded, we can proceed with the trip data
+        if (pendingTripId) {
+            await loadTripData(pendingTripId);
+        } else {
+            const tripId = getTripIdFromURL();
+            if (!tripId) {
+                showError("Trip ID is missing in URL");
+                return;
+            }
+            await loadTripData(tripId);
         }
-
-        // Show loading state
-        showLoading("Loading your trip...");
-
-        // Load and render trip data
-        await loadTripData(tripId);
     } catch (error) {
         console.error("Error initializing map:", error);
         showError("Failed to initialize the map. Please refresh the page.");

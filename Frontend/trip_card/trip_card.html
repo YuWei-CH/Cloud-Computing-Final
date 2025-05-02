@@ -129,9 +129,18 @@
   <!-- Trip script -->
   <script src="../utils/js/trip_card.js"></script>
   
+  <!-- Config file with API keys -->
+  <script src="../utils/js/config.js"></script>
+  
   <!-- Load Google Maps JavaScript API with required libraries -->
-  <script async
-    src="https://maps.googleapis.com/maps/api/js?key=&libraries=places,geometry&callback=initMap">
+  <script>
+    // Load Google Maps API dynamically with key from config
+    (function() {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMaps.apiKey}&libraries=places,geometry&callback=initMap`;
+      script.async = true;
+      document.body.appendChild(script);
+    })();
   </script>
 </body>
 </html>
