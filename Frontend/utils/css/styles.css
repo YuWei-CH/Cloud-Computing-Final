@@ -252,6 +252,113 @@ select {
     text-decoration: underline;
 }
 
+/* Footer styles */
+.app-footer {
+    padding: 16px 0;
+    position: relative;
+    margin-top: auto;
+    width: 100%;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 14px 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    display: inline-flex;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(206, 212, 218, 0.5);
+    margin-bottom: 20px;
+}
+
+/* Main app pages footer - positioned at page bottom, not viewport bottom */
+.main-page-footer {
+    position: relative;
+    margin-top: auto;
+    width: 100%;
+    z-index: 10;
+}
+
+/* Dark theme footer */
+.dark-theme .footer-container {
+    background-color: rgba(33, 33, 33, 0.85);
+    border-color: rgba(66, 66, 66, 0.5);
+}
+
+.footer-links {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 6px 0;
+    position: relative;
+}
+
+.footer-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: var(--primary-color);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.footer-links a:hover {
+    color: var(--primary-hover);
+}
+
+.footer-links a:hover::after {
+    width: 100%;
+}
+
+/* Fixed Footer styles for main app pages */
+.main-page-footer {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.dark-theme .main-page-footer {
+    background-color: rgba(30, 30, 30, 0.95);
+    border-top-color: #333333;
+}
+
+/* Responsive footer */
+@media (max-width: 576px) {
+    .footer-container {
+        border-radius: 20px;
+        padding: 12px 20px;
+        width: 90%;
+    }
+
+    .footer-links {
+        gap: 15px;
+    }
+
+    .footer-links a {
+        font-size: 13px;
+    }
+}
+
 /* Responsive styles */
 @media (max-width: 576px) {
     .container {

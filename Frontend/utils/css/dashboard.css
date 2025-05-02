@@ -26,6 +26,8 @@ body {
 
 /* Sidebar */
 .sidebar {
+    display: flex;
+    flex-direction: column;
     width: 240px;
     background-color: var(--sidebar-bg);
     color: white;
@@ -87,11 +89,67 @@ body {
     background-color: rgba(255, 0, 0, 0.6);
 }
 
+/* Footer links in sidebar */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-footer-links {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar-footer-links li {
+    margin-bottom: 2px;
+}
+
+.sidebar-footer-links li a {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-footer-links li a:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-footer-links li a i {
+    margin-right: 10px;
+    font-size: 12px;
+}
+
 /* Main content */
 .main-content {
     flex: 1;
     margin-left: 240px;
-    padding: 30px;
+    padding: 30px 30px 30px 30px;
+    /* Normal padding, no extra bottom padding needed */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Content wrapper should take all available space */
+.content-wrapper {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Footer at bottom */
+.app-footer {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .dashboard-header {
@@ -383,6 +441,17 @@ section {
 
     .main-content {
         margin-left: 70px;
+        padding-bottom: 30px;
+        /* Normal padding */
+    }
+
+    .sidebar-footer-links li a span {
+        display: none;
+    }
+
+    .sidebar-footer-links li a i {
+        margin-right: 0;
+        font-size: 1rem;
     }
 }
 

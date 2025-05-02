@@ -250,3 +250,22 @@ input[type="date"] {
     background-color: rgba(52, 152, 219, 0.1);
     color: var(--dark-text);
 }
+
+/* Footer dark theme enhancements */
+.footer-container {
+    background-color: rgba(33, 33, 33, 0.85);
+    border-color: rgba(66, 66, 66, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.footer-links a {
+    color: var(--dark-primary);
+}
+
+.footer-links a:hover {
+    color: #7f9eff;
+}
+
+.footer-links a::after {
+    background-color: var(--dark-primary);
+}

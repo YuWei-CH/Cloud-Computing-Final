@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Travel Planner</title>
+    <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Dark theme stylesheet (disabled by default) -->
+    <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
+    <!-- Common script for global settings -->
+    <script src="../utils/js/common.js"></script>
+    <style>
+        .page-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .contact-info {
+            margin-bottom: 40px;
+        }
+        
+        .contact-info h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contact-detail i {
+            width: 30px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        
+        .contact-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        
+        .contact-form h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .faq-section {
+            margin-top: 50px;
+        }
+        
+        .faq-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+        }
+        
+        .faq-item h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .faq-item p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Travel Planner</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
+                <li><a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
+                <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            
+            <!-- Add footer links to sidebar -->
+            <div class="sidebar-footer">
+                <ul class="sidebar-footer-links">
+                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
+                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
+                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
+                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Contact Us</h1>
+            </header>
+
+            <div class="page-content">
+                <div class="contact-info">
+                    <h2>Get in Touch</h2>
+                    <div class="contact-detail">
+                        <i class="fas fa-envelope"></i>
+                        <span>ys4680@nyu.edu</span>
+                    </div>
+                    <div class="contact-detail">
+                        <i class="fas fa-phone"></i>
+                        <span>+1 (347) 529-8898</span>
+                    </div>
+                    <div class="contact-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>6 MetroTech Center, Brooklyn, NY 11201</span>
+                    </div>
+                    <div class="contact-detail">
+                        <i class="fas fa-clock"></i>
+                        <span>Monday - Friday: 9:00 AM - 6:00 PM EST</span>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <p>Have a question or suggestion? Feel free to reach out to us by email.</p>
+                    <div class="contact-detail">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send your inquiries to: <a href="mailto:ys4680@nyu.edu">ys4680@nyu.edu</a></span>
+                    </div>
+                    <p class="mt-3">Please include the following information in your email:</p>
+                    <ul>
+                        <li>Your full name</li>
+                        <li>Your email address for our response</li>
+                        <li>A clear subject line</li>
+                        <li>Detailed description of your question or suggestion</li>
+                    </ul>
+                    <p>Our support team typically responds within 24-48 hours during business days.</p>
+                </div>
+
+                <div class="faq-section">
+                    <h2>Frequently Asked Questions</h2>
+                    <div class="faq-item">
+                        <h3>Is my personal information secure?</h3>
+                        <p>Yes, we use industry-standard security measures to protect your personal information. For more details, please review our Privacy Policy.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remove the footer section -->
+            <!-- <footer class="app-footer">
+                <div class="footer-links">
+                    <a href="../pages/about.html">About Us</a>
+                    <a href="../pages/contact.html">Contact</a>
+                    <a href="../pages/privacy.html">Privacy Policy</a>
+                    <a href="../pages/terms.html">Terms of Service</a>
+                </div>
+            </footer> -->
+        </main>
+    </div>
+
+    <script>
+        // Simple form submission handler
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>

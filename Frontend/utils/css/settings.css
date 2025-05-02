@@ -1,5 +1,44 @@
 /* Settings Page Styles */
 
+/* Strong centering for settings page */
+.settings-page .content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.centered-content section,
+.centered-content .dashboard-header {
+    width: 100%;
+}
+
+.settings-page .card {
+    width: 100%;
+}
+
+/* Center content in settings page */
+.main-content section {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Ensure header is also centered */
+.main-content .dashboard-header {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/* Existing settings styles */
 .settings-group {
     display: flex;
     flex-direction: column;

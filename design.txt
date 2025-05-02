@@ -68,7 +68,7 @@ C. History Area
 
 5. Navigation and Layout
 - Sidebar Navigation:
-  - Travel App logo/brand.
+  - Travel Planner logo/brand.
   - Menu items: Dashboard, Explore, Saved, Settings.
   - Logout option.
 - Responsive Design:
