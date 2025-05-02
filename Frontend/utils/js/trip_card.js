@@ -6,6 +6,7 @@ let infoWindows = [];
 let currentDayIndex = -1;
 let placesService;
 let pendingTripId = null; // Store the trip ID until Google Maps is ready
+let currentBounds = null; // Store the current map bounds for resizing
 
 // Initialize loading state
 document.addEventListener('DOMContentLoaded', () => {
@@ -197,7 +198,86 @@ function renderTripData() {
 }
 
 function updateTripSummary(firstDay) {
-    document.getElementById("trip-title").textContent = `Trip to ${firstDay.destination}`;
+    console.log("Trip data for summary:", tripData);
+    
+    // Focus on extracting city names only
+    const cities = new Set();
+    
+    // Get the main city if we can find it in addresses
+    tripData.forEach(day => {
+        // Try to extract city from full addresses
+        if (day.origin.includes("New York")) {
+            cities.add("New York");
+        }
+        
+        // Look for full addresses with comma-separated parts
+        if (day.origin.includes(",")) {
+            const parts = day.origin.split(",");
+            // For address format like "Street, City, State ZIP"
+            if (parts.length >= 2) {
+                // In US addresses, city is typically the second part
+                const potentialCity = parts[1].trim();
+                // Only add if it looks like a city (no numbers, reasonable length)
+                if (!potentialCity.match(/\d+/) && potentialCity.length < 30) {
+                    cities.add(potentialCity);
+                }
+            }
+        }
+        
+        // Same for destination if it has address format
+        if (day.destination.includes(",")) {
+            const parts = day.destination.split(",");
+            if (parts.length >= 2) {
+                const potentialCity = parts[1].trim();
+                if (!potentialCity.match(/\d+/) && potentialCity.length < 30) {
+                    cities.add(potentialCity);
+                }
+            }
+        }
+    });
+    
+    // Hard-code city extraction for known landmarks in New York
+    const nyLandmarks = [
+        "Empire State Building", "Central Park", "Brooklyn Bridge", 
+        "Times Square", "Statue of Liberty", "One World Observatory"
+    ];
+    
+    // Check if we're in New York based on landmarks
+    let hasNyLandmarks = false;
+    tripData.forEach(day => {
+        // Check origin, destination, and waypoints for NY landmarks
+        if (nyLandmarks.some(landmark => day.origin.includes(landmark) || 
+                                          day.destination.includes(landmark) ||
+                                          (day.waypoints && day.waypoints.some(wp => wp.includes(landmark))))) {
+            hasNyLandmarks = true;
+        }
+    });
+    
+    // If we found NY landmarks but no city, add New York
+    if (hasNyLandmarks && cities.size === 0) {
+        cities.add("New York");
+    }
+    
+    // Convert to array and create a formatted string
+    let cityList = Array.from(cities);
+    console.log("Extracted cities:", cityList);
+    
+    // If we still don't have cities, just use "Trip" as the title
+    let tripTitle = "Trip";
+    
+    if (cityList.length === 1) {
+        tripTitle = `Trip to ${cityList[0]}`;
+    } else if (cityList.length === 2) {
+        tripTitle = `Trip to ${cityList[0]} and ${cityList[1]}`;
+    } else if (cityList.length > 2) {
+        // For more than 2 cities, list them with commas and the last one with "and"
+        const lastCity = cityList.pop();
+        tripTitle = `Trip to ${cityList.join(', ')} and ${lastCity}`;
+    }
+    
+    console.log("Trip title:", tripTitle);
+    
+    document.getElementById("trip-title").textContent = tripTitle;
     document.getElementById("trip-dates").innerHTML = `<i class="fas fa-calendar"></i> ${formatDate(new Date())}`;
     document.getElementById("trip-duration").innerHTML = `<i class="fas fa-clock"></i> ${tripData.length} days`;
     document.getElementById("trip-status").innerHTML = `<i class="fas fa-info-circle"></i> Active`;
@@ -275,9 +355,9 @@ async function showSingleRoute(index) {
         }
 
         // Fit bounds to show the entire route
-        const bounds = new google.maps.LatLngBounds();
-        path.forEach(p => bounds.extend(p));
-        map.fitBounds(bounds);
+        currentBounds = new google.maps.LatLngBounds();
+        path.forEach(p => currentBounds.extend(p));
+        map.fitBounds(currentBounds);
 
         // Animate the route
         animateRoute(polyline);
@@ -469,7 +549,7 @@ async function showAllRoutes() {
         currentDayIndex = -1;
         updateRouteStatus("Showing entire trip");
 
-        const bounds = new google.maps.LatLngBounds();
+        currentBounds = new google.maps.LatLngBounds();
         const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFA500', '#800080'];
 
         tripData.forEach((day, index) => {
@@ -489,10 +569,10 @@ async function showAllRoutes() {
             addMarker(path[path.length - 1], day.destination,
                 index === tripData.length - 1 ? 'destination' : 'waypoint');
 
-            path.forEach(p => bounds.extend(p));
+            path.forEach(p => currentBounds.extend(p));
         });
 
-        map.fitBounds(bounds);
+        map.fitBounds(currentBounds);
     } catch (error) {
         console.error("Error showing all routes:", error);
         showError("Failed to show all routes");
@@ -676,6 +756,10 @@ async function showLocationDetails(placeId, locationName, lat, lng) {
 function displayLocationDetails(place) {
     const modal = document.getElementById('location-modal');
 
+    // Debug place object
+    console.log("Place details:", place);
+    console.log("Photos available:", place.photos);
+    
     // Update header
     document.getElementById('location-name').textContent = place.name;
 
@@ -726,12 +810,16 @@ function displayLocationDetails(place) {
     // Update photos
     const photosElement = document.getElementById('location-photos-gallery');
     if (place.photos && place.photos.length > 0) {
+        console.log("First photo object:", place.photos[0]);
+        // Use getUrl method for photos instead of constructing URL with photo_reference
         photosElement.innerHTML = place.photos
             .slice(0, 6) // Show up to 6 photos
-            .map(photo => `
-                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${config.googleMaps.apiKey}" 
-                     alt="${place.name}">
-            `)
+            .map(photo => {
+                // Use the getUrl() method provided by Google Maps API
+                const photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
+                console.log("Generated photo URL:", photoUrl);
+                return `<img src="${photoUrl}" alt="${place.name}">`;
+            })
             .join('');
     } else {
         photosElement.innerHTML = '<p>No photos available</p>';
