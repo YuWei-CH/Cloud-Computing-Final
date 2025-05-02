@@ -229,7 +229,7 @@ function populateSelectedAttractions(attractionIds) {
                 <span class="attraction-name">${attraction.name}</span>
             </div>
             <div class="attraction-actions">
-                <button class="btn-text remove-attraction-btn" title="Remove this attraction">
+                <button class="btn-text remove-attraction-btn" title="Remove this attraction" aria-label="Remove this attraction">
                     <i class="fas fa-times"></i>
                 </button>
                 <button class="btn-text add-to-day-btn" title="Add to current day">
