@@ -51,6 +51,20 @@ async function initMap() {
             ]
         });
 
+        // Ensure map fills available space
+        google.maps.event.addListenerOnce(map, 'idle', function () {
+            google.maps.event.trigger(map, 'resize');
+        });
+
+        // Fix for map not taking full size
+        window.addEventListener('resize', function () {
+            google.maps.event.trigger(map, 'resize');
+            // Recenter the map if needed
+            if (currentBounds) {
+                map.fitBounds(currentBounds);
+            }
+        });
+
         // Initialize Places service
         placesService = new google.maps.places.PlacesService(map);
 
@@ -70,6 +84,28 @@ async function initMap() {
         showError("Failed to initialize the map. Please refresh the page.");
     }
 }
+
+// Add this code to the initMap function or after the map is created
+
+// Force resize the map to fit container after initialization
+function resizeMap() {
+    if (typeof google !== 'undefined' && map) {
+        google.maps.event.trigger(map, 'resize');
+        if (currentBounds) {
+            map.fitBounds(currentBounds);
+        }
+    }
+}
+
+// Call resize on window load and resize events
+window.addEventListener('load', resizeMap);
+window.addEventListener('resize', resizeMap);
+
+// Check for DOM content loaded to fix map sizing
+document.addEventListener('DOMContentLoaded', function () {
+    // Add a slight delay to ensure the map container is fully rendered
+    setTimeout(resizeMap, 100);
+});
 
 function showError(message) {
     hideLoading(); // Ensure loading is hidden when showing error

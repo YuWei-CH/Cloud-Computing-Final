@@ -15,12 +15,23 @@
     <!-- Config file with API keys -->
     <script src="../utils/js/config.js"></script>
     <script>
-        // Load Google Maps API dynamically with key from config
+        // Load Google Maps API dynamically with key from config and callback
         document.addEventListener('DOMContentLoaded', function() {
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMaps.apiKey}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMaps.apiKey}&libraries=places&callback=initializeApp`;
+            script.async = true;
+            script.defer = true;
             document.head.appendChild(script);
         });
+        
+        // Global initialization function that will be called after API loads
+        window.initializeApp = function() {
+            console.log("Google Maps API loaded successfully");
+            // Now that Google API is loaded, initialize explore functionality
+            if (window.initExploreApp) {
+                window.initExploreApp();
+            }
+        };
     </script>
 </head>
 <body>

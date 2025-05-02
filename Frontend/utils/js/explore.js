@@ -9,17 +9,22 @@ document.addEventListener('DOMContentLoaded', function () {
     // Display current date
     updateCurrentDateDisplay();
 
+    // Only initialize basic UI elements that don't depend on Google Maps API
+    initViewToggle();
+    initTripDurationSelection();
+    initItineraryBuilder();
+});
+
+// This function will be called by the Google Maps API callback
+window.initExploreApp = function () {
     // Check if we're on the explore page (not planning page)
     const isExplorePage = document.getElementById('destination-input') !== null;
 
     if (isExplorePage) {
-        // Only initialize explore-specific components if we're on explore page
+        // Initialize components that depend on Google Maps API
         initDestinationInput();
-        initViewToggle();
-        initTripDurationSelection();
-        initItineraryBuilder();
     }
-});
+};
 
 // Authentication check function
 function checkAuthentication() {
@@ -116,6 +121,12 @@ function initDestinationInput() {
     // Add null checks to prevent errors
     if (!destinationInput) return;
 
+    // Add a check to ensure Google API is available
+    if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+        console.error('Google Maps API is not available');
+        return;
+    }
+
     const addDestinationBtn = document.getElementById('add-destination-btn');
     const selectedDestinations = document.getElementById('selected-destinations');
     const autocompleteResults = document.getElementById('autocomplete-results');
@@ -133,7 +144,7 @@ function initDestinationInput() {
     });
 
     // Handle place selection
-    autocomplete.addListener('place_changed', function() {
+    autocomplete.addListener('place_changed', function () {
         const place = autocomplete.getPlace();
         if (!place.geometry) {
             console.log("No details available for input: '" + place.name + "'");
@@ -142,7 +153,7 @@ function initDestinationInput() {
 
         // Get the formatted address
         const destination = place.formatted_address;
-        
+
         // Clear any previous selections
         selectedDestinations.innerHTML = '';
 
