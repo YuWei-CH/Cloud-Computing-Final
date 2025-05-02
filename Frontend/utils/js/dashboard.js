@@ -621,6 +621,7 @@ function renderTripCards(trips) {
                 <button class="btn-text view-trip"><i class="fas fa-eye"></i> View</button>
                 ${status === "upcoming" ? '<button class="btn-text edit-trip"><i class="fas fa-pencil-alt"></i> Edit</button>' :
                 '<button class="btn-text clone-trip"><i class="fas fa-copy"></i> Clone</button>'}
+                <button class="btn-text delete-trip"><i class="fas fa-trash-alt"></i> Delete</button>
             </div>
         `;
 
@@ -657,6 +658,83 @@ function renderTripCards(trips) {
             }
         });
     });
+
+    // Add event listeners for the delete buttons
+    document.querySelectorAll('.delete-trip').forEach(button => {
+        button.addEventListener('click', function () {
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+            const tripName = tripCard.querySelector('h3').textContent;
+
+            if (confirm(`Are you sure you want to delete "${tripName}"? This action cannot be undone.`)) {
+                deleteTrip(tripId, tripCard);
+            }
+        });
+    });
+}
+
+// Function to delete a trip
+async function deleteTrip(tripId, tripCardElement) {
+    try {
+        showLoading("Deleting trip...");
+
+        // Get email for authentication
+        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+
+        if (!email) {
+            throw new Error("User email not found. Please login again.");
+        }
+
+        // Call the API to delete the trip
+        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips/${tripId}`;
+
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Email': email
+            }
+        });
+
+        let result;
+        try {
+            const responseText = await response.text();
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+            console.error("Error parsing response:", e);
+            result = { success: response.ok };
+        }
+
+        if (response.ok || (result && (result.success || result.deleted))) {
+            // Remove the trip card from the UI with animation
+            tripCardElement.classList.add('deleting');
+
+            setTimeout(() => {
+                tripCardElement.remove();
+
+                // Check if there are no more trips
+                const remainingTrips = document.querySelectorAll('.trip-card');
+                if (remainingTrips.length === 0) {
+                    const tripCardsContainer = document.querySelector('.trip-cards');
+                    tripCardsContainer.innerHTML = '<div class="no-trips-message">You have no trips yet. Create your first trip!</div>';
+                }
+
+                // Update the trip count
+                updateTripCount(remainingTrips.length);
+
+                // Show success message
+                alert("Trip deleted successfully");
+            }, 300); // Slight delay for animation
+        } else {
+            throw new Error(result.message || result.error || 'Failed to delete trip');
+        }
+
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error("Error deleting trip:", error);
+        alert(`Failed to delete trip: ${error.message || 'Unknown error'}`);
+    }
 }
 
 // Show loading indicator
