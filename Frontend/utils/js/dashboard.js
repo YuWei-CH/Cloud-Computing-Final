@@ -281,11 +281,16 @@ function setupEventListeners() {
     const editButtons = document.querySelectorAll('.trip-actions button:nth-child(2)');
     editButtons.forEach(button => {
         button.addEventListener('click', function () {
-            const tripName = this.closest('.trip-card').querySelector('h3').textContent;
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+            const tripName = tripCard.querySelector('h3').textContent;
+
             if (this.innerHTML.includes('Clone')) {
-                alert(`Creating a new trip based on ${tripName}`);
+                // Show clone trip modal
+                showCloneTripModal(tripId, tripName, tripCard);
             } else {
-                alert(`Editing ${tripName}`);
+                // Direct to the edit trip page with the trip ID
+                window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
             }
         });
     });
@@ -296,6 +301,118 @@ function setupEventListeners() {
         newTripBtn.addEventListener('click', function () {
             window.location.href = '../explore/explore.html';
         });
+    }
+
+    // Clone modal close button
+    const closeCloneModal = document.getElementById('close-clone-modal');
+    if (closeCloneModal) {
+        closeCloneModal.addEventListener('click', function () {
+            document.getElementById('clone-trip-modal').style.display = 'none';
+        });
+    }
+
+    // Cancel clone button
+    const cancelCloneBtn = document.getElementById('cancel-clone-btn');
+    if (cancelCloneBtn) {
+        cancelCloneBtn.addEventListener('click', function () {
+            document.getElementById('clone-trip-modal').style.display = 'none';
+        });
+    }
+
+    // Clone form submission
+    const cloneTripForm = document.getElementById('clone-trip-form');
+    if (cloneTripForm) {
+        cloneTripForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitCloneTrip();
+        });
+    }
+}
+
+// Function to show the clone trip modal with trip details
+function showCloneTripModal(tripId, tripName, tripCard) {
+    // Store the trip ID in a data attribute for later use
+    const modal = document.getElementById('clone-trip-modal');
+    modal.dataset.tripId = tripId;
+
+    // Set trip name in the form
+    document.getElementById('clone-trip-name').textContent = tripName;
+
+    // Pre-fill form with trip details
+    document.getElementById('clone-trip-title').value = `Copy of ${tripName}`;
+
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formattedDate = tomorrow.toISOString().split('T')[0];
+    document.getElementById('clone-start-date').value = formattedDate;
+
+    // Get and display trip duration
+    const durationText = tripCard.querySelector('.tag').textContent.split(' ')[0];
+    document.getElementById('clone-trip-duration').textContent = durationText;
+
+    // Show the modal
+    modal.style.display = 'flex';
+}
+
+// Function to submit the clone trip request
+async function submitCloneTrip() {
+    try {
+        // Get form values
+        const modal = document.getElementById('clone-trip-modal');
+        const tripId = modal.dataset.tripId;
+        const title = document.getElementById('clone-trip-title').value; // Just for UI
+        const startDate = document.getElementById('clone-start-date').value;
+
+        if (!tripId || !startDate) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        showLoading("Cloning trip...");
+
+        // Get email for authentication
+        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+
+        if (!email) {
+            throw new Error("User email not found. Please login again.");
+        }
+
+        // Call the API to clone the trip
+        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips/${tripId}/clone`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Email': email
+            },
+            body: JSON.stringify({
+                start_date: startDate
+                // Note: We don't send title as it's not used in the database
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to clone trip');
+        }
+
+        const result = await response.json();
+
+        // Hide modal and loading
+        modal.style.display = 'none';
+        hideLoading();
+
+        // Show success message
+        alert('Trip cloned successfully!');
+
+        // Reload the page to show the new trip
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Error cloning trip:', error);
+        hideLoading();
+        showError(`Failed to clone trip: ${error.message}`);
     }
 }
 
@@ -653,8 +770,8 @@ function renderTripCards(trips) {
                 // Direct to the edit trip page with the trip ID
                 window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
             } else {
-                alert(`Creating a new trip based on ${tripName} (ID: ${tripId})`);
-                // Future implementation: window.location.href = `../explore/explore.html?clone_from=${tripId}`;
+                // Show clone trip modal
+                showCloneTripModal(tripId, tripName, tripCard);
             }
         });
     });
