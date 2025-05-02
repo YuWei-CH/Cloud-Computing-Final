@@ -428,6 +428,199 @@ function initItineraryBuilder() {
     // Handle adding custom destinations
     const addCustomBtn = document.getElementById('add-custom-destination');
     if (addCustomBtn) {
+        // Add autocomplete suggestion box to the DOM
+        const customDestName = document.getElementById('custom-destination-name');
+        const customDestInput = customDestName.parentElement;
+        
+        // Create suggestion dropdown container
+        const suggestionsContainer = document.createElement('div');
+        suggestionsContainer.classList.add('autocomplete-suggestions');
+        suggestionsContainer.style.display = 'none';
+        suggestionsContainer.style.position = 'absolute';
+        suggestionsContainer.style.width = '100%';
+        suggestionsContainer.style.maxHeight = '200px';
+        suggestionsContainer.style.overflowY = 'auto';
+        suggestionsContainer.style.background = 'white';
+        suggestionsContainer.style.border = '1px solid #ccc';
+        suggestionsContainer.style.borderTop = 'none';
+        suggestionsContainer.style.zIndex = '1000';
+        suggestionsContainer.style.borderRadius = '0 0 4px 4px';
+        suggestionsContainer.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        
+        customDestInput.style.position = 'relative';
+        customDestInput.appendChild(suggestionsContainer);
+        
+        // Variable to store the current place details - defined outside the Google API check
+        let currentPlaceDetails = null;
+        
+        // Initialize Google Places Autocomplete if Google Maps API is available
+        if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+            // Create autocomplete service
+            const autocompleteService = new google.maps.places.AutocompleteService();
+            const placesService = new google.maps.places.PlacesService(document.createElement('div'));
+            
+            // Handle input changes
+            customDestName.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                // Reset place details when input changes
+                currentPlaceDetails = null;
+                
+                if (query.length > 2) {
+                    // Search for places matching the query
+                    autocompleteService.getPlacePredictions({
+                        input: query,
+                        types: ['establishment', 'tourist_attraction', 'point_of_interest']
+                    }, displaySuggestions);
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+            
+            // Display suggestions
+            function displaySuggestions(predictions, status) {
+                suggestionsContainer.innerHTML = '';
+                
+                if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
+                
+                predictions.forEach(prediction => {
+                    const item = document.createElement('div');
+                    item.classList.add('suggestion-item');
+                    item.textContent = prediction.description;
+                    item.style.padding = '8px 12px';
+                    item.style.cursor = 'pointer';
+                    item.style.borderBottom = '1px solid #eee';
+                    
+                    // Hover effect
+                    item.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f5f5f5';
+                    });
+                    
+                    item.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'white';
+                    });
+                    
+                    // Select suggestion
+                    item.addEventListener('click', function() {
+                        customDestName.value = prediction.description;
+                        suggestionsContainer.style.display = 'none';
+                        
+                        // Get place details to have more information when creating the activity
+                        placesService.getDetails({
+                            placeId: prediction.place_id,
+                            fields: ['name', 'formatted_address', 'types']
+                        }, function(place, status) {
+                            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                                // Store place details for later use
+                                currentPlaceDetails = place;
+                                
+                                // Auto-select activity type based on place type if possible
+                                const placeType = getPlaceType(place.types);
+                                const typeSelect = document.getElementById('custom-destination-type');
+                                if (typeSelect && placeType) {
+                                    const options = Array.from(typeSelect.options);
+                                    const matchingOption = options.find(option => 
+                                        option.value.toLowerCase() === placeType.toLowerCase());
+                                    
+                                    if (matchingOption) {
+                                        typeSelect.value = matchingOption.value;
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    
+                    suggestionsContainer.appendChild(item);
+                });
+                
+                if (predictions.length > 0) {
+                    suggestionsContainer.style.display = 'block';
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+            }
+            
+            // Map Google place types to activity types
+            function getPlaceType(types) {
+                if (types.includes('restaurant') || types.includes('food')) return 'food';
+                if (types.includes('museum')) return 'culture';
+                if (types.includes('park') || types.includes('natural_feature')) return 'nature';
+                if (types.includes('amusement_park') || types.includes('aquarium')) return 'entertainment';
+                if (types.includes('shopping_mall') || types.includes('store')) return 'shopping';
+                return 'other';
+            }
+            
+            // Close suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!customDestInput.contains(e.target)) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+            
+            // Handle keyboard navigation in the suggestions
+            customDestName.addEventListener('keydown', function(e) {
+                const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+                const activeItem = suggestionsContainer.querySelector('.suggestion-item.active');
+                let activeIndex = -1;
+                
+                if (items.length === 0) return;
+                
+                // Find the current active item index
+                if (activeItem) {
+                    activeIndex = Array.from(items).indexOf(activeItem);
+                }
+                
+                // Handle arrow keys
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    
+                    if (suggestionsContainer.style.display === 'none') {
+                        suggestionsContainer.style.display = 'block';
+                        activeIndex = -1;
+                    }
+                    
+                    // Remove active from current item
+                    if (activeItem) {
+                        activeItem.classList.remove('active');
+                        activeItem.style.backgroundColor = 'white';
+                    }
+                    
+                    // Set active to next item, or first if at end
+                    activeIndex = (activeIndex + 1) % items.length;
+                    items[activeIndex].classList.add('active');
+                    items[activeIndex].style.backgroundColor = '#f5f5f5';
+                    
+                    // Scroll into view if needed
+                    items[activeIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    
+                    // Remove active from current item
+                    if (activeItem) {
+                        activeItem.classList.remove('active');
+                        activeItem.style.backgroundColor = 'white';
+                    }
+                    
+                    // Set active to previous item, or last if at beginning
+                    activeIndex = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
+                    items[activeIndex].classList.add('active');
+                    items[activeIndex].style.backgroundColor = '#f5f5f5';
+                    
+                    // Scroll into view if needed
+                    items[activeIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'Enter' && activeItem) {
+                    e.preventDefault();
+                    activeItem.click();
+                } else if (e.key === 'Escape') {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+        }
+        
+        // Single click handler for the Add button - works with or without Google Maps API
         addCustomBtn.addEventListener('click', function () {
             const name = document.getElementById('custom-destination-name').value.trim();
             const type = document.getElementById('custom-destination-type').value;
@@ -440,11 +633,15 @@ function initItineraryBuilder() {
             // Get active day
             const activeDay = document.querySelector('.day-tab.active').getAttribute('data-day');
 
-            // Add custom activity to that day
-            addCustomActivity(name, type, activeDay);
+            // Add custom activity to that day with place details if available
+            addCustomActivity(name, type, activeDay, currentPlaceDetails);
 
             // Clear form
             document.getElementById('custom-destination-name').value = '';
+            currentPlaceDetails = null;
+            
+            // Hide suggestions
+            suggestionsContainer.style.display = 'none';
         });
     }
 
@@ -633,7 +830,7 @@ function addAttractionToDay(attraction, dayId) {
 }
 
 // Function to add a custom activity to a day
-function addCustomActivity(name, type, dayId) {
+function addCustomActivity(name, type, dayId, placeDetails) {
     const dayContent = document.getElementById(`day-${dayId}`);
     const activityList = dayContent.querySelector('.activity-list');
 
@@ -643,12 +840,18 @@ function addCustomActivity(name, type, dayId) {
 
     const activityItem = document.createElement('div');
     activityItem.classList.add('activity-item', 'custom-activity');
+    
+    // Create description text based on available information
+    let description = 'Custom activity added by you';
+    if (placeDetails && placeDetails.formatted_address) {
+        description = placeDetails.formatted_address;
+    }
 
     activityItem.innerHTML = `
         <div class="activity-date">${dateText}</div>
         <div class="activity-details">
             <h4>${name}</h4>
-            <p>Custom activity added by you</p>
+            <p>${description}</p>
         </div>
         <div class="activity-actions">
             <button class="btn-text remove-activity-btn"><i class="fas fa-trash-alt"></i></button>
@@ -890,4 +1093,14 @@ function initBackButton() {
 function saveTripToDatabase() {
     // This is now handled in planning.js with the new database structure
     console.log('This function has been moved to planning.js to match the new database schema');
+}
+
+// Function to update the activity counter in the summary
+function updateActivityCounter() {
+    const activities = document.querySelectorAll('.activity-item');
+    const counter = document.getElementById('summary-activities');
+    
+    if (counter) {
+        counter.textContent = activities.length;
+    }
 }

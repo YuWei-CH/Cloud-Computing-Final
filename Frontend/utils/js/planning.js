@@ -70,6 +70,9 @@ function initPlanningUI() {
         // Set up duration selection
         initDurationControls();
 
+        // Initialize autocomplete for custom destinations
+        initCustomDestinationAutocomplete();
+
         // Handle save trip button
         const saveBtn = document.querySelector('.btn-save-trip');
         if (saveBtn) {
@@ -577,42 +580,27 @@ function saveTripToDatabase() {
     }
 }
 
+// Helper function to get auth token (you might already have this elsewhere)
+function getAuthToken() {
+    // Get token from localStorage or sessionStorage
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
+}
+
 // Function to save trip data to the API
 function saveTripToAPI(tripData) {
-    // Get email from storage for authentication
-    const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-
-    // Your API Gateway endpoint for creating trips
-    const apiUrl = 'https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips';
-
-    return fetch(apiUrl, {
+    return fetch('https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-User-Email': email  // Add user email for authentication
+            'Authorization': `Bearer ${getAuthToken()}`
         },
         body: JSON.stringify(tripData)
     })
         .then(response => {
             if (!response.ok) {
-                console.error('Server response:', response.status);
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Failed to save trip');
-                });
+                throw new Error('Failed to save trip');
             }
             return response.json();
-        })
-        .then(data => {
-            // Handle potential API Gateway Lambda proxy response format
-            if (data.statusCode && data.body) {
-                if (data.statusCode !== 200) {
-                    const errorBody = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-                    throw new Error(errorBody.message || 'Failed to save trip');
-                }
-                // Parse the body if it's a string
-                return typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-            }
-            return data;
         });
 }
 
@@ -662,30 +650,6 @@ function hideLoading() {
     if (overlay) {
         overlay.style.display = 'none';
     }
-}
-
-// Function to save trip data to the API
-function saveTripToAPI(tripData) {
-    return fetch('https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: JSON.stringify(tripData)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to save trip');
-            }
-            return response.json();
-        });
-}
-
-// Helper function to get auth token (you might already have this elsewhere)
-function getAuthToken() {
-    // Get token from localStorage or sessionStorage
-    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
 }
 
 // Helper function for formatting dates
@@ -899,7 +863,7 @@ function updateCurrentDateDisplay() {
     }
 }
 
-// Add this new function to handle custom destination addition
+// Add this new function to handle custom destination addition with autocomplete
 function addCustomDestination() {
     // Get the active day
     const activeDay = document.querySelector('.day-tab.active');
@@ -939,5 +903,296 @@ function addCustomDestination() {
     document.getElementById('custom-destination-description').value = 'Your custom destination';
 
     // Show confirmation
-    alert(`${name} added to Day ${dayId}`);
+    showNotification(`${name} added to Day ${dayId}`);
+}
+
+// This function initializes the custom destination autocomplete
+function initCustomDestinationAutocomplete() {
+    console.log("Initializing custom destination autocomplete");
+    
+    // Add autocomplete suggestion box to the DOM
+    const customDestName = document.getElementById('custom-destination-name');
+    if (!customDestName) {
+        console.error("Custom destination input not found");
+        return;
+    }
+    
+    // Check if Google Maps API is defined
+    if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+        console.log("Google Maps API not loaded yet, retrying in 1 second...");
+        // Try again in 1 second
+        setTimeout(initCustomDestinationAutocomplete, 1000);
+        return;
+    }
+    
+    console.log("Google Maps API loaded, setting up autocomplete");
+    
+    // Create suggestion dropdown container if it doesn't exist
+    let suggestionsContainer = document.querySelector('.autocomplete-suggestions');
+    if (!suggestionsContainer) {
+        suggestionsContainer = document.createElement('div');
+        suggestionsContainer.classList.add('autocomplete-suggestions');
+        suggestionsContainer.style.display = 'none';
+        suggestionsContainer.style.position = 'absolute';
+        suggestionsContainer.style.width = customDestName.offsetWidth + 'px';
+        suggestionsContainer.style.maxHeight = '200px';
+        suggestionsContainer.style.overflowY = 'auto';
+        suggestionsContainer.style.background = 'white';
+        suggestionsContainer.style.border = '1px solid #ccc';
+        suggestionsContainer.style.borderTop = 'none';
+        suggestionsContainer.style.zIndex = '1000';
+        suggestionsContainer.style.borderRadius = '0 0 4px 4px';
+        suggestionsContainer.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        
+        // Append to document body instead of parent container for better positioning
+        document.body.appendChild(suggestionsContainer);
+    }
+    
+    // Store place details for later use
+    let currentPlaceDetails = null;
+    
+    // Create autocomplete service
+    const autocompleteService = new google.maps.places.AutocompleteService();
+    const placesService = new google.maps.places.PlacesService(document.createElement('div'));
+    
+    // Debug - immediately try to get predictions to verify the API is working
+    autocompleteService.getPlacePredictions({
+        input: "New York",
+        types: ['establishment'] // Only use one type at a time
+    }, function(predictions, status) {
+        console.log("Test prediction status:", status);
+        console.log("Test predictions:", predictions?.length || 0);
+    });
+    
+    // Handle input changes
+    customDestName.addEventListener('input', function() {
+        const query = this.value.trim();
+        console.log("Input changed:", query);
+        
+        // Reset place details when input changes
+        currentPlaceDetails = null;
+        
+        if (query.length > 2) {
+            // Search for places matching the query
+            console.log("Getting predictions for:", query);
+            autocompleteService.getPlacePredictions({
+                input: query,
+                // Use only 'establishment' type which is the most general
+                types: ['establishment']
+            }, function(predictions, status) {
+                console.log("Prediction status:", status);
+                console.log("Predictions count:", predictions?.length || 0);
+                displaySuggestions(predictions, status);
+            });
+        } else {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+    
+    // Display suggestions
+    function displaySuggestions(predictions, status) {
+        suggestionsContainer.innerHTML = '';
+        
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+            console.log("No predictions or error:", status);
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+        
+        console.log("Displaying", predictions.length, "suggestions");
+        
+        predictions.forEach(prediction => {
+            const item = document.createElement('div');
+            item.classList.add('suggestion-item');
+            item.textContent = prediction.description;
+            item.style.padding = '8px 12px';
+            item.style.cursor = 'pointer';
+            item.style.borderBottom = '1px solid #eee';
+            
+            // Hover effect
+            item.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f5f5f5';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'white';
+            });
+            
+            // Select suggestion
+            item.addEventListener('click', function() {
+                // Only store the name (location) and not the full description with address
+                const locationName = prediction.structured_formatting ? 
+                    prediction.structured_formatting.main_text : 
+                    prediction.description.split(',')[0]; // Take just the first part before the comma
+                
+                customDestName.value = locationName;
+                suggestionsContainer.style.display = 'none';
+                
+                // Get place details to have more information when creating the activity
+                placesService.getDetails({
+                    placeId: prediction.place_id,
+                    fields: ['name', 'formatted_address', 'types']
+                }, function(place, status) {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        // Store place details for later use, but we'll only use the name
+                        currentPlaceDetails = {
+                            name: place.name,
+                            // Store address separately, but don't use it in the name
+                            formatted_address: place.formatted_address,
+                            types: place.types
+                        };
+                        
+                        // Auto-fill description with address if available
+                        const description = document.getElementById('custom-destination-description');
+                        if (description && place.formatted_address) {
+                            description.value = place.formatted_address;
+                        }
+                    }
+                });
+            });
+            
+            suggestionsContainer.appendChild(item);
+        });
+        
+        if (predictions.length > 0) {
+            // Position the suggestions directly below the input
+            const rect = customDestName.getBoundingClientRect();
+            console.log("Input position:", rect.left, rect.bottom);
+            suggestionsContainer.style.width = rect.width + 'px';
+            suggestionsContainer.style.left = rect.left + window.scrollX + 'px';
+            suggestionsContainer.style.top = rect.bottom + window.scrollY + 'px';
+            suggestionsContainer.style.display = 'block';
+        } else {
+            suggestionsContainer.style.display = 'none';
+        }
+    }
+    
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target !== customDestName && !suggestionsContainer.contains(e.target)) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+    
+    // Reposition suggestions on window resize
+    window.addEventListener('resize', function() {
+        if (suggestionsContainer.style.display !== 'none') {
+            const rect = customDestName.getBoundingClientRect();
+            suggestionsContainer.style.width = rect.width + 'px';
+            suggestionsContainer.style.left = rect.left + window.scrollX + 'px';
+            suggestionsContainer.style.top = rect.bottom + window.scrollY + 'px';
+        }
+    });
+    
+    // Handle keyboard navigation in the suggestions
+    customDestName.addEventListener('keydown', function(e) {
+        const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+        const activeItem = suggestionsContainer.querySelector('.suggestion-item.active');
+        let activeIndex = -1;
+        
+        if (items.length === 0) return;
+        
+        // Find the current active item index
+        if (activeItem) {
+            activeIndex = Array.from(items).indexOf(activeItem);
+        }
+        
+        // Handle arrow keys
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            
+            if (suggestionsContainer.style.display === 'none') {
+                suggestionsContainer.style.display = 'block';
+                activeIndex = -1;
+            }
+            
+            // Remove active from current item
+            if (activeItem) {
+                activeItem.classList.remove('active');
+                activeItem.style.backgroundColor = 'white';
+            }
+            
+            // Set active to next item, or first if at end
+            activeIndex = (activeIndex + 1) % items.length;
+            items[activeIndex].classList.add('active');
+            items[activeIndex].style.backgroundColor = '#f5f5f5';
+            
+            // Scroll into view if needed
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            
+            // Remove active from current item
+            if (activeItem) {
+                activeItem.classList.remove('active');
+                activeItem.style.backgroundColor = 'white';
+            }
+            
+            // Set active to previous item, or last if at beginning
+            activeIndex = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
+            items[activeIndex].classList.add('active');
+            items[activeIndex].style.backgroundColor = '#f5f5f5';
+            
+            // Scroll into view if needed
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter' && activeItem) {
+            e.preventDefault();
+            activeItem.click();
+        } else if (e.key === 'Escape') {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+    
+    // Add event listener for the custom destination button - update to use place details
+    const addCustomDestBtn = document.getElementById('add-custom-destination');
+    if (addCustomDestBtn) {
+        // Remove any existing event listeners
+        const newBtn = addCustomDestBtn.cloneNode(true);
+        addCustomDestBtn.parentNode.replaceChild(newBtn, addCustomDestBtn);
+        
+        newBtn.addEventListener('click', function() {
+            const name = document.getElementById('custom-destination-name').value.trim();
+            const description = document.getElementById('custom-destination-description').value.trim();
+            
+            if (!name) {
+                alert('Please enter a name for your custom destination');
+                return;
+            }
+            
+            // Get active day
+            const activeDay = document.querySelector('.day-tab.active');
+            if (!activeDay) {
+                alert('Please select a day to add this destination to');
+                return;
+            }
+            
+            const dayId = activeDay.getAttribute('data-day');
+            
+            // Create custom attraction with only the name from place details if available
+            const customAttraction = {
+                id: 'custom-' + Date.now(),
+                // Only use the name, even if we have place details
+                name: currentPlaceDetails?.name || name,
+                // Store description separately
+                description: description || (currentPlaceDetails?.formatted_address || 'Custom destination')
+            };
+            
+            // Add to current day
+            addAttractionToDay(customAttraction, dayId);
+            
+            // Reset form
+            document.getElementById('custom-destination-name').value = '';
+            document.getElementById('custom-destination-description').value = 'Your custom destination';
+            currentPlaceDetails = null;
+            
+            // Hide suggestions
+            suggestionsContainer.style.display = 'none';
+            
+            // Show confirmation
+            showNotification(`${customAttraction.name} added to Day ${dayId}`);
+        });
+    }
+    
+    // Let the user know autocomplete is ready
+    console.log("Custom destination autocomplete setup complete");
 }
