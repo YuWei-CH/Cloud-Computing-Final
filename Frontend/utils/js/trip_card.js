@@ -195,6 +195,11 @@ function renderTripData() {
     updateTripSummary(tripData[0]);
     renderDayButtons();
     showAllRoutes();
+    
+    // Default to showing weather for the first day's city
+    if (tripData && tripData.length > 0) {
+        updateWeatherForDay(0);
+    }
 }
 
 function updateTripSummary(firstDay) {
@@ -313,6 +318,19 @@ function renderDayButtons() {
     });
 }
 
+// Function to update weather for a specific day
+function updateWeatherForDay(dayIndex) {
+    if (!tripData || dayIndex < 0 || dayIndex >= tripData.length) return;
+    
+    const day = tripData[dayIndex];
+    const cityName = extractCityFromAddress(day.destination);
+    
+    if (cityName) {
+        console.log(`Loading weather for day ${dayIndex + 1} (${cityName})`);
+        fetchWeatherData(cityName);
+    }
+}
+
 async function showSingleRoute(index) {
     try {
         clearMap();
@@ -361,6 +379,9 @@ async function showSingleRoute(index) {
 
         // Animate the route
         animateRoute(polyline);
+        
+        // Update weather for the selected day
+        updateWeatherForDay(index);
     } catch (error) {
         console.error("Error showing route:", error);
         showError("Failed to show route details");
@@ -623,47 +644,213 @@ function handlePlacesError(status) {
     }
 }
 
-// Weather Functions
-async function loadWeatherForecast(city) {
+// Weather Functions using OpenWeatherMap API
+async function fetchWeatherData(city) {
     try {
-        const response = await fetch(`https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/weather?city=${encodeURIComponent(city)}`);
-        const data = await response.json();
-
+        console.log(`Loading weather forecast for ${city}`);
+        
+        // Show loading state
         const weatherContent = document.getElementById("weather-content");
-        weatherContent.innerHTML = "";
-
-        if (data.forecast) {
-            data.forecast.forEach(day => {
-                const weatherDay = document.createElement("div");
-                weatherDay.className = "weather-day";
-                weatherDay.innerHTML = `
-                    <div class="weather-icon">
-                        <i class="fas fa-${getWeatherIcon(day.condition)}"></i>
-                    </div>
-                    <div class="weather-details">
-                        <div>${day.date}</div>
-                        <div>${day.temperature}°C</div>
-                        <div>${day.condition}</div>
-                    </div>
-                `;
-                weatherContent.appendChild(weatherDay);
-            });
+        weatherContent.innerHTML = `<div class="loading-placeholder">Loading weather for ${city}...</div>`;
+        
+        // Get API key from config
+        const apiKey = config.openWeatherMap.apiKey;
+        
+        // Fetch current weather
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&units=metric&appid=${apiKey}`;
+        console.log("Fetching weather with URL:", weatherUrl);
+        
+        const response = await fetch(weatherUrl);
+        
+        if (!response.ok) {
+            throw new Error(`Weather API error: ${response.status}`);
         }
+        
+        const data = await response.json();
+        console.log("Weather data received:", data);
+        
+        // Display the weather data
+        displayWeatherForecast(city, data);
     } catch (error) {
         console.error("Error loading weather:", error);
+        const weatherContent = document.getElementById("weather-content");
+        weatherContent.innerHTML = `
+            <div class="weather-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Failed to load weather forecast</p>
+                <p class="weather-help-text">${error.message}</p>
+                <button onclick="fetchWeatherData('${city}')" class="btn-retry">
+                    <i class="fas fa-redo"></i> Retry
+                </button>
+            </div>
+        `;
     }
 }
 
-function getWeatherIcon(condition) {
-    const icons = {
-        "Sunny": "sun",
-        "Cloudy": "cloud",
-        "Rainy": "cloud-rain",
-        "Snowy": "snowflake",
-        "Thunderstorm": "bolt",
-        "Foggy": "smog"
-    };
-    return icons[condition] || "cloud";
+function displayWeatherForecast(city, data) {
+    const weatherContent = document.getElementById("weather-content");
+    weatherContent.innerHTML = "";
+    
+    if (data && data.list && data.list.length > 0) {
+        // Add city name as header
+        const cityHeader = document.createElement("div");
+        cityHeader.className = "weather-city";
+        cityHeader.innerHTML = `<h4>${city}</h4>`;
+        weatherContent.appendChild(cityHeader);
+        
+        // Group forecast by day (OpenWeatherMap returns 3-hour forecasts)
+        const dailyForecasts = groupForecastsByDay(data.list);
+        
+        // Get the current date (trip start date, which we can later adjust based on day number)
+        const tripStartDate = new Date(); // We use the current date as a base
+        
+        // Calculate date for the selected day based on current day index
+        const selectedDay = tripData[currentDayIndex >= 0 ? currentDayIndex : 0];
+        const selectedDayNumber = selectedDay ? selectedDay.day_number : 1;
+        
+        // Calculate the date for the selected day (add day number - 1 days to start date)
+        const selectedDate = new Date(tripStartDate);
+        selectedDate.setDate(tripStartDate.getDate() + (selectedDayNumber - 1));
+        
+        // Calculate dates for 3-day range: day before, selected day, day after
+        const dayBefore = new Date(selectedDate);
+        dayBefore.setDate(selectedDate.getDate() - 1);
+        
+        const dayAfter = new Date(selectedDate);
+        dayAfter.setDate(selectedDate.getDate() + 1);
+        
+        // Format these dates to match the format in the forecast data (YYYY-MM-DD)
+        const dateStrings = [
+            formatDateForWeather(dayBefore),
+            formatDateForWeather(selectedDate),
+            formatDateForWeather(dayAfter)
+        ];
+        
+        console.log("Showing weather for dates:", dateStrings);
+        
+        // Display each of the three days
+        dateStrings.forEach(dateStr => {
+            const forecast = dailyForecasts[dateStr];
+            if (forecast) {
+                createWeatherDayElement(dateStr, forecast, weatherContent);
+            } else {
+                // If we don't have forecast for this date
+                createEmptyWeatherDay(dateStr, weatherContent);
+            }
+        });
+    } else {
+        weatherContent.innerHTML = `
+            <div class="weather-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Weather forecast not available for ${city}</p>
+            </div>
+        `;
+    }
+}
+
+// Helper function to create a weather day element
+function createWeatherDayElement(dateStr, forecast, container) {
+    const weatherDay = document.createElement("div");
+    weatherDay.className = "weather-day";
+    
+    // Format the date
+    const dateObj = new Date(dateStr);
+    const formattedDate = dateObj.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+    
+    // Determine if this is the "today" day
+    const isSelectedDay = tripData[currentDayIndex >= 0 ? currentDayIndex : 0].day_number === 
+        (new Date() - new Date(tripData[0].day_number-1)) / (1000 * 60 * 60 * 24) + 1;
+    
+    weatherDay.innerHTML = `
+        <div class="weather-icon">
+            <img src="https://openweathermap.org/img/wn/${forecast.icon}@2x.png" alt="${forecast.description}">
+        </div>
+        <div class="weather-details">
+            <div class="weather-date">
+                ${formattedDate}
+                ${isSelectedDay ? '<span class="today-badge">TODAY</span>' : ''}
+            </div>
+            <div class="weather-temp">${Math.round(forecast.temp)}°C</div>
+            <div class="weather-condition">${forecast.description}</div>
+        </div>
+    `;
+    container.appendChild(weatherDay);
+}
+
+// Helper function to create an empty weather day element
+function createEmptyWeatherDay(dateStr, container) {
+    const weatherDay = document.createElement("div");
+    weatherDay.className = "weather-day weather-day-empty";
+    
+    // Format the date
+    const dateObj = new Date(dateStr);
+    const formattedDate = dateObj.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+    
+    weatherDay.innerHTML = `
+        <div class="weather-icon">
+            <i class="fas fa-question-circle"></i>
+        </div>
+        <div class="weather-details">
+            <div class="weather-date">${formattedDate}</div>
+            <div class="weather-temp">--°C</div>
+            <div class="weather-condition">No data available</div>
+        </div>
+    `;
+    container.appendChild(weatherDay);
+}
+
+// Helper function to format date as YYYY-MM-DD for weather API
+function formatDateForWeather(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Helper function to group 3-hour forecasts by day
+function groupForecastsByDay(forecastList) {
+    const dailyForecasts = {};
+    
+    forecastList.forEach(forecast => {
+        // Get date string (YYYY-MM-DD) from timestamp
+        const date = forecast.dt_txt.split(' ')[0];
+        
+        // If we haven't processed this day yet, initialize it
+        if (!dailyForecasts[date]) {
+            dailyForecasts[date] = {
+                temp: forecast.main.temp,
+                description: forecast.weather[0].description,
+                icon: forecast.weather[0].icon,
+                tempMin: forecast.main.temp_min,
+                tempMax: forecast.main.temp_max
+            };
+        } else {
+            // Update min/max temperature
+            if (forecast.main.temp_max > dailyForecasts[date].tempMax) {
+                dailyForecasts[date].tempMax = forecast.main.temp_max;
+            }
+            if (forecast.main.temp_min < dailyForecasts[date].tempMin) {
+                dailyForecasts[date].tempMin = forecast.main.temp_min;
+            }
+            
+            // Use noon forecast for the day's representative weather if available
+            if (forecast.dt_txt.includes('12:00:00')) {
+                dailyForecasts[date].temp = forecast.main.temp;
+                dailyForecasts[date].description = forecast.weather[0].description;
+                dailyForecasts[date].icon = forecast.weather[0].icon;
+            }
+        }
+    });
+    
+    return dailyForecasts;
 }
 
 async function showLocationDetails(placeId, locationName, lat, lng) {
@@ -850,4 +1037,114 @@ function displayLocationDetails(place) {
 
     // Show the modal
     modal.style.display = 'block';
+}
+
+// Helper function to extract city name from address
+function extractCityFromAddress(address) {
+    if (!address) return "New York"; // Default fallback
+    
+    console.log(`Extracting city from: ${address}`);
+    
+    // If the address has no commas, it might be a landmark or attraction name
+    // In this case, we need to determine the city based on context
+    if (!address.includes(',')) {
+        // For testing purpose, we'll use the most common city that appears in the trip data
+        return findMostCommonCityInTrip() || "New York";
+    }
+    
+    // Split by commas and clean the parts
+    const parts = address.split(',').map(part => part.trim());
+    
+    // For addresses with format: "Street, City, State ZIP"
+    if (parts.length >= 2) {
+        // Check common US patterns
+        // If second part contains 2-letter state code (e.g., NY, CA)
+        const stateCodeMatch = parts[1].match(/\b([A-Z]{2})\b/);
+        if (stateCodeMatch) {
+            const stateCode = stateCodeMatch[1];
+            
+            // For New York
+            if (stateCode === "NY") {
+                return "New York";
+            }
+            
+            // For other states, use the first part (which should be the city)
+            // But check if first part looks like a street address (has numbers)
+            if (!parts[0].match(/\d+/)) {
+                return parts[0]; // Likely the city name
+            }
+        }
+        
+        // For "Landmark, City, State" format, the city is in the second part
+        if (parts.length >= 3 && !parts[1].match(/\d+/)) {
+            return parts[1];
+        }
+        
+        // For "City, State" format, the city is in the first part
+        if (parts.length === 2 && !parts[0].match(/\d+/)) {
+            return parts[0];
+        }
+    }
+    
+    // If we can't determine the city, check context from other trip locations
+    const contextCity = findMostCommonCityInTrip();
+    if (contextCity) {
+        return contextCity;
+    }
+    
+    // Last resort: clean the address and return something usable
+    return address.replace(/\d+/g, '').replace(/,/g, ' ').trim() || "New York";
+}
+
+// Helper function to find the most common city in the trip
+function findMostCommonCityInTrip() {
+    if (!tripData || tripData.length === 0) return null;
+    
+    // Collect all addresses
+    const addresses = [];
+    
+    tripData.forEach(day => {
+        if (day.origin && day.origin.includes(',')) addresses.push(day.origin);
+        if (day.destination && day.destination.includes(',')) addresses.push(day.destination);
+        if (day.waypoints) {
+            day.waypoints.forEach(waypoint => {
+                if (waypoint && waypoint.includes(',')) addresses.push(waypoint);
+            });
+        }
+    });
+    
+    // No useful addresses found
+    if (addresses.length === 0) return null;
+    
+    // Extract potential city names (second part after comma)
+    const potentialCities = [];
+    addresses.forEach(address => {
+        const parts = address.split(',');
+        if (parts.length >= 2) {
+            // Try to extract city from second part
+            const cityPart = parts[1].trim();
+            // Clean up state codes and zip codes
+            const cleanCity = cityPart.replace(/\b[A-Z]{2}\b|\d+/g, '').trim();
+            if (cleanCity) potentialCities.push(cleanCity);
+        }
+    });
+    
+    // Count occurrences of each city
+    const cityCounts = {};
+    potentialCities.forEach(city => {
+        cityCounts[city] = (cityCounts[city] || 0) + 1;
+    });
+    
+    // Find the most common city
+    let mostCommonCity = null;
+    let highestCount = 0;
+    
+    for (const city in cityCounts) {
+        if (cityCounts[city] > highestCount) {
+            mostCommonCity = city;
+            highestCount = cityCounts[city];
+        }
+    }
+    
+    return mostCommonCity;
 }
