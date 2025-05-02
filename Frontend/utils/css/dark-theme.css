@@ -16,8 +16,14 @@ body {
     color: var(--dark-text);
 }
 
+/* Main dashboard layout elements */
 .sidebar {
     background-color: #1a1a1a;
+}
+
+.main-content {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
 }
 
 .sidebar-menu li a {
@@ -35,6 +41,7 @@ body {
     box-shadow: var(--dark-card-shadow);
 }
 
+/* Text elements */
 .section-header h2,
 .dashboard-header h1,
 h3 {
@@ -52,6 +59,7 @@ p,
     color: var(--dark-text);
 }
 
+/* Buttons and form elements */
 .btn-primary {
     background-color: var(--dark-primary);
 }
@@ -82,6 +90,7 @@ input[type="date"] {
     color: var(--dark-text-secondary);
 }
 
+/* Other UI elements */
 .tag {
     background-color: #2c2c2c;
     color: var(--dark-text-secondary);
@@ -134,4 +143,110 @@ input[type="date"] {
 /* Progress bar */
 .progress-bar {
     background-color: var(--dark-primary);
+}
+
+/* Modal content in dark mode */
+.modal-content {
+    background-color: var(--dark-surface);
+    color: var(--dark-text);
+}
+
+/* Additional elements */
+.day-button {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.day-button.active {
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+}
+
+.preferences-section,
+.info-row,
+.section {
+    background-color: var(--dark-surface);
+}
+
+/* Status messages */
+.status-message {
+    background-color: #2c2c2c;
+    color: var(--dark-primary);
+}
+
+/* Additional elements for explore/planning pages */
+.recommendation-card {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+.card-content,
+.card-footer {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+.card-description,
+.card-info {
+    color: var(--dark-text-secondary);
+}
+
+.selection-instructions {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-color: var(--dark-primary);
+    color: var(--dark-text);
+}
+
+.day-tabs {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+.day-tab {
+    color: var(--dark-text-secondary);
+}
+
+.day-tab.active {
+    color: var(--dark-primary);
+    border-color: var(--dark-primary);
+}
+
+.activity-card {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+.activity-time,
+.activity-address {
+    color: var (--dark-text-secondary);
+}
+
+.sidebar-attraction-item {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-primary);
+}
+
+.add-activity-btn {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+/* Upload tickets specific */
+.upload-container,
+.ticket-item {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+.drag-area {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.current-date-display {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--dark-text);
 }

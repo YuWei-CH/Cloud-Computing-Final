@@ -96,17 +96,17 @@ function hideLoading() {
 async function loadTripData(tripId) {
     try {
         console.log('Loading trip data for ID:', tripId);
-        
+
         const routeUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/routing?trip_id=${tripId}`;
         const routeResponse = await fetch(routeUrl);
-        
+
         if (!routeResponse.ok) {
             throw new Error(`Failed to load route data: ${routeResponse.statusText}`);
         }
 
         const data = await routeResponse.json();
         console.log('Route data loaded:', data);
-        
+
         let parsed;
         try {
             if (data.statusCode && data.body) {
@@ -162,10 +162,10 @@ function updateTripSummary(firstDay) {
 }
 
 function formatDate(date) {
-    return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 }
 
@@ -196,7 +196,7 @@ async function showSingleRoute(index) {
         clearMap();
         currentDayIndex = index;
         updateRouteStatus(`Showing Day ${tripData[index].day_number}`);
-        
+
         const day = tripData[index];
         const path = google.maps.geometry.encoding.decodePath(day.polyline);
 
@@ -219,7 +219,7 @@ async function showSingleRoute(index) {
         // and are different from origin and destination
         if (day.waypoints && day.waypoints.length > 0) {
             const uniqueLocations = new Set([day.origin, day.destination]);
-            
+
             for (const waypoint of day.waypoints) {
                 if (!uniqueLocations.has(waypoint)) {
                     uniqueLocations.add(waypoint);
@@ -301,20 +301,20 @@ function addMarker(position, locationName, type) {
                 // Now get detailed place information using place_id
                 const detailsRequest = {
                     placeId: results[0].place_id,
-                    fields: ['name', 'formatted_address', 'photos', 'rating', 'user_ratings_total', 
-                            'opening_hours', 'website', 'formatted_phone_number', 'reviews']
+                    fields: ['name', 'formatted_address', 'photos', 'rating', 'user_ratings_total',
+                        'opening_hours', 'website', 'formatted_phone_number', 'reviews']
                 };
 
                 placesService.getDetails(detailsRequest, (placeDetails, detailsStatus) => {
                     if (detailsStatus === google.maps.places.PlacesServiceStatus.OK) {
                         // Create info window with place details
-                        const photoUrl = placeDetails.photos && placeDetails.photos.length > 0 
+                        const photoUrl = placeDetails.photos && placeDetails.photos.length > 0
                             ? placeDetails.photos[0].getUrl({ maxWidth: 400, maxHeight: 200 })
                             : 'https://via.placeholder.com/400x200?text=No+Image';
 
-                        const ratingStars = placeDetails.rating 
+                        const ratingStars = placeDetails.rating
                             ? '<i class="fas fa-star"></i>'.repeat(Math.floor(placeDetails.rating)) +
-                              (placeDetails.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : '')
+                            (placeDetails.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : '')
                             : '';
 
                         const infoWindow = new google.maps.InfoWindow({
@@ -444,8 +444,8 @@ async function showAllRoutes() {
 
             // Add markers for each day's start and end
             addMarker(path[0], day.origin, index === 0 ? 'origin' : 'waypoint');
-            addMarker(path[path.length - 1], day.destination, 
-                     index === tripData.length - 1 ? 'destination' : 'waypoint');
+            addMarker(path[path.length - 1], day.destination,
+                index === tripData.length - 1 ? 'destination' : 'waypoint');
 
             path.forEach(p => bounds.extend(p));
         });
@@ -473,12 +473,12 @@ function updateRouteStatus(message) {
 
 // Event listeners for modals
 document.querySelectorAll('.modal .close').forEach(closeBtn => {
-    closeBtn.addEventListener('click', function() {
+    closeBtn.addEventListener('click', function () {
         this.closest('.modal').style.display = 'none';
     });
 });
 
-window.addEventListener('click', function(event) {
+window.addEventListener('click', function (event) {
     if (event.target.classList.contains('modal')) {
         event.target.style.display = 'none';
     }
@@ -486,7 +486,7 @@ window.addEventListener('click', function(event) {
 
 // Error handling for Places API
 function handlePlacesError(status) {
-    switch(status) {
+    switch (status) {
         case google.maps.places.PlacesServiceStatus.ZERO_RESULTS:
             console.log("No places found in this location");
             break;
@@ -506,10 +506,10 @@ async function loadWeatherForecast(city) {
     try {
         const response = await fetch(`https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/weather?city=${encodeURIComponent(city)}`);
         const data = await response.json();
-        
+
         const weatherContent = document.getElementById("weather-content");
         weatherContent.innerHTML = "";
-        
+
         if (data.forecast) {
             data.forecast.forEach(day => {
                 const weatherDay = document.createElement("div");
@@ -547,9 +547,9 @@ function getWeatherIcon(condition) {
 async function showLocationDetails(placeId, locationName, lat, lng) {
     try {
         showLoading("Loading location details...");
-        
+
         let placeDetails;
-        
+
         if (placeId) {
             // If we have a place_id, use it directly
             const detailsRequest = {
@@ -633,10 +633,10 @@ async function showLocationDetails(placeId, locationName, lat, lng) {
 
 function displayLocationDetails(place) {
     const modal = document.getElementById('location-modal');
-    
+
     // Update header
     document.getElementById('location-name').textContent = place.name;
-    
+
     // Update rating
     const ratingElement = document.getElementById('location-rating');
     if (place.rating) {
@@ -649,10 +649,10 @@ function displayLocationDetails(place) {
     } else {
         ratingElement.innerHTML = 'No ratings available';
     }
-    
+
     // Update address
     document.querySelector('#location-address span').textContent = place.formatted_address;
-    
+
     // Update phone
     const phoneElement = document.querySelector('#location-phone span');
     if (place.formatted_phone_number) {
@@ -660,7 +660,7 @@ function displayLocationDetails(place) {
     } else {
         phoneElement.textContent = 'No phone number available';
     }
-    
+
     // Update website
     const websiteElement = document.querySelector('#location-website a');
     if (place.website) {
@@ -670,7 +670,7 @@ function displayLocationDetails(place) {
         websiteElement.href = '#';
         websiteElement.textContent = 'No website available';
     }
-    
+
     // Update opening hours
     const hoursElement = document.querySelector('.hours-list');
     if (place.opening_hours && place.opening_hours.weekday_text) {
@@ -680,21 +680,21 @@ function displayLocationDetails(place) {
     } else {
         hoursElement.innerHTML = '<div>Opening hours not available</div>';
     }
-    
+
     // Update photos
     const photosElement = document.getElementById('location-photos-gallery');
     if (place.photos && place.photos.length > 0) {
         photosElement.innerHTML = place.photos
             .slice(0, 6) // Show up to 6 photos
             .map(photo => `
-                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=" 
+                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${config.googleMaps.apiKey}" 
                      alt="${place.name}">
             `)
             .join('');
     } else {
         photosElement.innerHTML = '<p>No photos available</p>';
     }
-    
+
     // Update reviews
     const reviewsElement = document.getElementById('location-reviews-list');
     if (place.reviews && place.reviews.length > 0) {
@@ -717,7 +717,7 @@ function displayLocationDetails(place) {
     } else {
         reviewsElement.innerHTML = '<p>No reviews available</p>';
     }
-    
+
     // Show the modal
     modal.style.display = 'block';
 }
