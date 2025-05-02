@@ -650,8 +650,8 @@ function renderTripCards(trips) {
             const tripName = tripCard.querySelector('h3').textContent;
 
             if (this.classList.contains('edit-trip')) {
-                alert(`Editing ${tripName} (ID: ${tripId})`);
-                // Future implementation: window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+                // Direct to the edit trip page with the trip ID
+                window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
             } else {
                 alert(`Creating a new trip based on ${tripName} (ID: ${tripId})`);
                 // Future implementation: window.location.href = `../explore/explore.html?clone_from=${tripId}`;
