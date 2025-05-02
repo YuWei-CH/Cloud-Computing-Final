@@ -726,12 +726,16 @@ function renderTripCards(trips) {
             <div class="trip-details">
                 <h3>${trip.title || `Trip to ${trip.start_city}`}</h3>
                 <div class="trip-meta">
-                    <span><i class="far fa-calendar-alt"></i> ${dateRange}</span>
-                    <span><i class="fas fa-map-marker-alt"></i> ${trip.start_city} to ${trip.end_city}</span>
+                    <div class="trip-meta-item"><i class="far fa-calendar-alt"></i> ${dateRange}</div>
+                    <div class="trip-meta-item"><i class="fas fa-map-marker-alt"></i> ${trip.start_city} to ${trip.end_city}</div>
+                </div>
+                <div class="trip-description">
+                    ${trip.description || `A ${trip.duration}-day trip from ${trip.start_city} to ${trip.end_city}.`}
                 </div>
                 <div class="trip-tags">
                     <span class="tag">${trip.duration} Days</span>
                     <span class="tag">${trip.start_city}</span>
+                    ${trip.trip_type ? `<span class="tag">${trip.trip_type}</span>` : ''}
                 </div>
             </div>
             <div class="trip-actions">
