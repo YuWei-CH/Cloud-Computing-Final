@@ -229,7 +229,10 @@ function populateSelectedAttractions(attractionIds) {
                 <span class="attraction-name">${attraction.name}</span>
             </div>
             <div class="attraction-actions">
-                <button class="btn-text add-to-day-btn">
+                <button class="btn-text remove-attraction-btn" title="Remove this attraction">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="btn-text add-to-day-btn" title="Add to current day">
                     <i class="fas fa-plus-circle"></i>
                 </button>
             </div>
@@ -240,6 +243,12 @@ function populateSelectedAttractions(attractionIds) {
         addBtn.addEventListener('click', function () {
             const activeDay = document.querySelector('.day-tab.active').getAttribute('data-day');
             addAttractionToDay(attraction, activeDay);
+        });
+
+        // Add event listener for the remove button
+        const removeBtn = item.querySelector('.remove-attraction-btn');
+        removeBtn.addEventListener('click', function () {
+            removeAttractionFromSelection(attraction, item, container);
         });
 
         // Setup drag-and-drop
@@ -253,6 +262,73 @@ function populateSelectedAttractions(attractionIds) {
         });
 
         container.appendChild(item);
+    });
+}
+
+// New function to remove an attraction from the selection
+function removeAttractionFromSelection(attraction, itemElement, container) {
+    // Ask for confirmation
+    const confirmed = confirm(`Remove "${attraction.name}" from your selected attractions?`);
+    if (!confirmed) return;
+
+    // Add removal animation class
+    itemElement.classList.add('removing');
+
+    setTimeout(() => {
+        // Remove from the DOM
+        itemElement.remove();
+
+        // Remove from the local attractions array
+        if (window.planningSelectedAttractions) {
+            window.planningSelectedAttractions = window.planningSelectedAttractions.filter(
+                item => item.id !== attraction.id
+            );
+
+            // Also update session storage
+            const attractionIds = window.planningSelectedAttractions.map(a => a.id.toString());
+            sessionStorage.setItem('planning_attractions', JSON.stringify(attractionIds));
+
+            // Update activity counter
+            updateActivityCounter();
+
+            // Remove from any day it had been added to
+            removeAttractionFromAllDays(attraction.id);
+
+            // Update save button state
+            updateSaveButtonState();
+
+            // Show notification
+            showNotification(`"${attraction.name}" removed from selection`);
+
+            // Check if no attractions remain
+            if (window.planningSelectedAttractions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-attractions-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>No attractions selected. Please go back to the explore page and select attractions.</p>
+                        <a href="explore.html" class="btn-secondary btn-full">
+                            <i class="fas fa-arrow-left"></i> Back to Explore
+                        </a>
+                    </div>
+                `;
+            }
+        }
+    }, 300); // Match with CSS animation duration
+}
+
+// Function to remove an attraction from all days in the itinerary
+function removeAttractionFromAllDays(attractionId) {
+    // Find all instances of this attraction in any day
+    const activityItems = document.querySelectorAll(`.activity-item[data-attraction-id="${attractionId}"]`);
+
+    // Remove each instance
+    activityItems.forEach(item => {
+        item.classList.add('removing');
+        setTimeout(() => {
+            if (item.parentNode) {
+                item.parentNode.removeChild(item);
+            }
+        }, 300);
     });
 }
 
@@ -295,7 +371,9 @@ function addAttractionToDay(attraction, dayId) {
             <p>${attraction.description || ''}</p>
         </div>
         <div class="activity-actions">
-            <button class="btn-text remove-activity-btn"><i class="fas fa-trash-alt"></i></button>
+            <button class="btn-text remove-activity-btn" title="Remove this attraction">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         </div>
     `;
 
@@ -306,16 +384,66 @@ function addAttractionToDay(attraction, dayId) {
     // Add event listener for remove button
     const removeBtn = activityItem.querySelector('.remove-activity-btn');
     removeBtn.addEventListener('click', function () {
-        if (confirm(`Remove ${attraction.name} from Day ${dayId}?`)) {
-            activityList.removeChild(activityItem);
-            updateActivityCounter();
-            updateSaveButtonState();
-        }
+        removeAttractionFromDay(attraction, dayId, activityItem, activityList);
     });
 
     // Update the activity counter in the summary
     updateActivityCounter();
     updateSaveButtonState();
+}
+
+// New function to handle attraction removal
+function removeAttractionFromDay(attraction, dayId, activityItem, activityList) {
+    // Create and show confirmation dialog
+    const confirmation = confirm(`Remove "${attraction.name}" from Day ${dayId}?`);
+
+    if (confirmation) {
+        // Add removal animation
+        activityItem.classList.add('removing');
+
+        // Wait for animation to complete before actual removal
+        setTimeout(() => {
+            activityList.removeChild(activityItem);
+
+            // Show feedback notification
+            showNotification(`"${attraction.name}" removed from Day ${dayId}`);
+
+            // Update counters and UI state
+            updateActivityCounter();
+            updateSaveButtonState();
+        }, 300); // Match with CSS animation duration
+    }
+}
+
+// New function to display notification
+function showNotification(message) {
+    // Create notification element if it doesn't exist
+    if (!document.getElementById('notification')) {
+        const notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '10px 20px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = 'white';
+        notification.style.borderRadius = '4px';
+        notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        notification.style.zIndex = '1000';
+        notification.style.transition = 'opacity 0.5s';
+        notification.style.opacity = '0';
+
+        document.body.appendChild(notification);
+    }
+
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.opacity = '1';
+
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+    }, 3000);
 }
 
 function saveTripToDatabase() {
