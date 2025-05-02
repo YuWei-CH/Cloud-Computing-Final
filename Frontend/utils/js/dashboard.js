@@ -281,11 +281,16 @@ function setupEventListeners() {
     const editButtons = document.querySelectorAll('.trip-actions button:nth-child(2)');
     editButtons.forEach(button => {
         button.addEventListener('click', function () {
-            const tripName = this.closest('.trip-card').querySelector('h3').textContent;
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+            const tripName = tripCard.querySelector('h3').textContent;
+
             if (this.innerHTML.includes('Clone')) {
-                alert(`Creating a new trip based on ${tripName}`);
+                // Show clone trip modal
+                showCloneTripModal(tripId, tripName, tripCard);
             } else {
-                alert(`Editing ${tripName}`);
+                // Direct to the edit trip page with the trip ID
+                window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
             }
         });
     });
@@ -296,6 +301,118 @@ function setupEventListeners() {
         newTripBtn.addEventListener('click', function () {
             window.location.href = '../explore/explore.html';
         });
+    }
+
+    // Clone modal close button
+    const closeCloneModal = document.getElementById('close-clone-modal');
+    if (closeCloneModal) {
+        closeCloneModal.addEventListener('click', function () {
+            document.getElementById('clone-trip-modal').style.display = 'none';
+        });
+    }
+
+    // Cancel clone button
+    const cancelCloneBtn = document.getElementById('cancel-clone-btn');
+    if (cancelCloneBtn) {
+        cancelCloneBtn.addEventListener('click', function () {
+            document.getElementById('clone-trip-modal').style.display = 'none';
+        });
+    }
+
+    // Clone form submission
+    const cloneTripForm = document.getElementById('clone-trip-form');
+    if (cloneTripForm) {
+        cloneTripForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitCloneTrip();
+        });
+    }
+}
+
+// Function to show the clone trip modal with trip details
+function showCloneTripModal(tripId, tripName, tripCard) {
+    // Store the trip ID in a data attribute for later use
+    const modal = document.getElementById('clone-trip-modal');
+    modal.dataset.tripId = tripId;
+
+    // Set trip name in the form
+    document.getElementById('clone-trip-name').textContent = tripName;
+
+    // Pre-fill form with trip details
+    document.getElementById('clone-trip-title').value = `Copy of ${tripName}`;
+
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formattedDate = tomorrow.toISOString().split('T')[0];
+    document.getElementById('clone-start-date').value = formattedDate;
+
+    // Get and display trip duration
+    const durationText = tripCard.querySelector('.tag').textContent.split(' ')[0];
+    document.getElementById('clone-trip-duration').textContent = durationText;
+
+    // Show the modal
+    modal.style.display = 'flex';
+}
+
+// Function to submit the clone trip request
+async function submitCloneTrip() {
+    try {
+        // Get form values
+        const modal = document.getElementById('clone-trip-modal');
+        const tripId = modal.dataset.tripId;
+        const title = document.getElementById('clone-trip-title').value; // Just for UI
+        const startDate = document.getElementById('clone-start-date').value;
+
+        if (!tripId || !startDate) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        showLoading("Cloning trip...");
+
+        // Get email for authentication
+        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+
+        if (!email) {
+            throw new Error("User email not found. Please login again.");
+        }
+
+        // Call the API to clone the trip
+        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips/${tripId}/clone`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Email': email
+            },
+            body: JSON.stringify({
+                start_date: startDate
+                // Note: We don't send title as it's not used in the database
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to clone trip');
+        }
+
+        const result = await response.json();
+
+        // Hide modal and loading
+        modal.style.display = 'none';
+        hideLoading();
+
+        // Show success message
+        alert('Trip cloned successfully!');
+
+        // Reload the page to show the new trip
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Error cloning trip:', error);
+        hideLoading();
+        showError(`Failed to clone trip: ${error.message}`);
     }
 }
 
@@ -621,6 +738,7 @@ function renderTripCards(trips) {
                 <button class="btn-text view-trip"><i class="fas fa-eye"></i> View</button>
                 ${status === "upcoming" ? '<button class="btn-text edit-trip"><i class="fas fa-pencil-alt"></i> Edit</button>' :
                 '<button class="btn-text clone-trip"><i class="fas fa-copy"></i> Clone</button>'}
+                <button class="btn-text delete-trip"><i class="fas fa-trash-alt"></i> Delete</button>
             </div>
         `;
 
@@ -649,14 +767,91 @@ function renderTripCards(trips) {
             const tripName = tripCard.querySelector('h3').textContent;
 
             if (this.classList.contains('edit-trip')) {
-                alert(`Editing ${tripName} (ID: ${tripId})`);
-                // Future implementation: window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+                // Direct to the edit trip page with the trip ID
+                window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
             } else {
-                alert(`Creating a new trip based on ${tripName} (ID: ${tripId})`);
-                // Future implementation: window.location.href = `../explore/explore.html?clone_from=${tripId}`;
+                // Show clone trip modal
+                showCloneTripModal(tripId, tripName, tripCard);
             }
         });
     });
+
+    // Add event listeners for the delete buttons
+    document.querySelectorAll('.delete-trip').forEach(button => {
+        button.addEventListener('click', function () {
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+            const tripName = tripCard.querySelector('h3').textContent;
+
+            if (confirm(`Are you sure you want to delete "${tripName}"? This action cannot be undone.`)) {
+                deleteTrip(tripId, tripCard);
+            }
+        });
+    });
+}
+
+// Function to delete a trip
+async function deleteTrip(tripId, tripCardElement) {
+    try {
+        showLoading("Deleting trip...");
+
+        // Get email for authentication
+        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+
+        if (!email) {
+            throw new Error("User email not found. Please login again.");
+        }
+
+        // Call the API to delete the trip
+        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips/${tripId}`;
+
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Email': email
+            }
+        });
+
+        let result;
+        try {
+            const responseText = await response.text();
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+            console.error("Error parsing response:", e);
+            result = { success: response.ok };
+        }
+
+        if (response.ok || (result && (result.success || result.deleted))) {
+            // Remove the trip card from the UI with animation
+            tripCardElement.classList.add('deleting');
+
+            setTimeout(() => {
+                tripCardElement.remove();
+
+                // Check if there are no more trips
+                const remainingTrips = document.querySelectorAll('.trip-card');
+                if (remainingTrips.length === 0) {
+                    const tripCardsContainer = document.querySelector('.trip-cards');
+                    tripCardsContainer.innerHTML = '<div class="no-trips-message">You have no trips yet. Create your first trip!</div>';
+                }
+
+                // Update the trip count
+                updateTripCount(remainingTrips.length);
+
+                // Show success message
+                alert("Trip deleted successfully");
+            }, 300); // Slight delay for animation
+        } else {
+            throw new Error(result.message || result.error || 'Failed to delete trip');
+        }
+
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error("Error deleting trip:", error);
+        alert(`Failed to delete trip: ${error.message || 'Unknown error'}`);
+    }
 }
 
 // Show loading indicator

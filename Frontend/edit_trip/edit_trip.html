@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Trip | Travel Planner</title>
+    <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="../utils/css/explore.css">
+    <link rel="stylesheet" href="../utils/css/planning.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Dark theme stylesheet (disabled by default) -->
+    <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
+    <!-- Common script for global settings -->
+    <script src="../utils/js/common.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Travel Planner</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="active"><a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
+                <li><a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
+                <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            
+            <!-- Add footer links to sidebar -->
+            <div class="sidebar-footer">
+                <ul class="sidebar-footer-links">
+                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
+                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
+                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
+                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header planning-header">
+                <div class="planning-title">
+                    <a href="../dashboard/dashboard.html" id="back-to-dashboard" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <h1>Edit Your Trip</h1>
+                </div>
+                <div class="planning-actions">
+                    <button class="btn-primary btn-save-trip" id="save-trip-btn">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </header>
+            
+            <section id="trip-details-section" class="trip-duration-section">
+                <div class="section-header">
+                    <h2>Trip Details</h2>
+                </div>
+                <div class="card">
+                    <form id="trip-details-form">
+                        <div class="form-group">
+                            <label for="trip-title">Trip Title</label>
+                            <input type="text" id="trip-title" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="start-city">Start City</label>
+                                <input type="text" id="start-city" class="form-control" required>
+                            </div>
+                            <div class="form-group half">
+                                <label for="end-city">End City</label>
+                                <input type="text" id="end-city" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="start-date">Start Date</label>
+                                <input type="date" id="start-date" class="form-control" required>
+                            </div>
+                            <div class="form-group half">
+                                <label for="trip-duration">Duration (days)</label>
+                                <input type="number" id="trip-duration" min="1" max="30" class="form-control" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="itinerary-section" class="itinerary-section">
+                <div class="section-header">
+                    <h2>Trip Itinerary</h2>
+                </div>
+                
+                <div class="itinerary-container">
+                    <div class="day-tabs">
+                        <!-- Day tabs will be generated dynamically -->
+                    </div>
+                    
+                    <div class="day-content">
+                        <!-- Day content will be generated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="itinerary-sidebar">
+                    <div class="sidebar-card">
+                        <h3>Trip Summary</h3>
+                        <div class="summary-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Start City: <strong id="summary-start-city"></strong></span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>End City: <strong id="summary-end-city"></strong></span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Duration: <strong id="summary-duration"></strong></span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-map"></i>
+                            <span>Activities: <strong id="summary-activities">0</strong></span>
+                        </div>
+                        
+                        <!-- Add custom destination form -->
+                        <div class="custom-destination-form">
+                            <h4>Add Custom Activity</h4>
+                            <input type="text" id="custom-destination-name" placeholder="Activity name" class="form-control">
+                            <textarea id="custom-destination-description" placeholder="Brief description" class="form-control" rows="3"></textarea>
+                            <button id="add-custom-destination" class="btn-secondary btn-full">
+                                <i class="fas fa-plus"></i> Add to Current Day
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading overlay for async operations -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div class="loading-message">Loading...</div>
+    </div>
+
+    <script src="../utils/js/edit_trip.js"></script>
+</body>
+</html>
