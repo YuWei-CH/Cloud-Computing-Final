@@ -1,207 +1,145 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Check authentication before loading settings
-    const email = checkAuthentication();
-    if (!email) return;
+    // Get all UI elements
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const fontSizeButtons = document.querySelectorAll('.font-size-btn');
+    const notificationsToggle = document.getElementById('browser-notifications-toggle');
+    const clearDataBtn = document.getElementById('clear-data-btn');
+    const saveNotification = document.getElementById('save-notification');
+
+    // Check authentication
+    checkAuthentication();
 
     // Load saved settings
     loadSettings();
 
-    // Set up event listeners for settings changes
-    setupEventListeners();
-});
-
-// Authentication check function (copied from other pages for consistency)
-function checkAuthentication() {
-    // Check localStorage first (for remembered users)
-    let email = localStorage.getItem('userEmail');
-
-    // If not in localStorage, check sessionStorage
-    if (!email) {
-        email = sessionStorage.getItem('userEmail');
-    }
-
-    if (!email) {
-        // No email found, redirect to login
-        console.log("No authentication email found, redirecting to login");
-        window.location.href = '../login/login.html';
-        return null;
-    }
-
-    return email;
-}
-
-// Load settings from localStorage
-function loadSettings() {
-    // Dark mode setting
-    const darkMode = localStorage.getItem('darkMode') === 'true';
-    document.getElementById('dark-mode-toggle').checked = darkMode;
-    applyDarkMode(darkMode);
-
-    // Font size setting
-    const fontSize = localStorage.getItem('fontSize') || 'medium';
-    document.querySelectorAll('.font-size-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.size === fontSize) {
-            btn.classList.add('active');
-        }
-    });
-    applyFontSize(fontSize);
-
-    // Email notifications setting
-    const emailNotifications = localStorage.getItem('emailNotifications') !== 'false'; // Default is true
-    document.getElementById('email-notifications-toggle').checked = emailNotifications;
-
-    // Browser notifications setting
-    const browserNotifications = localStorage.getItem('browserNotifications') !== 'false'; // Default is true
-    document.getElementById('browser-notifications-toggle').checked = browserNotifications;
-
-    // Remember login setting
-    const rememberLogin = localStorage.getItem('rememberLogin') !== 'false'; // Default is true
-    document.getElementById('remember-login-toggle').checked = rememberLogin;
-
-    // Data collection setting
-    const dataCollection = localStorage.getItem('dataCollection') !== 'false'; // Default is true
-    document.getElementById('data-collection-toggle').checked = dataCollection;
-}
-
-// Set up event listeners for all settings
-function setupEventListeners() {
     // Dark mode toggle
-    document.getElementById('dark-mode-toggle').addEventListener('change', function (e) {
-        const isDarkMode = e.target.checked;
-        localStorage.setItem('darkMode', isDarkMode);
-        applyDarkMode(isDarkMode);
-        showSaveNotification();
-    });
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('change', function () {
+            const darkTheme = document.getElementById('dark-theme');
+            darkTheme.disabled = !this.checked;
 
-    // Font size buttons
-    document.querySelectorAll('.font-size-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const size = this.dataset.size;
+            // Save setting globally
+            localStorage.setItem('darkMode', this.checked ? 'enabled' : 'disabled');
+            showSaveNotification();
+        });
+    }
 
-            // Update active button
-            document.querySelectorAll('.font-size-btn').forEach(b => b.classList.remove('active'));
+    // Font size selection
+    fontSizeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            // Remove active class from all buttons
+            fontSizeButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to clicked button
             this.classList.add('active');
 
-            // Save and apply font size
+            // Apply font size to body
+            const size = this.dataset.size;
+            document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+            document.body.classList.add(`font-size-${size}`);
+
+            // Save setting globally
             localStorage.setItem('fontSize', size);
-            applyFontSize(size);
             showSaveNotification();
         });
     });
 
-    // Email notifications toggle
-    document.getElementById('email-notifications-toggle').addEventListener('change', function (e) {
-        localStorage.setItem('emailNotifications', e.target.checked);
-        showSaveNotification();
-    });
-
     // Browser notifications toggle
-    document.getElementById('browser-notifications-toggle').addEventListener('change', function (e) {
-        localStorage.setItem('browserNotifications', e.target.checked);
-
-        // If enabled, request notification permission
-        if (e.target.checked) {
-            requestNotificationPermission();
-        }
-
-        showSaveNotification();
-    });
-
-    // Remember login toggle
-    document.getElementById('remember-login-toggle').addEventListener('change', function (e) {
-        localStorage.setItem('rememberLogin', e.target.checked);
-
-        // If turned off, clear localStorage but keep sessionStorage
-        if (!e.target.checked) {
-            const sessionEmail = sessionStorage.getItem('userEmail');
-            localStorage.removeItem('userEmail');
-            // Ensure we have email in session storage
-            if (sessionEmail) {
-                sessionStorage.setItem('userEmail', sessionEmail);
+    if (notificationsToggle) {
+        notificationsToggle.addEventListener('change', function () {
+            // Request notification permission if enabled
+            if (this.checked && Notification.permission !== 'granted') {
+                Notification.requestPermission();
             }
-        }
 
-        showSaveNotification();
-    });
-
-    // Data collection toggle
-    document.getElementById('data-collection-toggle').addEventListener('change', function (e) {
-        localStorage.setItem('dataCollection', e.target.checked);
-        showSaveNotification();
-    });
-
-    // Clear data button
-    document.getElementById('clear-data-btn').addEventListener('click', function () {
-        if (confirm('Are you sure you want to clear all locally stored data? This will log you out.')) {
-            clearAllData();
-        }
-    });
-}
-
-// Apply dark mode
-function applyDarkMode(isDarkMode) {
-    const darkTheme = document.getElementById('dark-theme');
-
-    if (isDarkMode) {
-        darkTheme.removeAttribute('disabled');
-    } else {
-        darkTheme.setAttribute('disabled', 'true');
+            // Save setting
+            localStorage.setItem('notifications', this.checked ? 'enabled' : 'disabled');
+            showSaveNotification();
+        });
     }
-}
 
-// Apply font size
-function applyFontSize(size) {
-    document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
-    document.body.classList.add(`font-size-${size}`);
-}
+    // Clear local data
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', function () {
+            if (confirm('Are you sure you want to clear all locally stored data? This will remove all your preferences and settings.')) {
+                // Keep only authentication data
+                const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
 
-// Request notification permission
-function requestNotificationPermission() {
-    if ('Notification' in window) {
-        Notification.requestPermission().then(function (permission) {
-            if (permission !== 'granted') {
-                console.log('Notification permission denied');
-                // Update toggle to reflect actual state
-                document.getElementById('browser-notifications-toggle').checked = false;
-                localStorage.setItem('browserNotifications', false);
+                // Clear all storage
+                localStorage.clear();
+                sessionStorage.clear();
+
+                // Restore authentication if needed
+                if (email) {
+                    localStorage.setItem('userEmail', email);
+                }
+
+                // Show confirmation
+                alert('All local data has been cleared. Settings have been reset to default.');
+
+                // Reload page to reset UI
+                window.location.reload();
             }
         });
     }
-}
 
-// Clear all locally stored data
-function clearAllData() {
-    // Preserve the dark mode setting for better UX
-    const darkMode = localStorage.getItem('darkMode');
+    // Function to show save notification
+    function showSaveNotification() {
+        saveNotification.classList.add('show');
 
-    // Clear all localStorage
-    localStorage.clear();
-
-    // Clear all sessionStorage
-    sessionStorage.clear();
-
-    // Restore dark mode setting if it was enabled
-    if (darkMode === 'true') {
-        localStorage.setItem('darkMode', 'true');
+        // Hide after 3 seconds
+        setTimeout(() => {
+            saveNotification.classList.remove('show');
+        }, 3000);
     }
 
-    showSaveNotification('All data cleared successfully');
+    // Function to load saved settings
+    function loadSettings() {
+        // Load dark mode setting
+        const darkMode = localStorage.getItem('darkMode');
+        if (darkMode === 'enabled' && darkModeToggle) {
+            darkModeToggle.checked = true;
+            document.getElementById('dark-theme').disabled = false;
+        }
 
-    // Redirect to login after a short delay
-    setTimeout(() => {
-        window.location.href = '../login/login.html';
-    }, 1500);
-}
+        // Load font size setting
+        const fontSize = localStorage.getItem('fontSize');
+        if (fontSize) {
+            fontSizeButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.size === fontSize) {
+                    button.classList.add('active');
+                }
+            });
 
-// Show save notification
-function showSaveNotification(message = 'Settings saved successfully') {
-    const notification = document.getElementById('save-notification');
-    notification.textContent = message;
-    notification.classList.add('show');
+            document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+            document.body.classList.add(`font-size-${fontSize}`);
+        }
 
-    // Hide notification after 3 seconds
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
-}
+        // Load notifications setting
+        const notifications = localStorage.getItem('notifications');
+        if (notifications === 'disabled' && notificationsToggle) {
+            notificationsToggle.checked = false;
+        }
+    }
+
+    // Authentication check (copied from other pages for consistency)
+    function checkAuthentication() {
+        // Check localStorage first (for remembered users)
+        let email = localStorage.getItem('userEmail');
+
+        // If not in localStorage, check sessionStorage
+        if (!email) {
+            email = sessionStorage.getItem('userEmail');
+        }
+
+        if (!email) {
+            // No email found, redirect to login
+            console.log("No authentication email found, redirecting to login");
+            window.location.href = '../login/login.html';
+            return null;
+        }
+
+        return email;
+    }
+});
