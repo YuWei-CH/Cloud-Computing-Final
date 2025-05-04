@@ -13,14 +13,19 @@ SYSTEM_PROMPT = """
 You are a helpful assistant. When asked, you must return your answer ONLY as a JSON object
 with exactly one key:
 
-  "places" — whose value is an array of objects. Each object must have exactly two keys:
-    1. name    — the place's name
-    2. address — the full postal address
+  "places" — whose value is an array of objects. Each object must have exactly three keys:
+    1. name        — the place's name
+    2. address     — the full postal address
+    3. description — a short description (between 15 and 20 words)
 
 E.g.:
 {
   "places": [
-    { "name": "Eiffel Tower", "address": "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France" },
+    {
+      "name": "Eiffel Tower",
+      "address": "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France",
+      "description": "Iconic iron tower with panoramic Paris views"
+    },
     …
   ]
 }
@@ -36,23 +41,25 @@ cache = Client((CACHE_HOST, CACHE_PORT))
 CACHE_TTL = int(os.environ.get('CACHE_TTL_SECONDS', 3600))
 
 def lambda_handler(event, context):
-    # 2) Parse incoming JSON (supports both proxy & direct invocation)
-    body = event.get('body')
-    if isinstance(body, str):
-        # API‑GW proxy: body is a JSON string
-        try:
-            payload = json.loads(body)
-        except json.JSONDecodeError:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Invalid JSON in body"})
-            }
-    elif isinstance(body, dict):
-        # API‑GW with direct dict body
-        payload = body
+    # 2) Extract inputs: prefer query string parameters for GET
+    qs = event.get('queryStringParameters') or {}
+    if qs:
+        payload = qs
     else:
-        # Direct Lambda test event: event itself is the payload
-        payload = event
+        # Fallback to JSON body parsing (POST or proxy)
+        body = event.get('body')
+        if isinstance(body, str):
+            try:
+                payload = json.loads(body)
+            except json.JSONDecodeError:
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({"error": "Invalid JSON in body"})
+                }
+        elif isinstance(body, dict):
+            payload = body
+        else:
+            payload = event
 
     city = payload.get('location')
     weather = payload.get('weather')
@@ -67,7 +74,8 @@ def lambda_handler(event, context):
         }
 
     # 4) Build a cache key
-    cache_key = f"{city}:{weather}:{environment}:{activity}"
+    raw_key = f"{city}:{weather}:{environment}:{activity}"
+    cache_key = raw_key.replace(" ", "_")
 
     # 5) Try cache lookup
     cached = cache.get(cache_key)
@@ -85,7 +93,7 @@ def lambda_handler(event, context):
     
     # 6) Build prompt with JSON‐format instruction
     user_prompt = (
-        f"Can you please recommend me 10 places that I should visit in {city}, "
+        f"Can you please recommend me 9 places that I should visit in {city}, "
         f"based on these three preferences?\n"
         f"1. Weather: {weather}\n"
         f"2. Environment: {environment}\n"
@@ -116,7 +124,7 @@ def lambda_handler(event, context):
         places = data.get("places")
         assert isinstance(places, list)
         for item in places:
-            assert "name" in item and "address" in item
+            assert "name" in item and "address" in item and "description" in item
     except Exception:
         return {
             "statusCode":502,
