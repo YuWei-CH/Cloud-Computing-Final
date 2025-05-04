@@ -3,19 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service | Travel Planner</title>
+    <title>Terms of Service | Trip Planner</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="../utils/css/ghibli-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Dark theme stylesheet (disabled by default) -->
     <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
     <!-- Common script for global settings -->
     <script src="../utils/js/common.js"></script>
     <style>
+        /* Ghibli-inspired decorative elements */
+        .cloud-element {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: -1;
+        }
+        
+        .cloud1 {
+            width: 200px;
+            height: 200px;
+            top: 15%;
+            left: 5%;
+            animation: float 15s ease-in-out infinite;
+        }
+        
+        .cloud2 {
+            width: 300px;
+            height: 300px;
+            top: 40%;
+            right: 8%;
+            animation: float 20s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+        
         .page-content {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         
         .page-content h2 {
@@ -51,30 +80,60 @@
             font-style: italic;
             font-size: 0.9rem;
         }
+        
+        .dashboard-header {
+            position: relative;
+        }
+        
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233e9391" opacity="0.2"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"></path></svg>');
+            background-repeat: no-repeat;
+            opacity: 0.3;
+        }
     </style>
 </head>
 <body>
+    <div class="cloud-element cloud1"></div>
+    <div class="cloud-element cloud2"></div>
+    
     <div class="dashboard-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h2>Travel Planner</h2>
+        <!-- Modern top navigation bar -->
+        <nav class="dashboard-navbar">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-plane-departure"></i>
+                Trip Planner
+            </a>
+            <div class="nav-links">
+                <a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a>
+                <a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
-                <li><a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
-                <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-            
-            <!-- Add footer links to sidebar -->
-            <div class="sidebar-footer">
-                <ul class="sidebar-footer-links">
-                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
-                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
-                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
-                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
-                </ul>
+            <div class="user-controls">
+                <div class="user-menu">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="../settings/settings.html"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a>
+                        <a href="../pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+                        <a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                        <a href="../pages/terms.html" class="active"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                        <a href="../login/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                <div class="burger-menu" id="burger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
 
@@ -116,8 +175,28 @@
                 </ul>
                 
             </div>
-
+            
+            <!-- Footer section -->
+            <footer class="app-footer">
+                <div class="footer-container">
+                    <p>&copy; 2023 Trip Planner. All rights reserved.</p>
+                    <div class="footer-links">
+                        <a href="../pages/privacy.html">Privacy Policy</a>
+                        <a href="../pages/terms.html">Terms of Service</a>
+                        <a href="../pages/contact.html">Contact Us</a>
+                    </div>
+                </div>
+            </footer>
         </main>
     </div>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('burger-menu').addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.toggle('active');
+            });
+        });
+    </script>
 </body>
 </html>

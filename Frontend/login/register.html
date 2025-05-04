@@ -3,16 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Cloud App</title>
+    <title>Register | Trip Planner</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
+    <link rel="stylesheet" href="../utils/css/ghibli-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Common script for global settings -->
+    <script src="../utils/js/common.js"></script>
+    <style>
+        /* Ghibli-inspired decorative elements */
+        .cloud-element {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: -1;
+        }
+        
+        .cloud1 {
+            width: 200px;
+            height: 200px;
+            top: 15%;
+            left: 5%;
+            animation: float 15s ease-in-out infinite;
+        }
+        
+        .cloud2 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            right: 10%;
+            animation: float 20s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+        
+        .cloud3 {
+            width: 150px;
+            height: 150px;
+            bottom: 10%;
+            left: 15%;
+            animation: float 18s ease-in-out infinite;
+            animation-delay: 6s;
+        }
+        
+        .register-container {
+            position: relative;
+            z-index: 10;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .form-header {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" opacity="0.2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-4l6-4.5-6-4.5v9z"></path></svg>');
+            background-repeat: no-repeat;
+            opacity: 0.6;
+        }
+        
+        .register-btn {
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .back-to-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            z-index: 20;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-home i {
+            margin-right: 5px;
+        }
+        
+        .back-to-home:hover {
+            transform: translateX(-3px);
+            color: var(--primary-hover);
+        }
+        
+        .container {
+            padding: 30px 0;
+        }
+        
+        .preferences-section {
+            background: linear-gradient(135deg, rgba(62, 147, 145, 0.1), rgba(146, 178, 90, 0.1));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.06);
+        }
+        
+        .preferences-section h3 {
+            color: var(--primary-color);
+        }
+    </style>
 </head>
 <body>
+    <div class="cloud-element cloud1"></div>
+    <div class="cloud-element cloud2"></div>
+    <div class="cloud-element cloud3"></div>
+    
+    <a href="../index.html" class="back-to-home">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+    
     <div class="container">
-        <div class="register-container">
+        <div class="login-container register-container">
             <div class="form-header">
-                <h1>Create Account</h1>
-                <p>Plan your Trip Now!</p>
+                <h1>Begin Your Adventure</h1>
+                <p>Create your Trip Planner account</p>
             </div>
             
             <form id="register-form">
@@ -59,7 +178,7 @@
 
                 <div class="preferences-section">
                     <h3>Your Travel Preferences</h3>
-                    <p>Help us customize your trip recommendations</p>
+                    <p>Help us customize your journey recommendations</p>
                     
                     <div class="input-group">
                         <label for="weather">Weather Preference</label>

@@ -19,13 +19,24 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: var(--text-color);
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Vertical scrolling background */
+    background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/dashboardBG.png');
+    background-size: 100% auto;
+    background-attachment: fixed;
+    background-position: center top;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Remove the overlay that causes fading */
+body::before {
+    display: none;
 }
 
 .container {

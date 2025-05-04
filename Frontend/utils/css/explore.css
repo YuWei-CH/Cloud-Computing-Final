@@ -1,9 +1,22 @@
 /* Explore Page Styles */
 
+/* Ensure main content is positioned above the background overlay */
+.main-content, 
+.card-content, 
+.recommendation-cards,
+.page-intro,
+.destination-input-container,
+.recommendation-card,
+.section-header {
+    position: relative;
+    z-index: 1;
+}
+
 /* Header and search styles */
 .search-container {
     position: relative;
     max-width: 300px;
+    z-index: 2;
 }
 
 .search-input {
@@ -13,6 +26,7 @@
     border-radius: 20px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.95);
 }
 
 .search-container i {
@@ -155,6 +169,7 @@
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
+    border: 1px solid #e0e0e0;
 }
 
 .recommendation-card:hover {

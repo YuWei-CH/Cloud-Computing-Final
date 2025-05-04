@@ -1,82 +1,169 @@
 /* Ticket Upload Page Styles */
 
+/* Ensure main content is positioned above the background overlay */
+.main-content,
+.upload-container,
+.card,
+.section-header {
+    position: relative;
+    z-index: 1;
+}
+
 .upload-container {
     max-width: 800px;
     margin: 0 auto;
 }
 
 .trip-selector {
-    margin-bottom: 30px;
-}
-
-.trip-item {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.trip-item:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.trip-item.selected {
-    border-color: var(--primary-color);
-    background-color: rgba(67, 97, 238, 0.05);
-}
-
-.upload-section {
-    background-color: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: var(--card-shadow);
-}
-
-.file-drop-area {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
     margin-bottom: 20px;
 }
 
-.file-drop-area:hover,
-.file-drop-area.dragover {
-    border-color: var(--primary-color);
-    background-color: rgba(67, 97, 238, 0.05);
-}
-
-.file-input {
-    display: none;
-}
-
-.selected-file {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
+.trip-selector select {
+    width: 100%;
+    padding: 10px 15px;
     border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+}
+
+.file-drop-area {
+    border: 2px dashed var(--primary-color);
+    border-radius: 5px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+}
+
+.file-drop-area:hover {
+    background-color: rgba(239, 249, 252, 0.9);
+}
+
+.file-drop-area i {
+    font-size: 40px;
+    color: var(--primary-color);
     margin-bottom: 10px;
 }
 
-.selected-file .file-name {
-    flex-grow: 1;
-    margin-left: 10px;
+.file-drop-area p {
+    margin: 5px 0;
 }
 
-.selected-file .remove-file {
-    color: #dc3545;
+.file-drop-area .small {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.file-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
     cursor: pointer;
 }
 
+#file-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.file-preview-item {
+    position: relative;
+    width: 120px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.file-preview-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.file-preview-item .file-name {
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 5px;
+}
+
+.file-preview-item .remove-file {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.upload-progress {
+    height: 5px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
 .file-error {
-    color: #dc3545;
-    margin-top: 10px;
+    color: var(--error-color);
+    margin-bottom: 15px;
     font-size: 0.9rem;
+}
+
+.upload-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.upload-success i {
+    margin-right: 5px;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+}
+
+.loading-indicator i {
+    margin-right: 5px;
 }
 
 .no-trips-message {
@@ -118,29 +205,4 @@
     100% {
         transform: rotate(360deg);
     }
-}
-
-.upload-success {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    display: none;
-}
-
-.upload-progress {
-    height: 5px;
-    width: 100%;
-    background-color: #e9ecef;
-    border-radius: 5px;
-    margin-top: 20px;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0;
-    background-color: var(--primary-color);
-    border-radius: 5px;
-    transition: width 0.3s ease;
 }

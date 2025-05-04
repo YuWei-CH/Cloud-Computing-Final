@@ -22,131 +22,177 @@
 </head>
 
 <body>
-  <div id="sidebar">
-    <div id="trip-summary">
-      <h2 id="trip-title">Trip Details</h2>
-      <div id="trip-dates" class="trip-info">
-        <i class="fas fa-calendar"></i> -
+  <div class="dashboard-container">
+    <!-- Modern top navigation bar -->
+    <nav class="dashboard-navbar">
+      <a href="../index.html" class="logo">
+        <i class="fas fa-plane-departure"></i>
+        Trip Planner
+      </a>
+      <div class="nav-links">
+        <a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a>
+        <a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
+        <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
       </div>
-      <div id="trip-duration" class="trip-info">
-        <i class="fas fa-clock"></i> -
+      <div class="user-controls">
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="user-dropdown">
+            <a href="../settings/settings.html"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a>
+            <a href="../pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+            <a href="../pages/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
+            <a href="../login/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+        <div class="burger-menu" id="burger-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
-      <div id="trip-status" class="trip-info">
-        <i class="fas fa-info-circle"></i> -
-      </div>
-    </div>
-    
-    <!-- Weather section -->
-    <div class="weather-section">
-      <h3><i class="fas fa-cloud-sun"></i> Weather Forecast</h3>
-      <div id="weather-content">
-        <div class="loading-placeholder">Loading weather...</div>
-      </div>
-    </div>
+    </nav>
 
-    <div id="route-status" class="status-message">
-      Select a day to view route
-    </div>
+    <main class="main-content">
+      <div id="sidebar">
+        <div id="trip-summary">
+          <h2 id="trip-title">Trip Details</h2>
+          <div id="trip-dates" class="trip-info">
+            <i class="fas fa-calendar"></i> -
+          </div>
+          <div id="trip-duration" class="trip-info">
+            <i class="fas fa-clock"></i> -
+          </div>
+          <div id="trip-status" class="trip-info">
+            <i class="fas fa-info-circle"></i> -
+          </div>
+        </div>
+        
+        <!-- Weather section -->
+        <div class="weather-section">
+          <h3><i class="fas fa-cloud-sun"></i> Weather Forecast</h3>
+          <div id="weather-content">
+            <div class="loading-placeholder">Loading weather...</div>
+          </div>
+        </div>
 
-    <div class="section">
-      <h3><i class="fas fa-map-marked-alt"></i> Trip Days</h3>
-      <div id="day-buttons" class="day-buttons-container"></div>
-    </div>
+        <div id="route-status" class="status-message">
+          Select a day to view route
+        </div>
 
-    <div class="action-buttons">
-      <button onclick="showAllRoutes()" class="btn-primary">
-        <i class="fas fa-route"></i> Show Entire Trip
-      </button>
-      <button onclick="clearMap()" class="btn-secondary">
-        <i class="fas fa-eraser"></i> Clear Map
-      </button>
-    </div>
+        <div class="section">
+          <h3><i class="fas fa-map-marked-alt"></i> Trip Days</h3>
+          <div id="day-buttons" class="day-buttons-container"></div>
+        </div>
 
-    <!-- Back to Dashboard -->
-    <div class="navigation-buttons">
-      <button onclick="window.location.href = '../dashboard/dashboard.html'" class="btn-secondary">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
-      </button>
-      <button onclick="window.location.href = '../settings/settings.html'" class="btn-secondary">
-        <i class="fas fa-cog"></i> Settings
-      </button>
-    </div>
-    
-    <!-- Add footer links -->
-    <div class="sidebar-footer" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <div class="sidebar-footer-links" style="padding: 0 15px;">
+        <div class="action-buttons">
+          <button onclick="showAllRoutes()" class="btn-primary">
+            <i class="fas fa-route"></i> Show Entire Trip
+          </button>
+          <button onclick="clearMap()" class="btn-secondary">
+            <i class="fas fa-eraser"></i> Clear Map
+          </button>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="navigation-buttons">
+          <button onclick="window.location.href = '../dashboard/dashboard.html'" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+          </button>
+          <button onclick="window.location.href = '../settings/settings.html'" class="btn-secondary">
+            <i class="fas fa-cog"></i> Settings
+          </button>
+        </div>
+        
+        <!-- Add footer links -->
+        <div class="sidebar-footer" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+          <div class="sidebar-footer-links" style="padding: 0 15px;">
             <a href="../pages/about.html" style="display: block; color: #6c757d; margin: 5px 0; font-size: 13px;"><i class="fas fa-info-circle"></i> About Us</a>
             <a href="../pages/contact.html" style="display: block; color: #6c757d; margin: 5px 0; font-size: 13px;"><i class="fas fa-envelope"></i> Contact</a>
             <a href="../pages/privacy.html" style="display: block; color: #6c757d; margin: 5px 0; font-size: 13px;"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
             <a href="../pages/terms.html" style="display: block; color: #6c757d; margin: 5px 0; font-size: 13px;"><i class="fas fa-file-contract"></i> Terms of Service</a>
-        </div>
-    </div>
-  </div>
-
-  <div id="map"></div>
-
-  <!-- Photo Gallery Modal -->
-  <div id="photo-modal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <div id="photo-gallery"></div>
-    </div>
-  </div>
-
-  <!-- Location Details Modal -->
-  <div id="location-modal" class="modal">
-    <div class="modal-content location-content">
-      <span class="close">&times;</span>
-      <div class="location-header">
-        <h3 id="location-name"></h3>
-        <div id="location-rating" class="rating"></div>
-      </div>
-      <div class="location-body">
-        <div class="location-info">
-          <div id="location-address" class="info-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <span></span>
           </div>
-          <div id="location-phone" class="info-item">
-            <i class="fas fa-phone"></i>
-            <span></span>
-          </div>
-          <div id="location-website" class="info-item">
-            <i class="fas fa-globe"></i>
-            <a href="#" target="_blank"></a>
-          </div>
-          <div id="location-hours" class="info-item">
-            <i class="fas fa-clock"></i>
-            <div class="hours-list"></div>
-          </div>
-        </div>
-        <div class="location-photos">
-          <h4>Photos</h4>
-          <div id="location-photos-gallery" class="photos-grid"></div>
-        </div>
-        <div class="location-reviews">
-          <h4>Reviews</h4>
-          <div id="location-reviews-list" class="reviews-list"></div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Error Modal -->
-  <div id="error-modal" class="modal">
-    <div class="modal-content error-content">
-      <span class="close">&times;</span>
-      <h3><i class="fas fa-exclamation-circle"></i> Error</h3>
-      <p id="error-message"></p>
-      <button onclick="document.getElementById('error-modal').style.display='none'" class="btn-primary">
-        OK
-      </button>
-    </div>
-  </div>
+      <div id="map"></div>
 
-  <footer class="app-footer">
-    <!-- Footer links removed -->
-  </footer>
+      <!-- Photo Gallery Modal -->
+      <div id="photo-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <div id="photo-gallery"></div>
+        </div>
+      </div>
+
+      <!-- Location Details Modal -->
+      <div id="location-modal" class="modal">
+        <div class="modal-content location-content">
+          <span class="close">&times;</span>
+          <div class="location-header">
+            <h3 id="location-name"></h3>
+            <div id="location-rating" class="rating"></div>
+          </div>
+          <div class="location-body">
+            <div class="location-info">
+              <div id="location-address" class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span></span>
+              </div>
+              <div id="location-phone" class="info-item">
+                <i class="fas fa-phone"></i>
+                <span></span>
+              </div>
+              <div id="location-website" class="info-item">
+                <i class="fas fa-globe"></i>
+                <a href="#" target="_blank"></a>
+              </div>
+              <div id="location-hours" class="info-item">
+                <i class="fas fa-clock"></i>
+                <div class="hours-list"></div>
+              </div>
+            </div>
+            <div class="location-photos">
+              <h4>Photos</h4>
+              <div id="location-photos-gallery" class="photos-grid"></div>
+            </div>
+            <div class="location-reviews">
+              <h4>Reviews</h4>
+              <div id="location-reviews-list" class="reviews-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Modal -->
+      <div id="error-modal" class="modal">
+        <div class="modal-content error-content">
+          <span class="close">&times;</span>
+          <h3><i class="fas fa-exclamation-circle"></i> Error</h3>
+          <p id="error-message"></p>
+          <button onclick="document.getElementById('error-modal').style.display='none'" class="btn-primary">
+            OK
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer section -->
+      <footer class="app-footer">
+        <div class="footer-container">
+          <p>&copy; 2023 Trip Planner. All rights reserved.</p>
+          <div class="footer-links">
+            <a href="../pages/privacy.html">Privacy Policy</a>
+            <a href="../pages/terms.html">Terms of Service</a>
+            <a href="../pages/contact.html">Contact Us</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
 
   <!-- Trip script -->
   <script src="../utils/js/trip_card.js"></script>
@@ -163,6 +209,15 @@
       script.async = true;
       document.body.appendChild(script);
     })();
+  </script>
+
+  <script>
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('burger-menu').addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('active');
+      });
+    });
   </script>
 </body>
 </html>

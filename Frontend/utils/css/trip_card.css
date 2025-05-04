@@ -621,7 +621,6 @@ body {
 
 /* Add animation for markers */
 @keyframes bounce {
-
     0%,
     100% {
         transform: translateY(0);
@@ -734,4 +733,112 @@ body {
     margin-bottom: 20px;
     color: #5f6368;
     line-height: 1.5;
+}
+
+/* Ensure elements are positioned above the background overlay */
+.main-content,
+.trips-container,
+.trip-cards,
+.trip-card,
+.trip-actions,
+.section-header {
+    position: relative;
+    z-index: 1;
+}
+
+/* Existing styles for trip cards, modified to work with background */
+.trip-card {
+    border-radius: 12px;
+    margin-bottom: 25px;
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.trip-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Trip Actions */
+.trip-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Create Trip Button */
+.create-trip-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    z-index: 5;
+    border: none;
+    cursor: pointer;
+}
+
+.create-trip-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--primary-color-dark);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    margin: 40px auto;
+    max-width: 600px;
+}
+
+/* Dialog/Modal styles */
+.trip-dialog {
+    background-color: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 100%;
+    padding: 0;
+    backdrop-filter: blur(10px);
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease;
+    z-index: 1000;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }

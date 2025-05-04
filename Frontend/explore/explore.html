@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore | Travel Planner</title>
+    <title>Explore | Trip Planner</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
     <link rel="stylesheet" href="../utils/css/explore.css">
+    <link rel="stylesheet" href="../utils/css/ghibli-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Dark theme stylesheet (disabled by default) -->
     <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
@@ -33,29 +34,261 @@
             }
         };
     </script>
+    <style>
+        /* Ensure all text is readable regardless of background */
+        body {
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/dashboardBG.png') !important;
+            background-size: 100% auto !important;
+            background-attachment: fixed !important;
+            background-position: center top !important;
+            background-repeat: no-repeat !important;
+            color: #333333; /* Base text color for light mode */
+        }
+        
+        /* Text color adjustments for content */
+        .dashboard-header h1 {
+            color: #ffffff; /* White text for main title */
+            text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3); /* Text shadow for better readability */
+        }
+        
+        .page-intro .subtitle,
+        .section-header h2,
+        .dashboard-header p,
+        .selection-instructions p,
+        .instruction-text,
+        .current-date-display,
+        .selection-summary,
+        h2, h3, h4, 
+        .create-trip-container {
+            color: #333333; /* Dark text color */
+        }
+        
+        /* Text outside cards and sections */
+        body > h2, 
+        body > h3,
+        body > h4,
+        main > h2,
+        main > h3,
+        main > h4 {
+            color: #333333; /* Change from white to dark text color */
+        }
+        
+        /* Footer styling consistent with index.html */
+        .app-footer {
+            color: white;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        
+        .app-footer p {
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links {
+            margin-top: 10px;
+        }
+        
+        .footer-links a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Card and contained content text styles */
+        .card {
+            color: #333333; /* Dark text for content on light backgrounds */
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+        }
+        
+        /* Keep card text in dark color for readability */
+        .card h2,
+        .card h3,
+        .card h4,
+        .card p,
+        .recommendation-card h3,
+        .recommendation-card p,
+        .card label,
+        .card-content h3,
+        .card-content p,
+        .section-header h2 {
+            color: var(--text-color);
+        }
+        
+        /* Section header text color overrides */
+        .recommendation-cards .section-header h2,
+        .destination-input-section .section-header h2,
+        .recommendations-section .section-header h2,
+        .trip-duration-section .section-header h2,
+        .itinerary-section .section-header h2 {
+            color: var(--text-color) !important;
+        }
+        
+        /* Additional override for any h2 inside cards or sections that need dark text */
+        .card h2, 
+        section .card h2,
+        .section-header h2 {
+            color: var(--text-color) !important;
+        }
+        
+        /* Enhance recommendation cards */
+        .recommendation-cards {
+            gap: 25px;
+        }
+        
+        .recommendation-card {
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            background-color: white;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Enhance cards and UI elements */
+        .card {
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            background-color: white;
+        }
+        
+        .destination-input-section .card {
+            background: white;
+        }
+        
+        .btn-primary {
+            border-radius: 30px;
+        }
+        
+        .btn-secondary {
+            border-radius: 30px;
+        }
+        
+        /* Improve form fields */
+        .destination-field input {
+            border-radius: 30px;
+            padding: 15px 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .destination-field input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(62, 147, 145, 0.2);
+        }
+        
+        /* Improved dark mode compatibility - simpler approach */
+        /* Commented out dark mode implementation
+        body.dark-mode {
+            position: relative;
+        }
+        
+        body.dark-mode::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+            pointer-events: none;
+        }
+        */
+        
+        body.dark-mode .dashboard-header h1,
+        body.dark-mode .page-intro .subtitle,
+        body.dark-mode .section-header h2,
+        body.dark-mode .dashboard-header p,
+        body.dark-mode .selection-instructions p,
+        body.dark-mode .instruction-text,
+        body.dark-mode .current-date-display,
+        body.dark-mode .selection-summary {
+            color: #ffffff;
+            text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        body.dark-mode .card,
+        body.dark-mode .recommendation-card {
+            background-color: rgba(30, 30, 30, 0.9); /* Dark background for cards in dark mode */
+            color: #e0e0e0;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Dark mode toggle style */
+        /* Commented out dark mode toggle
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .dark-mode-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+        }
+        */
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h2>Travel Planner</h2>
+        <!-- Modern top navigation bar -->
+        <nav class="dashboard-navbar">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-plane-departure"></i>
+                Trip Planner
+            </a>
+            <div class="nav-links">
+                <a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="#" class="active"><i class="fas fa-map-marked-alt"></i> Explore</a>
+                <a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li class="active"><a href="#"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
-                <li><a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
-                <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-            
-            <!-- Add footer links to sidebar -->
-            <div class="sidebar-footer">
-                <ul class="sidebar-footer-links">
-                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
-                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
-                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
-                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
-                </ul>
+            <div class="user-controls">
+                <div class="user-menu">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="../settings/settings.html"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a>
+                        <a href="../pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+                        <a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                        <a href="../pages/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                        <a href="../login/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                <div class="burger-menu" id="burger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
 
@@ -69,7 +302,7 @@
             </header>
             
             <section class="page-intro">
-                <p class="subtitle">Enter your destination, get personalized recommendations, and build your itinerary.</p>
+                <p class="subtitle">Discover magical destinations, get personalized recommendations, and build your dream itinerary.</p>
             </section>
 
             <section class="destination-input-section">
@@ -241,7 +474,7 @@
                         </div>
                         
                         <div class="map-preview">
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
                         </div>
                         <div class="sidebar-actions">
                             <button class="btn-secondary btn-full"><i class="fas fa-share-alt"></i> Share</button>
@@ -250,17 +483,60 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Modal for activity details -->
-            <div id="activity-details-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal">&times;</span>
-                    <div id="activity-details-content"></div>
-                </div>
-            </div>
         </main>
     </div>
-
+    
+    <!-- Dark mode toggle button -->
+    <!-- Commented out dark mode toggle button
+    <button class="dark-mode-toggle" id="dark-mode-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    -->
+    
     <script src="../utils/js/explore.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('burger-menu').addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.toggle('active');
+            });
+            
+            // Set current date
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
+            
+            // Dark mode toggle functionality - commented out
+            /*
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const darkThemeLink = document.getElementById('dark-theme');
+            
+            // Check if dark mode is already enabled
+            const isDarkMode = localStorage.getItem('darkMode') === 'enabled';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkThemeLink.disabled = false;
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // Toggle dark mode when button is clicked
+            darkModeToggle.addEventListener('click', function() {
+                if (darkThemeLink.disabled) {
+                    // Enable dark mode
+                    darkThemeLink.disabled = false;
+                    localStorage.setItem('darkMode', 'enabled');
+                    document.body.classList.add('dark-mode');
+                    darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    // Disable dark mode
+                    darkThemeLink.disabled = true;
+                    localStorage.setItem('darkMode', 'disabled');
+                    document.body.classList.remove('dark-mode');
+                    darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            });
+            */
+        });
+    </script>
 </body>
 </html>

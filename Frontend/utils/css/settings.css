@@ -1,61 +1,59 @@
 /* Settings Page Styles */
 
-/* Strong centering for settings page */
-.settings-page .content-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 20px;
-    width: 100%;
+/* Ensure content is above the background overlay */
+.main-content,
+.content-wrapper,
+.settings-page,
+.card,
+.section-header {
+    position: relative;
+    z-index: 1;
+}
+
+.settings-page {
+    min-height: calc(100vh - 200px);
 }
 
 .centered-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+}
+
+.section-header {
+    margin-bottom: 15px;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
 }
 
-.centered-content section,
-.centered-content .dashboard-header {
-    width: 100%;
+.section-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
-.settings-page .card {
-    width: 100%;
-}
-
-/* Center content in settings page */
-.main-content section {
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Ensure header is also centered */
-.main-content .dashboard-header {
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-}
-
-/* Existing settings styles */
 .settings-group {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+    padding: 15px;
 }
 
 .setting-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e9ecef;
+    padding: 20px 15px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .setting-item:last-child {
     border-bottom: none;
-    padding-bottom: 0;
 }
 
 .setting-label {
@@ -64,14 +62,13 @@
 
 .setting-label h3 {
     margin: 0 0 5px 0;
-    font-size: 1.1rem;
     font-weight: 600;
-    color: #2c3e50;
+    font-size: 1.1rem;
 }
 
 .setting-label p {
     margin: 0;
-    color: #6c757d;
+    color: var(--text-light);
     font-size: 0.9rem;
 }
 
@@ -115,15 +112,15 @@
     transition: .4s;
 }
 
-input:checked+.slider {
+input:checked + .slider {
     background-color: var(--primary-color);
 }
 
-input:focus+.slider {
+input:focus + .slider {
     box-shadow: 0 0 1px var(--primary-color);
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
     transform: translateX(26px);
 }
 
@@ -135,49 +132,50 @@ input:checked+.slider:before {
     border-radius: 50%;
 }
 
-/* Font size options */
+/* Font Size Options */
 .font-size-options {
     display: flex;
     gap: 10px;
 }
 
 .font-size-btn {
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    color: #495057;
-    padding: 8px 15px;
-    border-radius: 5px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 5px 15px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .font-size-btn:hover {
-    background-color: #e9ecef;
+    background-color: var(--light-gray);
 }
 
 .font-size-btn.active {
     background-color: var(--primary-color);
-    border-color: var(--primary-color);
     color: white;
+    border-color: var(--primary-color);
 }
 
-/* Save notification */
 .save-notification {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #28a745;
+    background-color: var(--primary-color);
     color: white;
-    padding: 15px 25px;
-    border-radius: 5px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(100px);
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     z-index: 1000;
+}
+
+.save-notification i {
+    margin-right: 10px;
 }
 
 .save-notification.show {
@@ -185,33 +183,27 @@ input:checked+.slider:before {
     opacity: 1;
 }
 
-.save-notification i {
-    font-size: 1.2rem;
-}
-
-/* Clear data button */
-#clear-data-btn {
-    padding: 8px 20px;
-    font-size: 0.9rem;
-    background-color: #f8f9fa;
-    border: 1px solid #dc3545;
-    color: #dc3545;
-}
-
-#clear-data-btn:hover {
-    background-color: #dc3545;
-    color: white;
-}
-
-/* Font size classes to be applied to body */
-.font-size-small {
-    font-size: 0.9rem;
-}
-
-.font-size-medium {
-    font-size: 1rem;
-}
-
-.font-size-large {
-    font-size: 1.1rem;
+@media (max-width: 768px) {
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .setting-control {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+    }
+    
+    .font-size-options {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .save-notification {
+        left: 20px;
+        right: 20px;
+        text-align: center;
+        justify-content: center;
+    }
 }

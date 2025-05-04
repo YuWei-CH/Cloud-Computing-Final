@@ -3,23 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact | Travel Planner</title>
+    <title>Contact | Trip Planner</title>
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
+    <link rel="stylesheet" href="../utils/css/ghibli-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Dark theme stylesheet (disabled by default) -->
     <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
     <!-- Common script for global settings -->
     <script src="../utils/js/common.js"></script>
     <style>
+        /* Ghibli-inspired decorative elements */
+        .cloud-element {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: -1;
+        }
+        
+        .cloud1 {
+            width: 200px;
+            height: 200px;
+            top: 15%;
+            left: 5%;
+            animation: float 15s ease-in-out infinite;
+        }
+        
+        .cloud2 {
+            width: 300px;
+            height: 300px;
+            top: 40%;
+            right: 8%;
+            animation: float 20s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+        
         .page-content {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         
         .contact-info {
             margin-bottom: 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--soft-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: var(--transition-regular);
+        }
+        
+        .contact-info:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--floating-shadow);
         }
         
         .contact-info h2 {
@@ -40,33 +80,33 @@
         }
         
         .contact-form {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
             padding: 30px;
-            border-radius: 10px;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 16px;
+            box-shadow: var(--soft-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: var(--transition-regular);
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Remove these dark theme overrides as they'll be handled in the external CSS */
-        /*
-        .dark-theme .contact-form {
-            background-color: #2c2c2c;
-            color: var(--dark-text);
-            border: 1px solid var(--dark-border);
+        .contact-form:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--floating-shadow);
         }
         
-        .dark-theme .contact-form h2 {
-            color: var(--dark-primary);
+        .contact-form::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233e9391" opacity="0.1"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path></svg>');
+            background-repeat: no-repeat;
+            opacity: 0.3;
+            pointer-events: none;
         }
-        
-        .dark-theme .contact-form p,
-        .dark-theme .contact-form li {
-            color: var(--dark-text-secondary);
-        }
-        
-        .dark-theme .contact-form a {
-            color: var(--dark-primary);
-        }
-        */
         
         .contact-form h2 {
             color: var(--primary-color);
@@ -88,6 +128,12 @@
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 5px;
+            transition: var(--transition-regular);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(62, 147, 145, 0.2);
         }
         
         textarea.form-control {
@@ -100,18 +146,26 @@
             color: white;
             border: none;
             padding: 12px 25px;
-            border-radius: 5px;
+            border-radius: 30px;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: var(--transition-regular);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
         }
         
         .submit-btn:hover {
             background-color: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
         }
         
         .faq-section {
             margin-top: 50px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--soft-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
         .faq-section h2 {
@@ -121,41 +175,79 @@
         
         .faq-item {
             margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
         
         .faq-item h3 {
-            color: #2c3e50;
+            color: var(--primary-color);
             margin-bottom: 10px;
         }
         
         .faq-item p {
-            color: #6c757d;
+            color: var(--light-text);
             line-height: 1.6;
+        }
+        
+        .dashboard-header {
+            position: relative;
+        }
+        
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233e9391" opacity="0.2"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path></svg>');
+            background-repeat: no-repeat;
+            opacity: 0.3;
         }
     </style>
 </head>
 <body>
+    <div class="cloud-element cloud1"></div>
+    <div class="cloud-element cloud2"></div>
+    
     <div class="dashboard-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h2>Travel Planner</h2>
+        <!-- Modern top navigation bar -->
+        <nav class="dashboard-navbar">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-plane-departure"></i>
+                Trip Planner
+            </a>
+            <div class="nav-links">
+                <a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a>
+                <a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
-                <li><a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
-                <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-            
-            <!-- Add footer links to sidebar -->
-            <div class="sidebar-footer">
-                <ul class="sidebar-footer-links">
-                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
-                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
-                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
-                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
-                </ul>
+            <div class="user-controls">
+                <div class="user-menu">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="../settings/settings.html"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a>
+                        <a href="../pages/contact.html" class="active"><i class="fas fa-envelope"></i> Contact</a>
+                        <a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                        <a href="../pages/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                        <a href="../login/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                <div class="burger-menu" id="burger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
 
@@ -210,25 +302,27 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Remove the footer section -->
-            <!-- <footer class="app-footer">
-                <div class="footer-links">
-                    <a href="../pages/about.html">About Us</a>
-                    <a href="../pages/contact.html">Contact</a>
-                    <a href="../pages/privacy.html">Privacy Policy</a>
-                    <a href="../pages/terms.html">Terms of Service</a>
+            
+            <!-- Footer section -->
+            <footer class="app-footer">
+                <div class="footer-container">
+                    <p>&copy; 2023 Trip Planner. All rights reserved.</p>
+                    <div class="footer-links">
+                        <a href="../pages/privacy.html">Privacy Policy</a>
+                        <a href="../pages/terms.html">Terms of Service</a>
+                        <a href="../pages/contact.html">Contact Us</a>
+                    </div>
                 </div>
-            </footer> -->
+            </footer>
         </main>
     </div>
 
     <script>
-        // Simple form submission handler
-        document.getElementById('contact-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Thank you for your message! We will get back to you soon.');
-            this.reset();
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('burger-menu').addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.toggle('active');
+            });
         });
     </script>
 </body>

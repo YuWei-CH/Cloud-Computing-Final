@@ -6,9 +6,45 @@
     <title>Trip Planner - Your Smart Travel Companion</title>
     <link rel="stylesheet" href="utils/css/styles.css">
     <link rel="stylesheet" href="utils/css/home.css">
+    <link rel="stylesheet" href="utils/css/ghibli-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Common script for global settings and login state -->
+    <script src="utils/js/common.js"></script>
+    <style>
+        /* Fix for whitespace issue */
+        html, body {
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Ensure the contact button is clickable */
+        .contact-item {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .cta-btn {
+            position: relative;
+            z-index: 5;
+        }
+        
+        /* Fix footer positioning */
+        .main-page-footer {
+            position: relative;
+            z-index: 2;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
 </head>
 <body>
+    <div class="cloud-element cloud1"></div>
+    <div class="cloud-element cloud2"></div>
+    <div class="cloud-element cloud3"></div>
+
     <nav class="navbar">
         <a href="#" class="logo">
             <i class="fas fa-plane-departure"></i>
@@ -24,9 +60,9 @@
 
     <section class="hero">
         <div class="hero-content">
-            <h1>Smart Travel Planning Made Easy</h1>
-            <p>Discover a seamless way to organize your trips, track expenses, and create memorable journeys with our intelligent travel companion.</p>
-            <a href="login/register.html" class="cta-btn">Get Started</a>
+            <h1>Magical Journey Planning</h1>
+            <p>Discover a seamless way to organize your trips, track expenses, and create memorable adventures with our intelligent travel companion.</p>
+            <a href="login/register.html" class="cta-btn">Start Your Adventure</a>
         </div>
     </section>
 
@@ -36,7 +72,7 @@
             <p>Simplify your travel experience with our comprehensive suite of tools</p>
         </div>
         <div class="feature-grid">
-            <div class="feature-card">
+            <div class="feature-card floating">
                 <div class="feature-icon">
                     <i class="fas fa-map-marked-alt"></i>
                 </div>
@@ -44,15 +80,15 @@
                 <p>Create detailed itineraries with our intuitive planning tools. Add destinations, accommodations, and activities all in one place.</p>
             </div>
             
-            <div class="feature-card">
+            <div class="feature-card" style="animation-delay: 1s;">
                 <div class="feature-icon">
-                    <i class="fas fa-wallet"></i>
+                    <i class="fas fa-cloud-sun"></i>
                 </div>
-                <h3>Budget Tracking</h3>
-                <p>Keep track of your expenses and stay within budget with our powerful financial tools designed for travelers.</p>
+                <h3>Weather Forecast</h3>
+                <p>Get real-time weather updates for your destinations to help you pack appropriately and plan outdoor activities.</p>
             </div>
             
-            <div class="feature-card">
+            <div class="feature-card floating" style="animation-delay: 2s;">
                 <div class="feature-icon">
                     <i class="fas fa-ticket-alt"></i>
                 </div>
@@ -126,5 +162,42 @@
             });
         });
     </script>
+    <style>
+        /* Minimal styles needed for cloud elements */
+        .cloud-element {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: -1;
+        }
+        
+        .cloud1 {
+            width: 200px;
+            height: 200px;
+            top: 15%;
+            left: 5%;
+        }
+        
+        .cloud2 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            right: 10%;
+        }
+        
+        .cloud3 {
+            width: 250px;
+            height: 250px;
+            bottom: 15%;
+            left: 20%;
+        }
+        
+        /* Fix for hero section */
+        .hero {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </body>
 </html>
