@@ -12,18 +12,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // Display current date
     updateCurrentDateDisplay();
 
+    // Set trip destination values immediately
+    const destination = sessionStorage.getItem('planning_destination') || 'Unknown Location';
+    const startCityEl = document.getElementById('summary-start-city');
+    const endCityEl = document.getElementById('summary-end-city');
+    const destinationsEl = document.getElementById('summary-destinations');
+    
+    if (startCityEl) startCityEl.textContent = destination;
+    if (endCityEl) endCityEl.textContent = destination;
+    if (destinationsEl) destinationsEl.textContent = '1';
+
     // Initialize date pickers with today's date
     const today = new Date();
-    const endDate = new Date();
+    // Format today's date as YYYY-MM-DD for input value
+    const todayFormatted = today.toISOString().split('T')[0];
+    
+    // For end date, add 3 days and format
+    const endDate = new Date(today);
     endDate.setDate(today.getDate() + 3);
+    const endDateFormatted = endDate.toISOString().split('T')[0];
 
     const daysStartDate = document.getElementById('days-start-date');
     const startDate = document.getElementById('start-date');
     const endDateEl = document.getElementById('end-date');
 
-    if (daysStartDate) daysStartDate.valueAsDate = today;
-    if (startDate) startDate.valueAsDate = today;
-    if (endDateEl) endDateEl.valueAsDate = endDate;
+    if (daysStartDate) daysStartDate.value = todayFormatted;
+    if (startDate) startDate.value = todayFormatted;
+    if (endDateEl) endDateEl.value = endDateFormatted;
 
     // Add event delegation for day tabs
     setupDayTabNavigation();
@@ -66,6 +81,9 @@ function initPlanningUI() {
         if (titleEl) {
             titleEl.textContent = `Plan Your ${destination} Adventure`;
         }
+        
+        // Initialize trip summary with dynamic values
+        updateTripSummary(destination);
 
         // Set up duration selection
         initDurationControls();
@@ -87,6 +105,20 @@ function initPlanningUI() {
     } catch (error) {
         console.error('Error initializing planning UI:', error);
     }
+}
+
+// Function to update trip summary with current values
+function updateTripSummary(destination) {
+    // Only update city information when destination has changed
+    if (destination) {
+        const startCityEl = document.getElementById('summary-start-city');
+        const endCityEl = document.getElementById('summary-end-city');
+        
+        if (startCityEl) startCityEl.textContent = destination;
+        if (endCityEl) endCityEl.textContent = destination;
+    }
+    
+    // No need to update destinations count as it's always 1 in this version
 }
 
 function initDurationControls() {
@@ -124,7 +156,7 @@ function initDurationControls() {
 
         if (optionType === 'days') {
             days = parseInt(document.getElementById('number-of-days').value);
-            startDate = new Date(document.getElementById('days-start-date').value);
+            startDate = parseInputDate(document.getElementById('days-start-date').value);
 
             if (isNaN(startDate.getTime())) {
                 alert('Please select a valid start date');
@@ -134,8 +166,8 @@ function initDurationControls() {
             duration = `${days} days (starting ${formatDate(startDate)})`;
             generateDayTabs(days, startDate);
         } else {
-            startDate = new Date(document.getElementById('start-date').value);
-            const endDate = new Date(document.getElementById('end-date').value);
+            startDate = parseInputDate(document.getElementById('start-date').value);
+            const endDate = parseInputDate(document.getElementById('end-date').value);
 
             if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
                 alert('Please select valid dates');
@@ -156,6 +188,10 @@ function initDurationControls() {
 
         // Update summary and show itinerary section
         document.getElementById('summary-duration').textContent = duration;
+        
+        // Get the destination again to ensure we're using the latest value
+        const destination = sessionStorage.getItem('planning_destination') || 'Unknown Location';
+        updateTripSummary(destination);
 
         // Load selected attractions from sessionStorage
         const attractionIds = JSON.parse(sessionStorage.getItem('planning_attractions') || '[]');
@@ -465,9 +501,9 @@ function saveTripToDatabase() {
         if (activeOption) {
             const optionType = activeOption.getAttribute('data-option');
             if (optionType === 'days') {
-                startDate = new Date(document.getElementById('days-start-date').value);
+                startDate = parseInputDate(document.getElementById('days-start-date').value);
             } else {
-                startDate = new Date(document.getElementById('start-date').value);
+                startDate = parseInputDate(document.getElementById('start-date').value);
             }
             // Format date as ISO string (YYYY-MM-DD)
             startDate = startDate.toISOString().split('T')[0];
@@ -653,8 +689,22 @@ function hideLoading() {
 
 // Helper function for formatting dates
 function formatDate(date) {
+    // Ensure the date displays correctly by adjusting for timezone
+    // Clone the date to avoid modifying the original
+    const adjustedDate = new Date(date);
+    
+    // Format the date
     const options = { month: 'short', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    return adjustedDate.toLocaleDateString('en-US', options);
+}
+
+// Function to ensure dates are handled consistently
+function parseInputDate(dateString) {
+    // Create a date from the input value
+    const parts = dateString.split('-');
+    // JavaScript months are 0-based, so subtract 1 from the month
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    return date;
 }
 
 // Add a function to safely access elements
@@ -688,10 +738,20 @@ function debugSessionStorage() {
 
 // Function to update the activity counter
 function updateActivityCounter() {
+    // Count all activities across all days
     const allActivities = document.querySelectorAll('.activity-item').length;
     const summaryActivities = document.getElementById('summary-activities');
     if (summaryActivities) {
         summaryActivities.textContent = allActivities;
+    }
+    
+    // Also enable the save button if there are activities
+    if (allActivities > 0) {
+        const saveBtn = document.getElementById('save-trip-btn');
+        if (saveBtn) {
+            saveBtn.classList.remove('disabled');
+            saveBtn.removeAttribute('title');
+        }
     }
 }
 
@@ -721,10 +781,12 @@ function generateDayTabs(days, startDate = null) {
 
         if (startDate) {
             const date = new Date(startDate);
-            date.setDate(date.getDate() + (i - 1));
+            // Clone the date to avoid reference issues
+            const dayDate = new Date(date);
+            dayDate.setDate(date.getDate() + (i - 1));
             tab.innerHTML = `
                 <span>Day ${i}</span>
-                <small>${formatDate(date)}</small>
+                <small>${formatDate(dayDate)}</small>
             `;
         } else {
             tab.innerHTML = `<span>Day ${i}</span>`;
@@ -824,26 +886,17 @@ function updateSaveButtonState() {
     const saveBtn = document.querySelector('.btn-save-trip');
     if (!saveBtn) return;
 
-    // Check if all selected attractions have been added to the itinerary
-    const selectedAttractionIds = window.planningSelectedAttractions?.map(a => a.id.toString()) || [];
-    const addedActivityIds = Array.from(document.querySelectorAll('.activity-item'))
-        .map(item => item.getAttribute('data-attraction-id'))
-        .filter(id => id); // Filter out null/undefined
-
-    // Check if every selected attraction has been added
-    // Use string comparison for consistency
-    const allActivitiesAdded = selectedAttractionIds.every(id =>
-        addedActivityIds.includes(id));
+    // Count activities to determine if save button should be enabled
     const hasActivities = document.querySelectorAll('.activity-item').length > 0;
 
-    if (allActivitiesAdded && hasActivities) {
+    if (hasActivities) {
         saveBtn.classList.remove('disabled');
         saveBtn.disabled = false;
         saveBtn.title = "Save your trip";
     } else {
         saveBtn.classList.add('disabled');
         saveBtn.disabled = true;
-        saveBtn.title = "Add all selected attractions to your itinerary before saving";
+        saveBtn.title = "Add attractions to your itinerary before saving";
     }
 }
 

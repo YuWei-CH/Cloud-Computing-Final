@@ -392,15 +392,17 @@ function initTripDurationSelection() {
         const selectedCards = document.querySelectorAll('.recommendation-card.selected');
         const selectedIds = Array.from(selectedCards).map(card => card.getAttribute('data-id'));
 
-        // Store the full attractions data as well
+        // Get the destination from the UI
+        const destination = document.querySelector('.destination-tag').textContent.trim();
+        
+        // Store the full attractions data
         sessionStorage.setItem('attractions_data', JSON.stringify(attractionsData));
 
-        // Store selected attractions IDs separately
-        const destination = document.querySelector('.destination-tag').textContent.trim();
+        // Store destination and selected attractions IDs
         sessionStorage.setItem('planning_destination', destination);
         sessionStorage.setItem('planning_attractions', JSON.stringify(selectedIds));
 
-        // Store city information for the database schema
+        // Also store city information explicitly for the database schema
         sessionStorage.setItem('start_city', destination);
         sessionStorage.setItem('end_city', destination);
 
