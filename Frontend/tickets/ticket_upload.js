@@ -144,7 +144,7 @@ async function loadUpcomingTrips(email) {
 // Render upcoming trips in the trip selector
 function renderUpcomingTrips(trips) {
     const tripSelector = document.getElementById('trip-selector');
-    
+
     // Clear existing content
     tripSelector.innerHTML = '';
 
@@ -195,7 +195,7 @@ function setupEventListeners(trips) {
     const uploadBtn = document.getElementById('upload-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const mainUploadBtn = document.getElementById('main-upload-btn');
-    
+
     // Remove tripDropdown reference and event listener
 
     // Main upload button shows the upload section
