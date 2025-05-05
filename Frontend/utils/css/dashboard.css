@@ -663,7 +663,7 @@ section {
 
 /* Footer for the dashboard */
 .app-footer {
-    background-color: white;
+    background-color: transparent;
     border-top: 1px solid var(--light-gray);
     padding: 20px 0;
     margin-top: 40px;
@@ -676,22 +676,6 @@ section {
     justify-content: space-between;
     align-items: center;
     padding: 0 30px;
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-links a {
-    color: #6c757d;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s;
-}
-
-.footer-links a:hover {
-    color: var(--primary-color);
 }
 
 /* Responsive */

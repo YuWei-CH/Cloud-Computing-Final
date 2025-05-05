@@ -325,3 +325,64 @@ body {
         text-align: center;
     }
 }
+
+/* Footer styling updates - transparent background */
+.main-page-footer {
+    position: relative;
+    z-index: 2;
+    background-color: transparent;
+    backdrop-filter: blur(10px);
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    text-align: center;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    flex-wrap: nowrap;
+    gap: 30px;
+}
+
+.footer-container p {
+    margin: 0;
+    /* Remove margin to avoid pushing other elements */
+    color: #666;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: nowrap;
+    /* Prevent wrapping */
+}
+
+.footer-links a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* Add responsive handling for very small screens */
+@media (max-width: 650px) {
+    .footer-container {
+        flex-direction: column;
+        /* Stack on very small screens */
+        gap: 15px;
+    }
+}
