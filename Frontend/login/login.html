@@ -17,10 +17,6 @@
             background-attachment: fixed !important;
             background-position: center top !important;
             background-repeat: no-repeat !important;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
         
         .login-container {
@@ -29,200 +25,24 @@
             max-width: 450px;
             width: 90%;
             background-color: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .login-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         .form-header {
             position: relative;
-            padding: 40px 30px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            text-align: center;
             overflow: hidden;
-        }
-        
-        .form-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-            transform: rotate(30deg);
-        }
-        
-        .form-header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            position: relative;
-        }
-        
-        .form-header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-        }
-        
-        .input-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-color);
-            transition: color 0.3s ease;
-        }
-        
-        .input-field {
-            position: relative;
-            display: flex;
-            align-items: center;
-            border-radius: 8px;
-            border: 2px solid var(--border-color);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .input-field:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-        }
-        
-        .input-field i {
-            padding: 12px 15px;
-            color: var(--primary-color);
-            background-color: var(--light-gray);
-            transition: all 0.3s ease;
-        }
-        
-        .input-field input {
-            flex: 1;
-            padding: 12px 15px;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            background-color: white;
-        }
-        
-        .toggle-password {
-            cursor: pointer;
-            padding: 12px 15px;
-            color: var(--primary-color);
-            transition: color 0.3s ease;
-        }
-        
-        .toggle-password:hover {
-            color: var(--primary-hover);
-        }
-        
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .remember-me {
-            display: flex;
-            align-items: center;
-        }
-        
-        .remember-me input[type="checkbox"] {
-            margin-right: 8px;
-            cursor: pointer;
-            accent-color: var(--primary-color);
-        }
-        
-        .remember-me label {
-            color: var(--text-color);
-            font-size: 14px;
-            cursor: pointer;
-        }
-        
-        .forgot-password {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s ease;
-        }
-        
-        .forgot-password:hover {
-            color: var(--primary-hover);
-            text-decoration: underline;
         }
         
         .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
         
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .login-btn:hover::before {
-            opacity: 1;
-        }
-        
-        .login-btn span {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .form-footer {
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .form-footer p {
-            color: var(--text-color);
-            font-size: 14px;
-        }
-        
-        .form-footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        
-        .form-footer a:hover {
-            color: var(--primary-hover);
-            text-decoration: underline;
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
         }
         
         .back-to-home {
@@ -237,19 +57,18 @@
             z-index: 20;
             transition: all 0.3s ease;
             background-color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         .back-to-home i {
-            margin-right: 8px;
+            margin-right: 5px;
         }
         
         .back-to-home:hover {
             transform: translateX(-3px);
             color: var(--primary-hover);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
     </style>
 </head>
@@ -290,12 +109,9 @@
                         <input type="checkbox" id="remember" name="remember">
                         <label for="remember">Remember me</label>
                     </div>
-                    <a href="#" class="forgot-password">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="login-btn">
-                    <span>Log In</span>
-                </button>
+                <button type="submit" class="login-btn">Log In</button>
                 
                 <div class="form-footer">
                     <p>Don't have an account? <a href="register.html">Sign Up</a></p>
