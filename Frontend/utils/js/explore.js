@@ -1455,133 +1455,153 @@ async function showAttractionDetails(attractionName, destination) {
 
 // Function to display location details, copied from trip_card.js with minor adjustments
 function displayLocationDetails(place) {
-    // First check if the modal element exists, if not create it
-    let modal = document.getElementById('location-modal');
-    if (!modal) {
-        createLocationModal();
-        modal = document.getElementById('location-modal');
-    }
-    
-    console.log("Place details:", place);
-    
-    // Update header
-    document.getElementById('location-name').textContent = place.name;
-
-    // Update rating with correct review count
-    const ratingElement = document.getElementById('location-rating');
-    if (place.rating) {
-        const reviewCount = place.user_ratings_total || 0;
-        ratingElement.innerHTML = `
-            ${place.rating.toFixed(1)} 
-            ${'<i class="fas fa-star"></i>'.repeat(Math.floor(place.rating))}
-            ${place.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : ''}
-            <span>(${reviewCount} reviews)</span>
-        `;
-    } else {
-        ratingElement.innerHTML = 'No ratings available';
-    }
-
-    // Update address
-    document.querySelector('#location-address span').textContent = place.formatted_address || 'Address not available';
-
-    // Update phone
-    const phoneElement = document.querySelector('#location-phone span');
-    if (place.formatted_phone_number) {
-        phoneElement.textContent = place.formatted_phone_number;
-    } else {
-        phoneElement.textContent = 'No phone number available';
-    }
-
-    // Update website
-    const websiteElement = document.querySelector('#location-website a');
-    if (place.website) {
-        websiteElement.href = place.website;
-        websiteElement.textContent = new URL(place.website).hostname;
-    } else {
-        websiteElement.href = '#';
-        websiteElement.textContent = 'No website available';
-    }
-
-    // Add place type
-    const typeElement = document.querySelector('#location-type span');
-    if (place.types && place.types.length > 0) {
-        // Format the place type to be more readable
-        const formatType = (type) => {
-            return type
-                .replace(/_/g, ' ')
-                .split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
-        };
+    try {
+        // First check if the modal element exists, if not create it
+        let modal = document.getElementById('location-modal');
+        if (!modal) {
+            createLocationModal();
+            modal = document.getElementById('location-modal');
+        }
         
-        // Get primary type (excluding generic types)
-        const genericTypes = ['point_of_interest', 'establishment'];
-        const specificTypes = place.types.filter(type => !genericTypes.includes(type));
+        console.log("Place details:", place);
         
-        if (specificTypes.length > 0) {
-            typeElement.textContent = formatType(specificTypes[0]);
+        // Get all the elements we need to update
+        const nameEl = document.getElementById('location-name');
+        const ratingEl = document.getElementById('location-rating');
+        const addressEl = document.querySelector('#location-address span');
+        const typeEl = document.querySelector('#location-type span');
+        const phoneEl = document.querySelector('#location-phone span');
+        const websiteEl = document.querySelector('#location-website a');
+        const hoursEl = document.querySelector('.hours-list');
+        const photosEl = document.getElementById('location-photos-gallery');
+        const reviewsEl = document.getElementById('location-reviews-list');
+        const reviewsTitleEl = document.querySelector('.reviews-list h4');
+        
+        // Check that all elements exist
+        if (!nameEl || !ratingEl || !addressEl || !typeEl || !phoneEl || 
+            !websiteEl || !hoursEl || !photosEl || !reviewsEl) {
+            console.error("Missing DOM elements for location details");
+            throw new Error("Missing DOM elements for location details");
+        }
+        
+        // Update header
+        nameEl.textContent = place.name;
+
+        // Update rating with correct review count
+        if (place.rating) {
+            const reviewCount = place.user_ratings_total || 0;
+            ratingEl.innerHTML = `
+                ${place.rating.toFixed(1)} 
+                ${'<i class="fas fa-star"></i>'.repeat(Math.floor(place.rating))}
+                ${place.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                <span>(${reviewCount} reviews)</span>
+            `;
         } else {
-            typeElement.textContent = formatType(place.types[0]);
+            ratingEl.innerHTML = 'No ratings available';
         }
-    } else {
-        typeElement.textContent = 'Place';
-    }
 
-    // Update opening hours
-    const hoursElement = document.querySelector('.hours-list');
-    if (place.opening_hours && place.opening_hours.weekday_text) {
-        hoursElement.innerHTML = place.opening_hours.weekday_text
-            .map(text => `<div>${text}</div>`)
-            .join('');
-    } else {
-        hoursElement.innerHTML = '<div>Opening hours not available</div>';
-    }
+        // Update address
+        addressEl.textContent = place.formatted_address || 'Address not available';
 
-    // Update photos
-    const photosElement = document.getElementById('location-photos-gallery');
-    if (place.photos && place.photos.length > 0) {
-        photosElement.innerHTML = place.photos
-            .slice(0, 6) // Show up to 6 photos
-            .map(photo => {
-                const photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
-                return `<img src="${photoUrl}" alt="${place.name}">`;
-            })
-            .join('');
-    } else {
-        photosElement.innerHTML = '<p>No photos available</p>';
-    }
-
-    // Update reviews
-    const reviewsElement = document.getElementById('location-reviews-list');
-    if (place.reviews && place.reviews.length > 0) {
-        reviewsElement.innerHTML = place.reviews
-            .slice(0, 5) // Show up to 5 reviews
-            .map(review => `
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="review-author">
-                            <img src="${review.profile_photo_url || 'https://via.placeholder.com/40'}" 
-                                 alt="${review.author_name}">
-                            <span>${review.author_name}</span>
-                        </div>
-                        <div class="review-time">${review.relative_time_description}</div>
-                    </div>
-                    <div class="review-text">${review.text}</div>
-                </div>
-            `)
-            .join('');
+        // Add place type
+        if (place.types && place.types.length > 0) {
+            // Format the place type to be more readable
+            const formatType = (type) => {
+                return type
+                    .replace(/_/g, ' ')
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            };
             
-        // Add total review count as a heading
-        const reviewsTitle = document.querySelector('.reviews-list h4');
-        if (reviewsTitle && place.user_ratings_total) {
-            reviewsTitle.textContent = `Reviews (${place.user_ratings_total})`;
+            // Get primary type (excluding generic types)
+            const genericTypes = ['point_of_interest', 'establishment'];
+            const specificTypes = place.types.filter(type => !genericTypes.includes(type));
+            
+            if (specificTypes.length > 0) {
+                typeEl.textContent = formatType(specificTypes[0]);
+            } else {
+                typeEl.textContent = formatType(place.types[0]);
+            }
+        } else {
+            typeEl.textContent = 'Place';
         }
-    } else {
-        reviewsElement.innerHTML = '<p>No reviews available</p>';
-    }
 
-    // Show the modal
-    modal.style.display = 'block';
+        // Update phone
+        if (place.formatted_phone_number) {
+            phoneEl.textContent = place.formatted_phone_number;
+        } else {
+            phoneEl.textContent = 'No phone number available';
+        }
+
+        // Update website
+        if (place.website) {
+            websiteEl.href = place.website;
+            websiteEl.textContent = new URL(place.website).hostname;
+        } else {
+            websiteEl.href = '#';
+            websiteEl.textContent = 'No website available';
+        }
+
+        // Update opening hours
+        if (place.opening_hours && place.opening_hours.weekday_text) {
+            hoursEl.innerHTML = place.opening_hours.weekday_text
+                .map(text => `<div>${text}</div>`)
+                .join('');
+        } else {
+            hoursEl.innerHTML = '<div>Opening hours not available</div>';
+        }
+
+        // Update photos
+        if (place.photos && place.photos.length > 0) {
+            photosEl.innerHTML = place.photos
+                .slice(0, 6) // Show up to 6 photos
+                .map(photo => {
+                    const photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
+                    return `<img src="${photoUrl}" alt="${place.name}">`;
+                })
+                .join('');
+        } else {
+            photosEl.innerHTML = '<p>No photos available</p>';
+        }
+
+        // Update reviews
+        if (place.reviews && place.reviews.length > 0) {
+            reviewsEl.innerHTML = place.reviews
+                .slice(0, 5) // Show up to 5 reviews
+                .map(review => `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-author">
+                                <img src="${review.profile_photo_url || 'https://via.placeholder.com/40'}" 
+                                     alt="${review.author_name}">
+                                <span>${review.author_name}</span>
+                            </div>
+                            <div class="review-time">${review.relative_time_description}</div>
+                        </div>
+                        <div class="review-text">${review.text}</div>
+                    </div>
+                `)
+                .join('');
+                
+            // Add total review count as a heading
+            if (reviewsTitleEl && place.user_ratings_total) {
+                reviewsTitleEl.textContent = `Reviews (${place.user_ratings_total})`;
+            }
+        } else {
+            reviewsEl.innerHTML = '<p>No reviews available</p>';
+            if (reviewsTitleEl) {
+                reviewsTitleEl.textContent = 'Reviews';
+            }
+        }
+
+        // Show the modal
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error("Error displaying location details:", error);
+        hideLoading();
+        showError("Failed to display location details: " + error.message);
+    }
 }
 
 // Function to create the location modal if it doesn't exist
@@ -1599,6 +1619,10 @@ function createLocationModal() {
                     <div class="info-item" id="location-address">
                         <i class="fas fa-map-marker-alt"></i>
                         <span>Address</span>
+                    </div>
+                    <div class="info-item" id="location-type">
+                        <i class="fas fa-tag"></i>
+                        <span>Place</span>
                     </div>
                     <div class="info-item" id="location-phone">
                         <i class="fas fa-phone"></i>
