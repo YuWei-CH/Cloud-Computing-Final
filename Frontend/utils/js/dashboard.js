@@ -739,6 +739,7 @@ function renderTripCards(trips) {
                 ${status === "upcoming" ? '<button class="btn-text edit-trip"><i class="fas fa-pencil-alt"></i> Edit</button>' :
                 '<button class="btn-text clone-trip"><i class="fas fa-copy"></i> Clone</button>'}
                 <button class="btn-text delete-trip"><i class="fas fa-trash-alt"></i> Delete</button>
+                <button class="btn-text upload-tickets"><i class="fas fa-ticket-alt"></i> Upload Tickets</button>
             </div>
         `;
 
@@ -786,6 +787,21 @@ function renderTripCards(trips) {
             if (confirm(`Are you sure you want to delete "${tripName}"? This action cannot be undone.`)) {
                 deleteTrip(tripId, tripCard);
             }
+        });
+    });
+
+    // Add event listeners for the upload tickets buttons
+    document.querySelectorAll('.upload-tickets').forEach(button => {
+        button.addEventListener('click', function () {
+            const tripCard = this.closest('.trip-card');
+            const tripId = tripCard.dataset.tripId;
+
+            if (!tripId) {
+                alert('Trip ID not found');
+                return;
+            }
+
+            window.location.href = `../tickets/ticket_upload.html?tripId=${tripId}`;
         });
     });
 }
