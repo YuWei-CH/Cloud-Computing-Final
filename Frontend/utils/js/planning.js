@@ -167,7 +167,7 @@ function initDurationControls() {
 }
 
 function populateSelectedAttractions(attractionIds) {
-    // First try to get attractions from sessionStorage
+    // Get attractions from sessionStorage
     let attractionsData;
     try {
         attractionsData = JSON.parse(sessionStorage.getItem('attractions_data') || '[]');
@@ -177,13 +177,12 @@ function populateSelectedAttractions(attractionIds) {
         attractionsData = [];
     }
 
-    // If we don't have attractions data in session storage, 
-    // try to use the global nycAttractions if available
-    if ((!attractionsData || !attractionsData.length) && typeof nycAttractions !== 'undefined') {
-        console.log("Using nycAttractions from global scope");
-        attractionsData = nycAttractions;
-    }
+    // Process attractions with the data we have
+    processAttractions(attractionsData, attractionIds);
+}
 
+// Helper function to process attractions after they're loaded
+function processAttractions(attractionsData, attractionIds) {
     console.log("Attraction IDs to filter:", attractionIds);
 
     // Filter attractions based on stored IDs
@@ -909,14 +908,14 @@ function addCustomDestination() {
 // This function initializes the custom destination autocomplete
 function initCustomDestinationAutocomplete() {
     console.log("Initializing custom destination autocomplete");
-    
+
     // Add autocomplete suggestion box to the DOM
     const customDestName = document.getElementById('custom-destination-name');
     if (!customDestName) {
         console.error("Custom destination input not found");
         return;
     }
-    
+
     // Check if Google Maps API is defined
     if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
         console.log("Google Maps API not loaded yet, retrying in 1 second...");
@@ -924,9 +923,9 @@ function initCustomDestinationAutocomplete() {
         setTimeout(initCustomDestinationAutocomplete, 1000);
         return;
     }
-    
+
     console.log("Google Maps API loaded, setting up autocomplete");
-    
+
     // Create suggestion dropdown container if it doesn't exist
     let suggestionsContainer = document.querySelector('.autocomplete-suggestions');
     if (!suggestionsContainer) {
@@ -943,35 +942,35 @@ function initCustomDestinationAutocomplete() {
         suggestionsContainer.style.zIndex = '1000';
         suggestionsContainer.style.borderRadius = '0 0 4px 4px';
         suggestionsContainer.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-        
+
         // Append to document body instead of parent container for better positioning
         document.body.appendChild(suggestionsContainer);
     }
-    
+
     // Store place details for later use
     let currentPlaceDetails = null;
-    
+
     // Create autocomplete service
     const autocompleteService = new google.maps.places.AutocompleteService();
     const placesService = new google.maps.places.PlacesService(document.createElement('div'));
-    
+
     // Debug - immediately try to get predictions to verify the API is working
     autocompleteService.getPlacePredictions({
         input: "New York",
         types: ['establishment'] // Only use one type at a time
-    }, function(predictions, status) {
+    }, function (predictions, status) {
         console.log("Test prediction status:", status);
         console.log("Test predictions:", predictions?.length || 0);
     });
-    
+
     // Handle input changes
-    customDestName.addEventListener('input', function() {
+    customDestName.addEventListener('input', function () {
         const query = this.value.trim();
         console.log("Input changed:", query);
-        
+
         // Reset place details when input changes
         currentPlaceDetails = null;
-        
+
         if (query.length > 2) {
             // Search for places matching the query
             console.log("Getting predictions for:", query);
@@ -979,7 +978,7 @@ function initCustomDestinationAutocomplete() {
                 input: query,
                 // Use only 'establishment' type which is the most general
                 types: ['establishment']
-            }, function(predictions, status) {
+            }, function (predictions, status) {
                 console.log("Prediction status:", status);
                 console.log("Predictions count:", predictions?.length || 0);
                 displaySuggestions(predictions, status);
@@ -988,19 +987,19 @@ function initCustomDestinationAutocomplete() {
             suggestionsContainer.style.display = 'none';
         }
     });
-    
+
     // Display suggestions
     function displaySuggestions(predictions, status) {
         suggestionsContainer.innerHTML = '';
-        
+
         if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
             console.log("No predictions or error:", status);
             suggestionsContainer.style.display = 'none';
             return;
         }
-        
+
         console.log("Displaying", predictions.length, "suggestions");
-        
+
         predictions.forEach(prediction => {
             const item = document.createElement('div');
             item.classList.add('suggestion-item');
@@ -1008,31 +1007,31 @@ function initCustomDestinationAutocomplete() {
             item.style.padding = '8px 12px';
             item.style.cursor = 'pointer';
             item.style.borderBottom = '1px solid #eee';
-            
+
             // Hover effect
-            item.addEventListener('mouseenter', function() {
+            item.addEventListener('mouseenter', function () {
                 this.style.backgroundColor = '#f5f5f5';
             });
-            
-            item.addEventListener('mouseleave', function() {
+
+            item.addEventListener('mouseleave', function () {
                 this.style.backgroundColor = 'white';
             });
-            
+
             // Select suggestion
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 // Only store the name (location) and not the full description with address
-                const locationName = prediction.structured_formatting ? 
-                    prediction.structured_formatting.main_text : 
+                const locationName = prediction.structured_formatting ?
+                    prediction.structured_formatting.main_text :
                     prediction.description.split(',')[0]; // Take just the first part before the comma
-                
+
                 customDestName.value = locationName;
                 suggestionsContainer.style.display = 'none';
-                
+
                 // Get place details to have more information when creating the activity
                 placesService.getDetails({
                     placeId: prediction.place_id,
                     fields: ['name', 'formatted_address', 'types']
-                }, function(place, status) {
+                }, function (place, status) {
                     if (status === google.maps.places.PlacesServiceStatus.OK) {
                         // Store place details for later use, but we'll only use the name
                         currentPlaceDetails = {
@@ -1041,7 +1040,7 @@ function initCustomDestinationAutocomplete() {
                             formatted_address: place.formatted_address,
                             types: place.types
                         };
-                        
+
                         // Auto-fill description with address if available
                         const description = document.getElementById('custom-destination-description');
                         if (description && place.formatted_address) {
@@ -1050,10 +1049,10 @@ function initCustomDestinationAutocomplete() {
                     }
                 });
             });
-            
+
             suggestionsContainer.appendChild(item);
         });
-        
+
         if (predictions.length > 0) {
             // Position the suggestions directly below the input
             const rect = customDestName.getBoundingClientRect();
@@ -1066,16 +1065,16 @@ function initCustomDestinationAutocomplete() {
             suggestionsContainer.style.display = 'none';
         }
     }
-    
+
     // Close suggestions when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target !== customDestName && !suggestionsContainer.contains(e.target)) {
             suggestionsContainer.style.display = 'none';
         }
     });
-    
+
     // Reposition suggestions on window resize
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         if (suggestionsContainer.style.display !== 'none') {
             const rect = customDestName.getBoundingClientRect();
             suggestionsContainer.style.width = rect.width + 'px';
@@ -1083,56 +1082,56 @@ function initCustomDestinationAutocomplete() {
             suggestionsContainer.style.top = rect.bottom + window.scrollY + 'px';
         }
     });
-    
+
     // Handle keyboard navigation in the suggestions
-    customDestName.addEventListener('keydown', function(e) {
+    customDestName.addEventListener('keydown', function (e) {
         const items = suggestionsContainer.querySelectorAll('.suggestion-item');
         const activeItem = suggestionsContainer.querySelector('.suggestion-item.active');
         let activeIndex = -1;
-        
+
         if (items.length === 0) return;
-        
+
         // Find the current active item index
         if (activeItem) {
             activeIndex = Array.from(items).indexOf(activeItem);
         }
-        
+
         // Handle arrow keys
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            
+
             if (suggestionsContainer.style.display === 'none') {
                 suggestionsContainer.style.display = 'block';
                 activeIndex = -1;
             }
-            
+
             // Remove active from current item
             if (activeItem) {
                 activeItem.classList.remove('active');
                 activeItem.style.backgroundColor = 'white';
             }
-            
+
             // Set active to next item, or first if at end
             activeIndex = (activeIndex + 1) % items.length;
             items[activeIndex].classList.add('active');
             items[activeIndex].style.backgroundColor = '#f5f5f5';
-            
+
             // Scroll into view if needed
             items[activeIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            
+
             // Remove active from current item
             if (activeItem) {
                 activeItem.classList.remove('active');
                 activeItem.style.backgroundColor = 'white';
             }
-            
+
             // Set active to previous item, or last if at beginning
             activeIndex = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
             items[activeIndex].classList.add('active');
             items[activeIndex].style.backgroundColor = '#f5f5f5';
-            
+
             // Scroll into view if needed
             items[activeIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'Enter' && activeItem) {
@@ -1142,32 +1141,32 @@ function initCustomDestinationAutocomplete() {
             suggestionsContainer.style.display = 'none';
         }
     });
-    
+
     // Add event listener for the custom destination button - update to use place details
     const addCustomDestBtn = document.getElementById('add-custom-destination');
     if (addCustomDestBtn) {
         // Remove any existing event listeners
         const newBtn = addCustomDestBtn.cloneNode(true);
         addCustomDestBtn.parentNode.replaceChild(newBtn, addCustomDestBtn);
-        
-        newBtn.addEventListener('click', function() {
+
+        newBtn.addEventListener('click', function () {
             const name = document.getElementById('custom-destination-name').value.trim();
             const description = document.getElementById('custom-destination-description').value.trim();
-            
+
             if (!name) {
                 alert('Please enter a name for your custom destination');
                 return;
             }
-            
+
             // Get active day
             const activeDay = document.querySelector('.day-tab.active');
             if (!activeDay) {
                 alert('Please select a day to add this destination to');
                 return;
             }
-            
+
             const dayId = activeDay.getAttribute('data-day');
-            
+
             // Create custom attraction with only the name from place details if available
             const customAttraction = {
                 id: 'custom-' + Date.now(),
@@ -1176,23 +1175,23 @@ function initCustomDestinationAutocomplete() {
                 // Store description separately
                 description: description || (currentPlaceDetails?.formatted_address || 'Custom destination')
             };
-            
+
             // Add to current day
             addAttractionToDay(customAttraction, dayId);
-            
+
             // Reset form
             document.getElementById('custom-destination-name').value = '';
             document.getElementById('custom-destination-description').value = 'Your custom destination';
             currentPlaceDetails = null;
-            
+
             // Hide suggestions
             suggestionsContainer.style.display = 'none';
-            
+
             // Show confirmation
             showNotification(`${customAttraction.name} added to Day ${dayId}`);
         });
     }
-    
+
     // Let the user know autocomplete is ready
     console.log("Custom destination autocomplete setup complete");
 }

@@ -1,8 +1,8 @@
 /* Explore Page Styles */
 
 /* Ensure main content is positioned above the background overlay */
-.main-content, 
-.card-content, 
+.main-content,
+.card-content,
 .recommendation-cards,
 .page-intro,
 .destination-input-container,
@@ -932,4 +932,29 @@
 
 .current-date-display i {
     color: var(--primary-color);
+}
+
+/* Loading indicator for attractions */
+.loading-attractions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.loading-attractions i {
+    font-size: 30px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.loading-attractions p {
+    color: #555;
+    font-size: 16px;
 }
