@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+from datetime import datetime
 import base64
 import mimetypes
 import pymysql
@@ -18,8 +19,8 @@ For each ticket found, output an object with exactly these fields:
   • if flight: carrier code + number (e.g. "AA1579")
   • if train: full train name (e.g. "151 Northeast Regional")
   • if bus: full bus name if present, otherwise "N/A"
-- departure_datetime: UTC ISO 8601 string
-- arrival_datetime: UTC ISO 8601 string
+- departure_datetime: ISO 8601 string in the **departure city's local timezone**
+- arrival_datetime: ISO 8601 string in the **arrival city's local timezone**
 - departure_city: extract only the city name. 
     • Strip any station names, codes, state info, parentheses, dashes or arrows.
     • Trim whitespace and convert to Title Case.
@@ -138,14 +139,18 @@ def lambda_handler(event, context):
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """
             for t in tickets:
+                dep_dt = datetime.fromisoformat(t["departure_datetime"])
+                arr_dt = datetime.fromisoformat(t["arrival_datetime"])
+                dep_local = dep_dt.replace(tzinfo=None)
+                arr_local = arr_dt.replace(tzinfo=None)
                 ticket_id = str(uuid.uuid4())
                 cur.execute(insert_sql, (
                     ticket_id,
                     user_id,
                     t["type"],
                     t["ticket_number"],
-                    t["departure_datetime"],
-                    t["arrival_datetime"],
+                    dep_local,
+                    arr_local,
                     t["departure_city"],
                     t["arrival_city"],
                     t.get("departure_code"),
