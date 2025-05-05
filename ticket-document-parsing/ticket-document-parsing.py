@@ -20,8 +20,12 @@ For each ticket found, output an object with exactly these fields:
   • if bus: full bus name if present, otherwise "N/A"
 - departure_datetime: UTC ISO 8601 string
 - arrival_datetime: UTC ISO 8601 string
-- departure_city
-- arrival_city
+- departure_city: extract only the city name. 
+    • Strip any station names, codes, state info, parentheses, dashes or arrows.
+    • Trim whitespace and convert to Title Case.
+    e.g. input: “WASHINGTON - NEW YORK (PENN)” → output: "Washington"
+- arrival_city: same rules as departure_city.
+    e.g. input: “WASHINGTON - NEW YORK (PENN)” → output: "New York"
 - departure_code: airport or station code (optional; include only if present)
 - arrival_code: airport or station code (optional; include only if present)
 - seats: seat assignment (optional; include only if present)
@@ -39,18 +43,19 @@ db_config = {
 }
 
 def lambda_handler(event, context):
-    # 1) extract inputs
-    file_name = event.get("file_name")
-    user_id = event.get("user_id")
-    if not file_name or not user_id:
-        raise ValueError("Must provide both file_name and user_id in event")
+    # 1) Parse out the S3 Bucket name and ticket file name. 
+    rec = event['Records'][0]['s3']
+    bucket = rec['bucket']['name']
+    file_name = rec['object']['key']
+    if not bucket or not file_name:
+        raise ValueError("Missing bucket name or file name. ")
 
-    # 2) verify that the file exists in the S3 bucket
-    try:
-        bucket = os.environ["BUCKET_NAME"]
-        resp = s3.get_object(Bucket=bucket, Key=file_name)
-    except s3.exceptions.NoSuchKey:
-        raise FileNotFoundError(f"{file_name} not found in {bucket}")
+    # 2) Parse out the user_email from the metadata of the S3 "head_object"
+    head = s3.head_object(Bucket=bucket, Key=file_name)
+    meta = head.get('Metadata', {})
+    user_email = meta.get('useremail', '')
+    if not user_email:
+        raise ValueError(f"Missing user_email metadata on s3://{bucket}/{file_name}")
 
     # 3) figure out mime / extension
     ext = file_name.lower().rsplit(".",1)[-1]
@@ -58,7 +63,8 @@ def lambda_handler(event, context):
         "application/pdf" if ext=="pdf" else f"image/{ext}"
     )
 
-    # 4) prepare the chat “file” or “image_url” chunk
+    # 4) Extract file and prepare the chat “file” or “image_url” chunk
+    resp = s3.get_object(Bucket=bucket, Key=file_name)
     if ext == "pdf":
         upload = openai.files.create(
             file=(file_name, resp["Body"], mime),
@@ -105,7 +111,7 @@ def lambda_handler(event, context):
         if missing:
             raise ValueError(f"Ticket #{idx} missing fields: {missing}")
 
-    # 7) insert into MySQL
+    # 7) Fetch user_id using user_email and insert tickets into database
     conn = pymysql.connect(
         host=db_config['host'],
         user=db_config['user'],
@@ -115,6 +121,14 @@ def lambda_handler(event, context):
     )
     try:
         with conn.cursor() as cur:
+            # Lookup user_id by email
+            cur.execute("SELECT id FROM users WHERE email = %s", (user_email,))
+            row = cur.fetchone()
+            if not row:
+                raise ValueError(f"No user found for email {user_email}")
+            user_id = row['id']
+
+            # Insert each ticket with the fetched user_id
             insert_sql = """
                 INSERT INTO tickets
                   (id, user_id, type, ticket_number,
@@ -145,7 +159,7 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "Inserted tickets successfully",
+            "message": f"Inserted tickets successfully for {user_email}",
             "inserted": len(tickets)
         })
     }
