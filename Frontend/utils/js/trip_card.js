@@ -701,43 +701,78 @@ function displayWeatherForecast(city, data) {
         // Group forecast by day (OpenWeatherMap returns 3-hour forecasts)
         const dailyForecasts = groupForecastsByDay(data.list);
         
-        // Get the current date (trip start date, which we can later adjust based on day number)
-        const tripStartDate = new Date(); // We use the current date as a base
+        // Get the current date (trip start date)
+        const tripStartDate = new Date();
         
         // Calculate date for the selected day based on current day index
         const selectedDay = tripData[currentDayIndex >= 0 ? currentDayIndex : 0];
         const selectedDayNumber = selectedDay ? selectedDay.day_number : 1;
         
-        // Calculate the date for the selected day (add day number - 1 days to start date)
+        // Calculate the date for the selected day
         const selectedDate = new Date(tripStartDate);
         selectedDate.setDate(tripStartDate.getDate() + (selectedDayNumber - 1));
         
-        // Calculate dates for 3-day range: day before, selected day, day after
-        const dayBefore = new Date(selectedDate);
-        dayBefore.setDate(selectedDate.getDate() - 1);
+        // Format the date to match the forecast data
+        const dateStr = formatDateForWeather(selectedDate);
         
-        const dayAfter = new Date(selectedDate);
-        dayAfter.setDate(selectedDate.getDate() + 1);
+        // Get the forecast for the selected day
+        const forecast = dailyForecasts[dateStr];
         
-        // Format these dates to match the format in the forecast data (YYYY-MM-DD)
-        const dateStrings = [
-            formatDateForWeather(dayBefore),
-            formatDateForWeather(selectedDate),
-            formatDateForWeather(dayAfter)
-        ];
-        
-        console.log("Showing weather for dates:", dateStrings);
-        
-        // Display each of the three days
-        dateStrings.forEach(dateStr => {
-            const forecast = dailyForecasts[dateStr];
-            if (forecast) {
-                createWeatherDayElement(dateStr, forecast, weatherContent);
-            } else {
-                // If we don't have forecast for this date
-                createEmptyWeatherDay(dateStr, weatherContent);
-            }
-        });
+        if (forecast) {
+            // Create a more detailed weather display
+            const weatherDay = document.createElement("div");
+            weatherDay.className = "weather-day detailed";
+            
+            // Format the date
+            const formattedDate = selectedDate.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            weatherDay.innerHTML = `
+                <div class="weather-main">
+                    <div class="weather-icon">
+                        <img src="https://openweathermap.org/img/wn/${forecast.icon}@2x.png" alt="${forecast.description}">
+                    </div>
+                    <div class="weather-temp-main">
+                        <div class="temp-value">${Math.round(forecast.temp)}°C</div>
+                        <div class="temp-feels">Feels like ${Math.round(forecast.feels_like)}°C</div>
+                    </div>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-date">${formattedDate}</div>
+                    <div class="weather-condition">${forecast.description}</div>
+                    <div class="weather-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-temperature-low"></i>
+                            <span>Min: ${Math.round(forecast.tempMin)}°C</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-temperature-high"></i>
+                            <span>Max: ${Math.round(forecast.tempMax)}°C</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-wind"></i>
+                            <span>Wind: ${Math.round(forecast.wind_speed)} km/h</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-tint"></i>
+                            <span>Humidity: ${forecast.humidity}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            weatherContent.appendChild(weatherDay);
+        } else {
+            // If we don't have forecast for this date
+            weatherContent.innerHTML = `
+                <div class="weather-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Weather forecast not available for ${city} on this date</p>
+                </div>
+            `;
+        }
     } else {
         weatherContent.innerHTML = `
             <div class="weather-error">
@@ -746,65 +781,6 @@ function displayWeatherForecast(city, data) {
             </div>
         `;
     }
-}
-
-// Helper function to create a weather day element
-function createWeatherDayElement(dateStr, forecast, container) {
-    const weatherDay = document.createElement("div");
-    weatherDay.className = "weather-day";
-    
-    // Format the date
-    const dateObj = new Date(dateStr);
-    const formattedDate = dateObj.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric' 
-    });
-    
-    // Determine if this is the "today" day
-    const isSelectedDay = tripData[currentDayIndex >= 0 ? currentDayIndex : 0].day_number === 
-        (new Date() - new Date(tripData[0].day_number-1)) / (1000 * 60 * 60 * 24) + 1;
-    
-    weatherDay.innerHTML = `
-        <div class="weather-icon">
-            <img src="https://openweathermap.org/img/wn/${forecast.icon}@2x.png" alt="${forecast.description}">
-        </div>
-        <div class="weather-details">
-            <div class="weather-date">
-                ${formattedDate}
-                ${isSelectedDay ? '<span class="today-badge">TODAY</span>' : ''}
-            </div>
-            <div class="weather-temp">${Math.round(forecast.temp)}°C</div>
-            <div class="weather-condition">${forecast.description}</div>
-        </div>
-    `;
-    container.appendChild(weatherDay);
-}
-
-// Helper function to create an empty weather day element
-function createEmptyWeatherDay(dateStr, container) {
-    const weatherDay = document.createElement("div");
-    weatherDay.className = "weather-day weather-day-empty";
-    
-    // Format the date
-    const dateObj = new Date(dateStr);
-    const formattedDate = dateObj.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric' 
-    });
-    
-    weatherDay.innerHTML = `
-        <div class="weather-icon">
-            <i class="fas fa-question-circle"></i>
-        </div>
-        <div class="weather-details">
-            <div class="weather-date">${formattedDate}</div>
-            <div class="weather-temp">--°C</div>
-            <div class="weather-condition">No data available</div>
-        </div>
-    `;
-    container.appendChild(weatherDay);
 }
 
 // Helper function to format date as YYYY-MM-DD for weather API
@@ -827,10 +803,13 @@ function groupForecastsByDay(forecastList) {
         if (!dailyForecasts[date]) {
             dailyForecasts[date] = {
                 temp: forecast.main.temp,
+                feels_like: forecast.main.feels_like,
                 description: forecast.weather[0].description,
                 icon: forecast.weather[0].icon,
                 tempMin: forecast.main.temp_min,
-                tempMax: forecast.main.temp_max
+                tempMax: forecast.main.temp_max,
+                humidity: forecast.main.humidity,
+                wind_speed: forecast.wind.speed
             };
         } else {
             // Update min/max temperature
@@ -844,8 +823,11 @@ function groupForecastsByDay(forecastList) {
             // Use noon forecast for the day's representative weather if available
             if (forecast.dt_txt.includes('12:00:00')) {
                 dailyForecasts[date].temp = forecast.main.temp;
+                dailyForecasts[date].feels_like = forecast.main.feels_like;
                 dailyForecasts[date].description = forecast.weather[0].description;
                 dailyForecasts[date].icon = forecast.weather[0].icon;
+                dailyForecasts[date].humidity = forecast.main.humidity;
+                dailyForecasts[date].wind_speed = forecast.wind.speed;
             }
         }
     });

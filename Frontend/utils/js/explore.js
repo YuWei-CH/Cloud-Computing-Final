@@ -1132,83 +1132,75 @@ function generateDayTabs(days, startDate = null) {
     }
 }
 
-// Helper Functions
-function loadRecommendationCards() {
-    const cardContainer = document.querySelector('.recommendation-cards');
-    const selectedCount = document.getElementById('selected-count');
-    let selectionCounter = 0;
-
-    // Clear any existing cards
-    cardContainer.innerHTML = '';
-
-    // Show loading state if we don't have data yet
-    if (attractionsData.length === 0) {
-        cardContainer.innerHTML = `
-            <div class="loading-attractions">
-                <i class="fas fa-spinner fa-spin"></i>
-                <p>Loading attractions...</p>
-            </div>
-        `;
+// Use a similar approach to trip_card.js for fetching photos
+function fetchPlacePhoto(attractionName, imageContainer, destination) {
+    // Skip if Google API isn't available
+    if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+        console.error('Google Maps API not available');
+        imageContainer.classList.remove('loading');
+        imageContainer.classList.add('error');
         return;
     }
-
-    // Limit attractions to 9 results maximum
-    const limitedAttractions = attractionsData.slice(0, 9);
-
-    // Get current destination for fallback address
-    let currentDestination = "Unknown Location";
-    const destinationTag = document.querySelector('.destination-tag');
-    if (destinationTag) {
-        currentDestination = destinationTag.textContent.trim();
-    } else {
-        // Try to get from session storage if not in UI
-        const storedDestination = sessionStorage.getItem('planning_destination');
-        if (storedDestination) {
-            currentDestination = storedDestination;
+    
+    // Create a PlacesService instance (consistent with trip_card.js)
+    const placesService = new google.maps.places.PlacesService(document.createElement('div'));
+    
+    // Create a request using findPlaceFromQuery
+    const request = {
+        query: `${attractionName}, ${destination}`,
+        fields: ['place_id']
+    };
+    
+    // First find the place_id using the location name
+    placesService.findPlaceFromQuery(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+            // Now get detailed place information using place_id
+            const detailsRequest = {
+                placeId: results[0].place_id,
+                fields: ['photos', 'name']
+            };
+            
+            placesService.getDetails(detailsRequest, (placeDetails, detailsStatus) => {
+                if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && 
+                    placeDetails && 
+                    placeDetails.photos && 
+                    placeDetails.photos.length > 0) {
+                    
+                    // Create photo URL using getUrl method
+                    const photoUrl = placeDetails.photos[0].getUrl({ 
+                        maxWidth: 400, 
+                        maxHeight: 300 
+                    });
+                    
+                    // Create and load the image
+                    const img = document.createElement('img');
+                    img.alt = attractionName;
+                    
+                    img.onload = () => {
+                        // Clear loading state and append image
+                        imageContainer.innerHTML = '';
+                        imageContainer.classList.remove('loading');
+                        imageContainer.appendChild(img);
+                    };
+                    
+                    img.onerror = () => {
+                        imageContainer.classList.remove('loading');
+                        imageContainer.classList.add('error');
+                    };
+                    
+                    // Set source to start loading
+                    img.src = photoUrl;
+                } else {
+                    // No photos available
+                    imageContainer.classList.remove('loading');
+                    imageContainer.classList.add('error');
+                }
+            });
+        } else {
+            // No place found
+            imageContainer.classList.remove('loading');
+            imageContainer.classList.add('error');
         }
-    }
-
-    // Create cards for attractions (limited to 9)
-    limitedAttractions.forEach(attraction => {
-        const card = document.createElement('div');
-        card.classList.add('recommendation-card');
-        card.setAttribute('data-id', attraction.id);
-
-        card.innerHTML = `
-            <div class="card-content">
-                <h3 class="card-title">${attraction.name}</h3>
-                <p class="card-description">${attraction.description}</p>
-                <div class="card-info">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${attraction.address || currentDestination}</span>
-                </div>
-            </div>
-            <div class="card-footer">
-                <button class="btn-text select-btn">
-                    <span>Select</span>
-                </button>
-            </div>
-        `;
-
-        // Add click handler for the whole card to toggle selection
-        card.addEventListener('click', function () {
-            this.classList.toggle('selected');
-
-            // Update the button text based on selection state
-            const selectBtn = this.querySelector('.select-btn span');
-            if (this.classList.contains('selected')) {
-                selectBtn.textContent = 'Selected';
-                selectionCounter++;
-            } else {
-                selectBtn.textContent = 'Select';
-                selectionCounter--;
-            }
-
-            // Update selection counter display
-            selectedCount.textContent = selectionCounter;
-        });
-
-        cardContainer.appendChild(card);
     });
 }
 
@@ -1254,4 +1246,481 @@ function updateActivityCounter() {
     if (counter) {
         counter.textContent = activities.length;
     }
+}
+
+// Update loadRecommendationCards to include an Info button
+function loadRecommendationCards() {
+    const cardContainer = document.querySelector('.recommendation-cards');
+    const selectedCount = document.getElementById('selected-count');
+    let selectionCounter = 0;
+
+    // Clear any existing cards
+    cardContainer.innerHTML = '';
+
+    // Show message if we don't have data yet
+    if (attractionsData.length === 0) {
+        cardContainer.innerHTML = `
+            <div class="no-attractions">
+                <i class="fas fa-info-circle"></i>
+                <p>No attractions found. Try entering a destination.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Limit attractions to 9 results maximum
+    const limitedAttractions = attractionsData.slice(0, 9);
+
+    // Get current destination for fallback address
+    let currentDestination = "Unknown Location";
+    const destinationTag = document.querySelector('.destination-tag');
+    if (destinationTag) {
+        currentDestination = destinationTag.textContent.trim();
+    } else {
+        // Try to get from session storage if not in UI
+        const storedDestination = sessionStorage.getItem('planning_destination');
+        if (storedDestination) {
+            currentDestination = storedDestination;
+        }
+    }
+
+    // Create cards for attractions (limited to 9)
+    limitedAttractions.forEach((attraction, index) => {
+        const card = document.createElement('div');
+        card.classList.add('recommendation-card');
+        card.setAttribute('data-id', attraction.id);
+
+        // Create image container with loading state
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('card-image', 'loading');
+        imageContainer.innerHTML = '<div class="image-loading"><i class="fas fa-spinner fa-spin"></i></div>';
+        card.appendChild(imageContainer);
+
+        // Create card content
+        const cardContent = document.createElement('div');
+        cardContent.classList.add('card-content');
+        cardContent.innerHTML = `
+                <h3 class="card-title">${attraction.name}</h3>
+                <p class="card-description">${attraction.description}</p>
+                <div class="card-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>${attraction.address || currentDestination}</span>
+                </div>
+        `;
+        card.appendChild(cardContent);
+
+        // Create card footer with select button and info button
+        const cardFooter = document.createElement('div');
+        cardFooter.classList.add('card-footer');
+        cardFooter.innerHTML = `
+            <button class="btn-text info-btn">
+                <i class="fas fa-info-circle"></i> Info
+            </button>
+                <button class="btn-text select-btn">
+                    <span>Select</span>
+                </button>
+        `;
+        card.appendChild(cardFooter);
+
+        // Add click handler for the whole card to toggle selection
+        card.addEventListener('click', function (e) {
+            // Don't toggle selection if clicking buttons
+            if (e.target.closest('.select-btn') || e.target.closest('.info-btn')) {
+                return;
+            }
+            
+            this.classList.toggle('selected');
+
+            // Update the button text based on selection state
+            const selectBtn = this.querySelector('.select-btn span');
+            if (this.classList.contains('selected')) {
+                selectBtn.textContent = 'Selected';
+                selectionCounter++;
+            } else {
+                selectBtn.textContent = 'Select';
+                selectionCounter--;
+            }
+
+            // Update selection counter display
+            selectedCount.textContent = selectionCounter;
+        });
+
+        // Add click handler for the select button
+        const selectBtn = card.querySelector('.select-btn');
+        selectBtn.addEventListener('click', function (e) {
+            e.stopPropagation(); // Prevent card click event
+            card.classList.toggle('selected');
+
+            // Update the button text based on selection state
+            const btnSpan = this.querySelector('span');
+            if (card.classList.contains('selected')) {
+                btnSpan.textContent = 'Selected';
+                selectionCounter++;
+            } else {
+                btnSpan.textContent = 'Select';
+                selectionCounter--;
+            }
+
+            // Update selection counter display
+            selectedCount.textContent = selectionCounter;
+        });
+
+        // Add click handler for the info button
+        const infoBtn = card.querySelector('.info-btn');
+        infoBtn.addEventListener('click', function (e) {
+            e.stopPropagation(); // Prevent card click event
+            // Show loading state and fetch location details
+            showLoading("Loading location details...");
+            showAttractionDetails(attraction.name, currentDestination);
+        });
+
+        // Start loading the image with staggered delay
+        setTimeout(() => {
+            // Use a similar approach to trip_card.js
+            fetchPlacePhoto(attraction.name, imageContainer, currentDestination);
+        }, index * 100); // Stagger by 100ms per card
+
+        cardContainer.appendChild(card);
+    });
+}
+
+// Function to fetch and display attraction details, similar to showLocationDetails in trip_card.js
+async function showAttractionDetails(attractionName, destination) {
+    try {
+        // Skip if Google API isn't available
+        if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+            console.error('Google Maps API not available');
+            hideLoading();
+            showError("Google Maps API is not available");
+            return;
+        }
+        
+        // Create a PlacesService instance
+        const placesService = new google.maps.places.PlacesService(document.createElement('div'));
+        
+        // Step 1: Find place by query to get place_id
+        const request = {
+            query: `${attractionName}, ${destination}`,
+            fields: ['place_id']
+        };
+        
+        const searchResults = await new Promise((resolve, reject) => {
+            placesService.findPlaceFromQuery(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+                    resolve(results);
+                } else {
+                    reject(new Error(`Could not find place: ${status}`));
+                }
+            });
+        });
+        
+        // Step 2: Get detailed information about the place
+        const detailsRequest = {
+            placeId: searchResults[0].place_id,
+            fields: [
+                'name',
+                'formatted_address',
+                'formatted_phone_number',
+                'website',
+                'opening_hours',
+                'photos',
+                'rating',
+                'user_ratings_total',
+                'reviews',
+                'price_level',
+                'url',
+                'types'
+            ]
+        };
+        
+        const placeDetails = await new Promise((resolve, reject) => {
+            placesService.getDetails(detailsRequest, (result, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    resolve(result);
+                } else {
+                    reject(new Error(`Failed to get place details: ${status}`));
+                }
+            });
+        });
+        
+        // Now display the location details
+        displayLocationDetails(placeDetails);
+        hideLoading();
+    } catch (error) {
+        console.error("Error fetching attraction details:", error);
+        hideLoading();
+        showError("Failed to load attraction details. " + error.message);
+    }
+}
+
+// Function to display location details, copied from trip_card.js with minor adjustments
+function displayLocationDetails(place) {
+    // First check if the modal element exists, if not create it
+    let modal = document.getElementById('location-modal');
+    if (!modal) {
+        createLocationModal();
+        modal = document.getElementById('location-modal');
+    }
+    
+    console.log("Place details:", place);
+    
+    // Update header
+    document.getElementById('location-name').textContent = place.name;
+
+    // Update rating with correct review count
+    const ratingElement = document.getElementById('location-rating');
+    if (place.rating) {
+        const reviewCount = place.user_ratings_total || 0;
+        ratingElement.innerHTML = `
+            ${place.rating.toFixed(1)} 
+            ${'<i class="fas fa-star"></i>'.repeat(Math.floor(place.rating))}
+            ${place.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+            <span>(${reviewCount} reviews)</span>
+        `;
+    } else {
+        ratingElement.innerHTML = 'No ratings available';
+    }
+
+    // Update address
+    document.querySelector('#location-address span').textContent = place.formatted_address || 'Address not available';
+
+    // Update phone
+    const phoneElement = document.querySelector('#location-phone span');
+    if (place.formatted_phone_number) {
+        phoneElement.textContent = place.formatted_phone_number;
+    } else {
+        phoneElement.textContent = 'No phone number available';
+    }
+
+    // Update website
+    const websiteElement = document.querySelector('#location-website a');
+    if (place.website) {
+        websiteElement.href = place.website;
+        websiteElement.textContent = new URL(place.website).hostname;
+    } else {
+        websiteElement.href = '#';
+        websiteElement.textContent = 'No website available';
+    }
+
+    // Add place type
+    const typeElement = document.querySelector('#location-type span');
+    if (place.types && place.types.length > 0) {
+        // Format the place type to be more readable
+        const formatType = (type) => {
+            return type
+                .replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        };
+        
+        // Get primary type (excluding generic types)
+        const genericTypes = ['point_of_interest', 'establishment'];
+        const specificTypes = place.types.filter(type => !genericTypes.includes(type));
+        
+        if (specificTypes.length > 0) {
+            typeElement.textContent = formatType(specificTypes[0]);
+        } else {
+            typeElement.textContent = formatType(place.types[0]);
+        }
+    } else {
+        typeElement.textContent = 'Place';
+    }
+
+    // Update opening hours
+    const hoursElement = document.querySelector('.hours-list');
+    if (place.opening_hours && place.opening_hours.weekday_text) {
+        hoursElement.innerHTML = place.opening_hours.weekday_text
+            .map(text => `<div>${text}</div>`)
+            .join('');
+    } else {
+        hoursElement.innerHTML = '<div>Opening hours not available</div>';
+    }
+
+    // Update photos
+    const photosElement = document.getElementById('location-photos-gallery');
+    if (place.photos && place.photos.length > 0) {
+        photosElement.innerHTML = place.photos
+            .slice(0, 6) // Show up to 6 photos
+            .map(photo => {
+                const photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
+                return `<img src="${photoUrl}" alt="${place.name}">`;
+            })
+            .join('');
+    } else {
+        photosElement.innerHTML = '<p>No photos available</p>';
+    }
+
+    // Update reviews
+    const reviewsElement = document.getElementById('location-reviews-list');
+    if (place.reviews && place.reviews.length > 0) {
+        reviewsElement.innerHTML = place.reviews
+            .slice(0, 5) // Show up to 5 reviews
+            .map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-author">
+                            <img src="${review.profile_photo_url || 'https://via.placeholder.com/40'}" 
+                                 alt="${review.author_name}">
+                            <span>${review.author_name}</span>
+                        </div>
+                        <div class="review-time">${review.relative_time_description}</div>
+                    </div>
+                    <div class="review-text">${review.text}</div>
+                </div>
+            `)
+            .join('');
+            
+        // Add total review count as a heading
+        const reviewsTitle = document.querySelector('.reviews-list h4');
+        if (reviewsTitle && place.user_ratings_total) {
+            reviewsTitle.textContent = `Reviews (${place.user_ratings_total})`;
+        }
+    } else {
+        reviewsElement.innerHTML = '<p>No reviews available</p>';
+    }
+
+    // Show the modal
+    modal.style.display = 'block';
+}
+
+// Function to create the location modal if it doesn't exist
+function createLocationModal() {
+    const modalHtml = `
+    <div id="location-modal" class="modal">
+        <div class="modal-content location-content">
+            <span class="close">&times;</span>
+            <div class="location-header">
+                <h3 id="location-name">Location Name</h3>
+                <div id="location-rating" class="rating"></div>
+            </div>
+            <div class="location-body">
+                <div class="location-info">
+                    <div class="info-item" id="location-address">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Address</span>
+                    </div>
+                    <div class="info-item" id="location-phone">
+                        <i class="fas fa-phone"></i>
+                        <span>Phone</span>
+                    </div>
+                    <div class="info-item" id="location-website">
+                        <i class="fas fa-globe"></i>
+                        <a href="#" target="_blank">Website</a>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <strong>Opening Hours</strong>
+                        <div class="hours-list">
+                            <div>Hours not available</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="location-photos">
+                    <h4>Photos</h4>
+                    <div id="location-photos-gallery" class="photos-grid"></div>
+                </div>
+                <div class="reviews-list">
+                    <h4>Reviews</h4>
+                    <div id="location-reviews-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    // Append modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Add event listeners for closing the modal
+    const modal = document.getElementById('location-modal');
+    const closeBtn = modal.querySelector('.close');
+    
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+// Helper function to show loading state
+function showLoading(message = "Loading...") {
+    // Check if loading overlay exists, if not create it
+    let overlay = document.getElementById("loading-overlay");
+    if (!overlay) {
+        const overlayHtml = `
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${message}</div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', overlayHtml);
+        overlay = document.getElementById("loading-overlay");
+    }
+    
+    const loadingText = overlay.querySelector(".loading-text");
+    if (loadingText) {
+        loadingText.textContent = message;
+    }
+    
+    overlay.style.display = "flex";
+}
+
+// Helper function to hide loading state
+function hideLoading() {
+    const overlay = document.getElementById("loading-overlay");
+    if (overlay) {
+        overlay.style.display = "none";
+    }
+}
+
+// Helper function to show error message
+function showError(message) {
+    hideLoading(); // Ensure loading is hidden when showing error
+    
+    // Check if error modal exists, if not create it
+    let errorModal = document.getElementById("error-modal");
+    if (!errorModal) {
+        const errorHtml = `
+            <div id="error-modal" class="modal">
+                <div class="modal-content error-content">
+                    <span class="close">&times;</span>
+                    <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+                    <p id="error-message">${message}</p>
+                    <button class="btn-primary" id="error-ok-btn">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', errorHtml);
+        errorModal = document.getElementById("error-modal");
+        
+        // Add event listeners
+        const closeBtn = errorModal.querySelector('.close');
+        const okBtn = document.getElementById('error-ok-btn');
+        
+        closeBtn.addEventListener('click', function() {
+            errorModal.style.display = 'none';
+        });
+        
+        okBtn.addEventListener('click', function() {
+            errorModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === errorModal) {
+                errorModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Update error message
+    const errorMessage = document.getElementById("error-message");
+    if (errorMessage) {
+        errorMessage.textContent = message;
+    }
+    
+    errorModal.style.display = "block";
 }
