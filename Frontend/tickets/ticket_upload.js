@@ -1,5 +1,4 @@
 // Variables to store state
-let selectedTripId = null;
 let selectedFiles = [];
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -10,17 +9,46 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        // Load upcoming trips
-        await loadUpcomingTrips(email);
+        // Check if a trip ID was provided in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tripIdFromUrl = urlParams.get('tripId');
 
-        // Set up event listeners
-        setupEventListeners();
+        // Load upcoming trips
+        const trips = await loadUpcomingTrips(email);
+
+        // Set up event listeners for the page
+        setupEventListeners(trips);
+
+        // If trip ID was provided in URL, pre-select that trip and open upload section
+        if (tripIdFromUrl) {
+            preSelectTrip(tripIdFromUrl, trips);
+        }
+
+        // Load user tickets
+        await loadUserTickets(email);
 
     } catch (error) {
         console.error('Error initializing upload page:', error);
         showError("There was a problem loading your trips.");
     }
 });
+
+// Pre-select a trip based on ID from URL parameter
+function preSelectTrip(tripId, trips) {
+    if (!tripId || !trips || trips.length === 0) return;
+
+    // Find the trip in our loaded trips
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+
+    // Show the upload section
+    document.getElementById('upload-section').style.display = 'block';
+
+    // Scroll to the upload section
+    document.getElementById('upload-section').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
 
 // Authentication check function
 function checkAuthentication() {
@@ -116,7 +144,9 @@ async function loadUpcomingTrips(email) {
 // Render upcoming trips in the trip selector
 function renderUpcomingTrips(trips) {
     const tripSelector = document.getElementById('trip-selector');
-    tripSelector.innerHTML = ''; // Clear existing content
+
+    // Clear existing content
+    tripSelector.innerHTML = '';
 
     if (!trips || trips.length === 0) {
         tripSelector.innerHTML = '<div class="no-trips-message">You have no upcoming trips. Create a trip first!</div>';
@@ -126,6 +156,7 @@ function renderUpcomingTrips(trips) {
     // Sort trips by start date (earliest first)
     trips.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 
+    // Create trip cards for display in list
     trips.forEach(trip => {
         const startDate = new Date(trip.start_date);
         const endDate = new Date(startDate);
@@ -142,54 +173,43 @@ function renderUpcomingTrips(trips) {
         tripElement.className = 'trip-item';
         tripElement.dataset.tripId = trip.id;
         tripElement.innerHTML = `
-            <h3>${trip.title || `Trip to ${trip.start_city}`}</h3>
-            <div>
-                <i class="far fa-calendar-alt"></i> ${dateRange}
-            </div>
-            <div>
-                <i class="fas fa-map-marker-alt"></i> ${trip.start_city} to ${trip.end_city}
+            <div class="trip-details">
+                <h3>${trip.title || `Trip to ${trip.start_city}`}</h3>
+                <div>
+                    <i class="far fa-calendar-alt"></i> ${dateRange}
+                </div>
+                <div>
+                    <i class="fas fa-map-marker-alt"></i> ${trip.start_city} to ${trip.end_city}
+                </div>
             </div>
         `;
-
-        tripElement.addEventListener('click', function () {
-            // Remove selected class from all trips
-            document.querySelectorAll('.trip-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-
-            // Add selected class to this trip
-            tripElement.classList.add('selected');
-
-            // Store the selected trip ID
-            selectedTripId = trip.id;
-
-            // Update the upload section title
-            document.getElementById('selected-trip-name').textContent = trip.title || `Trip to ${trip.start_city}`;
-
-            // Show the upload section
-            document.getElementById('upload-section').style.display = 'block';
-
-            // Scroll to the upload section
-            document.getElementById('upload-section').scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
 
         tripSelector.appendChild(tripElement);
     });
 }
 
-// Set up event listeners for file upload functionality
-function setupEventListeners() {
+// Set up event listeners for all page functionality
+function setupEventListeners(trips) {
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
     const uploadBtn = document.getElementById('upload-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+    const mainUploadBtn = document.getElementById('main-upload-btn');
+
+    // Remove tripDropdown reference and event listener
+
+    // Main upload button shows the upload section
+    mainUploadBtn.addEventListener('click', function () {
+        document.getElementById('upload-section').style.display = 'block';
+        document.getElementById('upload-section').scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
 
     // File input change event
     fileInput.addEventListener('change', handleFileSelect);
 
-    // Drag and drop events
+    // Drag and drop events for file drop area
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
     });
@@ -220,8 +240,9 @@ function setupEventListeners() {
         }
     });
 
-    // Click to browse files
+    // Fix for double file dialog - simplified click handler
     dropArea.addEventListener('click', () => {
+        // Simply trigger the file input
         fileInput.click();
     });
 
@@ -242,6 +263,23 @@ function setupEventListeners() {
 
         // Hide success message
         document.getElementById('upload-success').style.display = 'none';
+    });
+
+    // Set up tab navigation for tickets
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and content
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const tabName = button.getAttribute('data-tab');
+            document.getElementById(`${tabName}-tickets`).classList.add('active');
+        });
     });
 }
 
@@ -354,7 +392,7 @@ function formatFileSize(bytes) {
 
 // Upload files to the server
 async function uploadFiles() {
-    if (!selectedTripId || selectedFiles.length === 0) {
+    if (selectedFiles.length === 0) {
         return;
     }
 
@@ -369,7 +407,7 @@ async function uploadFiles() {
         const progressBar = document.getElementById('progress-bar');
         progressElement.style.display = 'block';
 
-        // For each file, create formData and upload
+        // For each file, upload to the API
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
 
@@ -377,33 +415,45 @@ async function uploadFiles() {
             const progress = (i / selectedFiles.length) * 100;
             progressBar.style.width = `${progress}%`;
 
-            // Create FormData
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('tripId', selectedTripId);
-            formData.append('email', email);
-
-            // Upload URL - you'll need to replace this with your actual API endpoint
-            const url = 'https://your-api-endpoint-for-file-upload.com/upload';
-
-            // Simulate upload for now (since we don't have the actual API)
-            // In a real implementation, you would use this:
-            /*
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Upload failed with status: ${response.status}`);
+            // Get file content type
+            let contentType;
+            if (file.type.includes('jpeg') || file.type.includes('jpg')) {
+                contentType = 'image/jpeg';
+            } else if (file.type.includes('png')) {
+                contentType = 'image/png';
+            } else if (file.type.includes('pdf')) {
+                contentType = 'application/pdf';
+            } else {
+                // Default to binary for unknown types
+                contentType = 'application/octet-stream';
             }
-            
-            const result = await response.json();
-            console.log('Upload result:', result);
-            */
 
-            // For demonstration, we'll simulate an API call with a delay
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Create the API URL (removed the tripId parameter)
+            const apiUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/tickets?filename=${encodeURIComponent(file.name)}`;
+
+            try {
+                // Read the file as an ArrayBuffer
+                const fileContent = await readFileAsArrayBuffer(file);
+
+                // Make the API call
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': contentType,
+                        'x-amz-meta-userEmail': email
+                    },
+                    body: fileContent
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed with status: ${response.status}`);
+                }
+
+                console.log(`File ${file.name} uploaded successfully`);
+            } catch (uploadError) {
+                console.error('Error uploading file:', uploadError);
+                throw uploadError;
+            }
         }
 
         // Complete progress bar
@@ -432,6 +482,16 @@ async function uploadFiles() {
         hideLoading();
         showError("Couldn't upload your files. Please try again later.");
     }
+}
+
+// Read file as ArrayBuffer (needed for binary upload)
+function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsArrayBuffer(file);
+    });
 }
 
 // Show loading indicator
@@ -482,4 +542,279 @@ function showError(message) {
     setTimeout(() => {
         errorDiv.remove();
     }, 5000);
+}
+
+// Load user tickets from the API
+async function loadUserTickets(email) {
+    try {
+        const futureTicketsContainer = document.getElementById('future-tickets');
+        const pastTicketsContainer = document.getElementById('past-tickets');
+
+        // Set loading state
+        futureTicketsContainer.innerHTML = `
+            <div class="loading-indicator">
+                <i class="fas fa-spinner fa-spin"></i> Loading your tickets...
+            </div>
+        `;
+        pastTicketsContainer.innerHTML = `
+            <div class="loading-indicator">
+                <i class="fas fa-spinner fa-spin"></i> Loading your tickets...
+            </div>
+        `;
+
+        // Fetch tickets from API
+        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/tickets?user_email=${encodeURIComponent(email)}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch tickets: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Render future tickets
+        renderTickets(data.future, futureTicketsContainer, 'future');
+
+        // Render past tickets
+        renderTickets(data.past, pastTicketsContainer, 'past');
+
+    } catch (error) {
+        console.error('Error loading tickets:', error);
+        document.getElementById('future-tickets').innerHTML = `
+            <div class="tickets-empty">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>There was a problem loading your tickets. Please try again later.</p>
+            </div>
+        `;
+        document.getElementById('past-tickets').innerHTML = `
+            <div class="tickets-empty">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>There was a problem loading your tickets. Please try again later.</p>
+            </div>
+        `;
+    }
+}
+
+// Render tickets to the appropriate container
+function renderTickets(tickets, container, type) {
+    if (!tickets || tickets.length === 0) {
+        container.innerHTML = `
+            <div class="tickets-empty">
+                <i class="fas fa-ticket-alt"></i>
+                <p>You don't have any ${type === 'future' ? 'upcoming' : 'past'} tickets.</p>
+                ${type === 'future' ? '<p>Upload your travel tickets to see them here!</p>' : ''}
+            </div>
+        `;
+        return;
+    }
+
+    // Create tickets list container
+    const ticketsList = document.createElement('div');
+    ticketsList.className = 'tickets-list';
+
+    // Add each ticket
+    tickets.forEach(ticket => {
+        // Format dates
+        const departureDate = new Date(ticket.departure_datetime);
+        const arrivalDate = new Date(ticket.arrival_datetime);
+
+        const formatDate = (date) => {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        };
+
+        const formatTime = (date) => {
+            return date.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        };
+
+        // Create ticket card
+        const ticketCard = document.createElement('div');
+        ticketCard.className = 'ticket-card';
+
+        // Add ticket ID as data attribute for future delete functionality
+        ticketCard.dataset.ticketId = ticket.id;
+
+        // Set ticket icon based on type
+        let typeIcon = 'fa-plane';
+        if (ticket.type === 'train') {
+            typeIcon = 'fa-train';
+        } else if (ticket.type === 'bus') {
+            typeIcon = 'fa-bus';
+        } else if (ticket.type === 'ship') {
+            typeIcon = 'fa-ship';
+        }
+
+        ticketCard.innerHTML = `
+            <div class="ticket-type">${ticket.type}</div>
+            <div class="ticket-header">
+                <div class="ticket-number">Ticket #${ticket.ticket_number}</div>
+            </div>
+            <div class="ticket-route">
+                <div class="ticket-city departure">
+                    <div class="code">${ticket.departure_code || '—'}</div>
+                    <div class="name">${ticket.departure_city}</div>
+                </div>
+                <div class="ticket-route-divider">
+                    <i class="fas ${typeIcon} ticket-route-icon"></i>
+                    <div class="ticket-route-line"></div>
+                </div>
+                <div class="ticket-city arrival">
+                    <div class="code">${ticket.arrival_code || '—'}</div>
+                    <div class="name">${ticket.arrival_city}</div>
+                </div>
+            </div>
+            <div class="ticket-details">
+                <div class="ticket-detail">
+                    <div class="ticket-detail-label">Departure</div>
+                    <div class="ticket-detail-value">${formatDate(departureDate)}</div>
+                    <div class="ticket-detail-value">${formatTime(departureDate)}</div>
+                </div>
+                <div class="ticket-detail">
+                    <div class="ticket-detail-label">Arrival</div>
+                    <div class="ticket-detail-value">${formatDate(arrivalDate)}</div>
+                    <div class="ticket-detail-value">${formatTime(arrivalDate)}</div>
+                </div>
+                ${ticket.seats ? `
+                <div class="ticket-detail">
+                    <div class="ticket-detail-label">Seat</div>
+                    <div class="ticket-detail-value">${ticket.seats}</div>
+                </div>
+                ` : ''}
+            </div>
+            <div class="ticket-actions">
+                <button class="delete-ticket" data-ticket-id="${ticket.id}">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+        `;
+
+        ticketsList.appendChild(ticketCard);
+
+        // Add event listener to delete button
+        setTimeout(() => {
+            const deleteBtn = ticketCard.querySelector('.delete-ticket');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function () {
+                    confirmDeleteTicket(ticket.id, ticketCard);
+                });
+            }
+        }, 0);
+    });
+
+    // Replace loading indicator with tickets list
+    container.innerHTML = '';
+    container.appendChild(ticketsList);
+}
+
+// Confirm before deleting a ticket
+function confirmDeleteTicket(ticketId, ticketElement) {
+    if (confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+        deleteTicket(ticketId, ticketElement);
+    }
+}
+
+// Delete a ticket using the API
+async function deleteTicket(ticketId, ticketElement) {
+    try {
+        // Show loading state on the ticket card
+        ticketElement.classList.add('deleting');
+        ticketElement.querySelector('.delete-ticket').disabled = true;
+
+        // Call the DELETE API endpoint
+        const apiUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/tickets/${ticketId}`;
+
+        const response = await fetch(apiUrl, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Delete failed with status: ${response.status}`);
+        }
+
+        // Handle success - remove the ticket from the UI with animation
+        ticketElement.classList.add('deleted');
+
+        // After animation completes, remove the element
+        setTimeout(() => {
+            ticketElement.remove();
+
+            // Check if there are no tickets left and show empty message if needed
+            updateEmptyState();
+
+            // Show success message
+            showSuccessToast('Ticket deleted successfully');
+        }, 300);
+
+    } catch (error) {
+        console.error('Error deleting ticket:', error);
+        ticketElement.classList.remove('deleting');
+        ticketElement.querySelector('.delete-ticket').disabled = false;
+        showError("Couldn't delete the ticket. Please try again later.");
+    }
+}
+
+// Check if there are no tickets and update the UI accordingly
+function updateEmptyState() {
+    const futureTickets = document.querySelector('#future-tickets .tickets-list');
+    const pastTickets = document.querySelector('#past-tickets .tickets-list');
+
+    // Check future tickets
+    if (futureTickets && (!futureTickets.children.length || futureTickets.children.length === 0)) {
+        document.getElementById('future-tickets').innerHTML = `
+            <div class="tickets-empty">
+                <i class="fas fa-ticket-alt"></i>
+                <p>You don't have any upcoming tickets.</p>
+                <p>Upload your travel tickets to see them here!</p>
+            </div>
+        `;
+    }
+
+    // Check past tickets
+    if (pastTickets && (!pastTickets.children.length || pastTickets.children.length === 0)) {
+        document.getElementById('past-tickets').innerHTML = `
+            <div class="tickets-empty">
+                <i class="fas fa-ticket-alt"></i>
+                <p>You don't have any past tickets.</p>
+            </div>
+        `;
+    }
+}
+
+// Show a success toast message
+function showSuccessToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'success-toast';
+    toast.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${message}</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }

@@ -244,37 +244,36 @@
 
         <main class="main-content">
             <header class="dashboard-header">
-                <h1>Upload Travel Tickets</h1>
-                <p>Store your tickets and important travel documents in one place</p>
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>Travel Tickets</h1>
+                        <p>Store your tickets and important travel documents in one place</p>
+                    </div>
+                    <div class="header-action">
+                        <button id="main-upload-btn" class="btn-primary main-upload-btn">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload Tickets
+                        </button>
+                    </div>
+                </div>
             </header>
 
             <div class="upload-container">
-                <section class="card">
-                    <div class="section-header">
-                        <h2>Select Trip</h2>
-                    </div>
-                    <div class="trip-selector" id="trip-selector">
-                        <!-- Upcoming trips will be loaded here -->
-                        <div class="loading-indicator">
-                            <i class="fas fa-spinner fa-spin"></i> Loading your upcoming trips...
-                        </div>
-                    </div>
-                </section>
-
                 <section class="card" id="upload-section" style="display: none;">
                     <div class="section-header">
-                        <h2>Upload Tickets for <span id="selected-trip-name">Selected Trip</span></h2>
+                        <h2>Upload Tickets</h2>
                     </div>
+                    <!-- Trip selector dropdown removed -->
                     <div class="upload-section">
                         <div class="upload-success" id="upload-success">
                             <i class="fas fa-check-circle"></i> Your tickets have been uploaded successfully!
                         </div>
                         
+                        <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                        
                         <div class="file-drop-area" id="drop-area">
                             <i class="fas fa-cloud-upload-alt fa-3x"></i>
                             <p>Drag & drop files here or click to browse</p>
                             <p class="small">Supported formats: JPG, JPEG, PNG, PDF</p>
-                            <input type="file" class="file-input" id="file-input" accept=".jpg,.jpeg,.png,.pdf">
                         </div>
                         
                         <div id="file-preview">
@@ -290,6 +289,45 @@
                         <div style="margin-top: 20px;">
                             <button class="btn-primary" id="upload-btn" disabled>Upload Tickets</button>
                             <button class="btn-secondary" id="cancel-btn">Cancel</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-header">
+                        <h2>Your Trips</h2>
+                    </div>
+                    <div class="trip-selector" id="trip-selector">
+                        <!-- Upcoming trips will be loaded here -->
+                        <div class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin"></i> Loading your upcoming trips...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- New Section: User Tickets Display -->
+                <section class="card" id="tickets-section">
+                    <div class="section-header">
+                        <h2>Your Travel Tickets</h2>
+                    </div>
+                    <div class="tickets-container">
+                        <div class="tickets-tabs">
+                            <button class="tab-btn active" data-tab="future">Upcoming Tickets</button>
+                            <button class="tab-btn" data-tab="past">Past Tickets</button>
+                        </div>
+                        
+                        <div class="tickets-content">
+                            <div class="tab-content active" id="future-tickets">
+                                <div class="loading-indicator"></div>
+                                    <i class="fas fa-spinner fa-spin"></i> Loading your tickets...
+                                </div>
+                            </div>
+                            
+                            <div class="tab-content" id="past-tickets">
+                                <div class="loading-indicator">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading your tickets...
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

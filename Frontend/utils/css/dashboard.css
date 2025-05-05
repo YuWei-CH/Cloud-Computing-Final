@@ -32,7 +32,10 @@ body::before {
 }
 
 /* Make all content elements have white backgrounds to ensure readability */
-.card, .trip-card, .dashboard-navbar, .app-footer {
+.card,
+.trip-card,
+.dashboard-navbar,
+.app-footer {
     background-color: white;
 }
 
@@ -423,6 +426,60 @@ section {
     border-top: 1px solid var(--light-gray);
 }
 
+.trip-actions {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.trip-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.trip-actions button i {
+    margin-right: 5px;
+}
+
+.trip-actions .upload-tickets {
+    background-color: var(--accent-color, #4a90e2);
+    color: white;
+}
+
+.trip-actions .upload-tickets:hover {
+    background-color: var(--accent-hover, #3679c7);
+    transform: translateY(-2px);
+}
+
+.trip-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+
+.trip-status.upcoming {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.trip-status.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.trip-status.past {
+    background-color: #f5f5f5;
+    color: #757575;
+}
+
 .delete-trip {
     color: #dc3545;
     cursor: pointer;
@@ -438,10 +495,12 @@ section {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(0.9);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(0);
         opacity: 0;
@@ -602,7 +661,7 @@ section {
     .nav-links {
         gap: 20px;
     }
-    
+
     .trip-cards {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
@@ -612,7 +671,7 @@ section {
     .dashboard-navbar {
         padding: 12px 15px;
     }
-    
+
     .nav-links {
         display: none;
         position: absolute;
@@ -625,32 +684,32 @@ section {
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
         gap: 0;
     }
-    
+
     .nav-links.active {
         display: flex;
     }
-    
+
     .nav-links a {
         padding: 15px 20px;
     }
-    
+
     .burger-menu {
         display: block;
     }
-    
+
     .info-row {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .trip-cards {
         grid-template-columns: 1fr;
     }
-    
+
     .main-content {
         padding: 80px 15px 15px;
     }
-    
+
     .footer-container {
         flex-direction: column;
         gap: 15px;
