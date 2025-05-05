@@ -70,12 +70,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         sessionStorage.setItem('userEmail', userEmail);
                     }
 
-                    alert("Login successful!");
-                    window.location.href = '../dashboard/dashboard.html';
+                    showNotification("Login successful! Redirecting to dashboard...", "success");
+                    setTimeout(() => {
+                        window.location.href = '../dashboard/dashboard.html';
+                    }, 1500);
                 },
 
                 onFailure: function (err) {
-                    alert(err.message || JSON.stringify(err));
+                    showNotification(err.message || JSON.stringify(err), "error");
                 }
             });
         }
@@ -119,5 +121,51 @@ document.addEventListener('DOMContentLoaded', function () {
             passwordInput.parentElement.style.borderColor = 'var(--border-color)';
             return true;
         }
+    }
+
+    function showNotification(message, type = 'success') {
+        // Create notification element if it doesn't exist
+        if (!document.getElementById('notification')) {
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '15px 25px';
+            notification.style.color = 'white';
+            notification.style.borderRadius = '8px';
+            notification.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
+            notification.style.zIndex = '1000';
+            notification.style.transition = 'all 0.3s ease';
+            notification.style.transform = 'translateY(-100px)';
+            notification.style.opacity = '0';
+            notification.style.display = 'flex';
+            notification.style.alignItems = 'center';
+            notification.style.gap = '10px';
+            notification.style.fontWeight = '500';
+
+            document.body.appendChild(notification);
+        }
+
+        const notification = document.getElementById('notification');
+
+        // Set color based on type
+        if (type === 'success') {
+            notification.style.backgroundColor = 'var(--success-color)';
+            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        } else if (type === 'error') {
+            notification.style.backgroundColor = 'var(--error-color)';
+            notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        }
+
+        // Show notification
+        notification.style.transform = 'translateY(0)';
+        notification.style.opacity = '1';
+
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateY(-100px)';
+            notification.style.opacity = '0';
+        }, 3000);
     }
 });

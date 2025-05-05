@@ -254,6 +254,95 @@
             transform: scale(1.1);
         }
         */
+        
+        /* Remove previous discover-btn custom styles if present */
+        .discover-btn, .discover-btn .icon-wrapper, .discover-btn .btn-text, .discover-btn .ripple { all: unset; }
+        
+        .discover-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            width: 38px;
+            height: 38px;
+            min-width: 0;
+            border-radius: 50%;
+            box-shadow: none;
+            background: var(--primary-color);
+        }
+        .discover-btn .circle-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: transparent;
+            color: #fff;
+            font-size: 1.2em;
+        }
+        .discover-btn:hover, .discover-btn:focus {
+            background: var(--primary-hover);
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            min-width: 0;
+            border-radius: 50%;
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            box-shadow: 0 1px 4px rgba(62, 147, 145, 0.07);
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border 0.18s;
+            z-index: 2;
+        }
+        .search-btn:hover, .search-btn:focus {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        .destination-field input {
+            height: 38px;
+            border-radius: 30px;
+            padding-right: 50px;
+        }
+        .selected-badge {
+            color: #fff !important;
+            background: var(--primary-color) !important;
+            display: inline-block;
+            min-width: 28px;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1em;
+            text-align: center;
+            margin-right: 10px;
+            box-shadow: 0 2px 8px rgba(62, 147, 145, 0.10);
+            vertical-align: middle;
+        }
+        .selected-label {
+            font-weight: 600;
+            font-size: 1.08em;
+            color: #fff;
+            letter-spacing: 0.2px;
+            vertical-align: middle;
+        }
+        .selection-summary {
+            background: var(--primary-color);
+            border-radius: 18px;
+            padding: 6px 18px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -314,8 +403,8 @@
                         <div class="input-field destination-field">
                             <i class="fas fa-map-marker-alt"></i>
                             <input type="text" id="destination-input" placeholder="Enter a city or country" autocomplete="off">
-                            <button id="add-destination-btn" class="btn-primary">
-                                <i class="fas fa-compass"></i> Discover Attractions
+                            <button id="add-destination-btn" class="search-btn" aria-label="Search or Discover Attractions">
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                         <div id="autocomplete-results" class="autocomplete-results"></div>
@@ -344,7 +433,8 @@
                 
                 <div class="create-trip-container">
                     <div class="selection-summary">
-                        <span id="selected-count">0</span> attractions selected
+                        <span id="selected-count" class="selected-badge">0</span>
+                        <span class="selected-label">attractions selected</span>
                     </div>
                     <button id="create-trip-btn" class="btn-primary">
                         <i class="fas fa-route"></i> Plan My Trip
@@ -536,6 +626,19 @@
                 }
             });
             */
+            
+            const discoverBtn = document.getElementById('add-destination-btn');
+            if (discoverBtn) {
+                discoverBtn.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple';
+                    const rect = discoverBtn.getBoundingClientRect();
+                    ripple.style.left = (e.clientX - rect.left) + 'px';
+                    ripple.style.top = (e.clientY - rect.top) + 'px';
+                    discoverBtn.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            }
         });
     </script>
 </body>

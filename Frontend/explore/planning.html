@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../utils/css/dashboard.css">
     <link rel="stylesheet" href="../utils/css/explore.css">
     <link rel="stylesheet" href="../utils/css/planning.css">
+    <link rel="stylesheet" href="../utils/css/ghibli-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Dark theme stylesheet (disabled by default) -->
     <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
@@ -36,29 +37,54 @@
             }
         };
     </script>
+    <style>
+      body {
+        background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/dashboardBG.png') !important;
+        background-size: 100% auto !important;
+        background-attachment: fixed !important;
+        background-position: center top !important;
+        background-repeat: no-repeat !important;
+        color: #333 !important;
+        text-shadow: 0 1px 3px rgba(255,255,255,0.15);
+      }
+      .main-content, .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content p, .main-content label, .main-content span, .main-content li {
+        color: #333 !important;
+        text-shadow: 0 1px 3px rgba(255,255,255,0.12);
+      }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h2>Travel Planner</h2>
+        <nav class="dashboard-navbar">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-plane-departure"></i>
+                Trip Planner
+            </a>
+            <div class="nav-links">
+                <a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="../explore/explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a>
+                <a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="../dashboard/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li class="active"><a href="explore.html"><i class="fas fa-map-marked-alt"></i> Explore</a></li>
-                <li><a href="../tickets/ticket_upload.html"><i class="fas fa-ticket-alt"></i> Upload Tickets</a></li>
-                <li><a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-                <li class="logout"><a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-            
-            <!-- Add footer links to sidebar -->
-            <div class="sidebar-footer">
-                <ul class="sidebar-footer-links">
-                    <li><a href="../pages/about.html"><i class="fas fa-info-circle"></i> <span>About Us</span></a></li>
-                    <li><a href="../pages/contact.html"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
-                    <li><a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> <span>Privacy Policy</span></a></li>
-                    <li><a href="../pages/terms.html"><i class="fas fa-file-contract"></i> <span>Terms of Service</span></a></li>
-                </ul>
+            <div class="user-controls">
+                <div class="user-menu">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="../settings/settings.html"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a>
+                        <a href="../pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+                        <a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                        <a href="../pages/terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                        <a href="../login/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                <div class="burger-menu" id="burger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
 
@@ -188,7 +214,7 @@
                         
                         <div class="map-preview">
                             <!-- Replace with a base64 encoded placeholder image to avoid 404 errors -->
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQEzJycn20/3y3kMw/uf+Wbzrby5Tp9vxsvxeDnO1XXx4IhFHD08zWJecxphAYYFGBYgLMCwAMMCDAsQFmBYgGEBhgUICzAswLCAKXn58uV2PB7XM6zJxL/9Ojw8rG9W8+Xx/vvlOKuPsmFWXUMMj4r6fHTvbh2e/36jju9uflvHhw+PXsRrDiMswLAAYQGGBRgWYFiAsADDAgwLEBZgWIBhAcIChFV9fPhNfYP68jf/l/Xb9aZ6//79Om5v1OvjHuabpnJoMB3O21ktyvn82tpyAHAb7t27V8dHjx7Vdfl7Gw6H9RbjYQhLWIBhAcIChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
                         </div>
                     </div>
                 </div>
