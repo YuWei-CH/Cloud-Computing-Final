@@ -239,7 +239,7 @@ section {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
-/* Personal Info Section */
+/* Enhanced Personal Info Section */
 .personal-info-content {
     display: flex;
     flex-direction: column;
@@ -250,59 +250,90 @@ section {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
+    background-color: rgba(245, 247, 250, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.info-row:hover {
+    background-color: rgba(235, 240, 245, 0.8);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .info-item {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: flex-start;
-}
-
-.info-item i {
-    color: var(--primary-color);
-    margin-right: 10px;
-    min-width: 20px;
-    text-align: center;
-    margin-top: 4px;
-}
-
-.info-item strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.hours-list {
-    margin-top: 8px;
-    margin-left: 30px;
-    color: #666;
-}
-
-/* New styles for editable profile */
-.personal-info-edit form {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 200px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    padding: 5px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.info-item:hover .info-value {
+    border-bottom-color: var(--primary-color);
+}
+
+/* Enhanced edit form styling */
+.personal-info-edit form {
+    padding: 5px;
+}
+
+.personal-info-edit .info-row {
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .form-control {
     width: 100%;
-    padding: 10px;
+    padding: 12px 15px;
     border: 1px solid var(--border-color);
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
 }
 
 .form-control:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.3);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 }
 
 .form-buttons {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 25px;
+}
+
+.form-buttons button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.form-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Preferences section */
@@ -888,8 +919,13 @@ section {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Error state for images */
@@ -979,7 +1015,7 @@ section {
     font-size: 18px;
 }
 
-.info-item span, 
+.info-item span,
 .info-item a {
     font-size: 16px;
     line-height: 1.6;
@@ -1086,11 +1122,11 @@ section {
     .location-info {
         grid-template-columns: 1fr;
     }
-    
+
     .location-info .info-item:last-child {
         grid-column: 1;
     }
-    
+
     .photos-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1101,11 +1137,11 @@ section {
         width: 95%;
         margin: 2vh auto;
     }
-    
+
     .location-body {
         padding: 20px;
     }
-    
+
     .hours-list {
         grid-template-columns: 1fr;
     }
@@ -1115,16 +1151,38 @@ section {
     .location-header {
         padding: 20px;
     }
-    
+
     .location-body {
         padding: 15px;
     }
-    
+
     .location-info {
         padding: 20px;
     }
-    
+
     .photos-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Responsive adjustments for personal info */
+@media (max-width: 768px) {
+    .info-row {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .info-item {
+        width: 100%;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-buttons button {
+        width: 100%;
     }
 }

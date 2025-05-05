@@ -197,6 +197,13 @@ function setupEventListeners() {
             // Use stored data instead of trying to fetch again
             document.getElementById('edit-username').value = currentUserData.username;
             document.getElementById('edit-email').value = currentUserData.email;
+
+            // Hide edit mode, show view mode
+            document.getElementById('profile-edit-mode').style.display = 'none';
+            document.getElementById('profile-view-mode').style.display = 'flex';
+
+            // Show the edit button again
+            document.getElementById('edit-profile-btn').style.display = 'block';
         });
     }
 
@@ -680,18 +687,18 @@ function formatDateRange(startDateStr, duration) {
     if (!startDateStr) {
         return "Date not set";
     }
-    
+
     // Create a new date object with the UTC date string to ensure correct parsing
     const startDate = new Date(startDateStr);
-    
+
     // Adjust for timezone differences if needed
     // This ensures the date displayed matches the intended input date
     const timezoneOffset = startDate.getTimezoneOffset() * 60000;
     const adjustedStartDate = new Date(startDate.getTime() + timezoneOffset);
-    
+
     // Create a new date object for the end date
     const endDate = new Date(adjustedStartDate);
-    
+
     // The end date is start date + duration - 1 (since duration includes the start date)
     endDate.setDate(endDate.getDate() + (parseInt(duration) || 0) - 1);
 
