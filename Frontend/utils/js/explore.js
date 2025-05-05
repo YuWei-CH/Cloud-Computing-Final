@@ -13,7 +13,182 @@ document.addEventListener('DOMContentLoaded', function () {
     initViewToggle();
     initTripDurationSelection();
     initItineraryBuilder();
+
+    // Preload attractions data so it's ready when needed
+    fetchAttractionsData();
 });
+
+// Global variable to store attractions data
+let attractionsData = [];
+
+// Function to fetch attractions from API
+async function fetchAttractionsData() {
+    try {
+        // Show loading state
+        const cardContainer = document.querySelector('.recommendation-cards');
+        if (cardContainer) {
+            cardContainer.innerHTML = `
+                <div class="loading-attractions">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading attractions...</p>
+                </div>
+            `;
+        }
+
+        console.log("Fetching attractions data from API...");
+
+        // Get location from input without fallback
+        const destinationInput = document.getElementById('destination-input');
+        let location = destinationInput ? destinationInput.value.trim() : "";
+
+        // If no location is provided, show a message and return early
+        if (!location) {
+            console.log("No location provided for API call");
+            if (cardContainer) {
+                cardContainer.innerHTML = `
+                    <div class="error-message" style="grid-column: 1/-1; text-align: center; padding: 20px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #e74c3c; font-size: 24px;"></i>
+                        <p>Please enter a destination to see attractions</p>
+                    </div>
+                `;
+            }
+            attractionsData = [];
+            return;
+        }
+
+        // Process the location to extract just the city name (remove state and country)
+        location = extractCityName(location);
+        console.log("Using location for API call:", location);
+
+        // Get user preferences from storage or use defaults
+        const preferences = getUserPreferences();
+
+        // Build the API URL with query parameters
+        const queryParams = new URLSearchParams({
+            location: location,
+            weather: preferences.weather,
+            environment: preferences.environment,
+            activity: preferences.activity
+        });
+
+        const apiUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/recommendation?${queryParams}`;
+        console.log("Calling API:", apiUrl);
+
+        // Simple direct fetch call without fallback
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Raw API response:", data);
+
+        // More robust parsing of API response
+        let places = [];
+
+        // Check different possible response formats
+        if (data.body) {
+            // Parse the body if it's a string
+            const bodyData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+
+            // Now check if bodyData has a places property
+            if (bodyData && bodyData.places) {
+                places = bodyData.places;
+            } else if (Array.isArray(bodyData)) {
+                // If bodyData is directly an array
+                places = bodyData;
+            }
+        } else if (data.places) {
+            // Direct places property in response
+            places = data.places;
+        } else if (Array.isArray(data)) {
+            // If the response itself is an array
+            places = data;
+        }
+
+        console.log("Places from API:", places);
+
+        // Transform the data to match our expected format
+        attractionsData = places.map((place, index) => ({
+            id: index + 1, // Generate sequential IDs
+            name: place.name || 'Unknown Attraction',
+            description: place.description || 'No description available',
+            address: place.address || '' // Keep address in case we want to use it
+        }));
+
+        console.log("Processed attractions data:", attractionsData);
+
+        // If recommendation cards are already visible, reload them with the new data
+        const recommendationsSection = document.querySelector('.recommendations-section');
+        if (recommendationsSection && recommendationsSection.style.display !== 'none') {
+            loadRecommendationCards();
+        }
+
+        // Store in session storage for other pages to use
+        sessionStorage.setItem('attractions_data', JSON.stringify(attractionsData));
+
+    } catch (error) {
+        console.error("Error fetching attractions data:", error);
+
+        // Show more specific error message
+        const cardContainer = document.querySelector('.recommendation-cards');
+        if (cardContainer) {
+            cardContainer.innerHTML = `
+                <div class="error-message" style="grid-column: 1/-1; text-align: center; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #e74c3c; font-size: 24px;"></i>
+                    <p>Sorry, we couldn't load attractions at this time. Please try again later.</p>
+                    <p style="font-size: 12px; color: #777; margin-top: 10px;">Error details: ${error.message}</p>
+                    <button id="retry-fetch" class="btn-secondary" style="margin-top: 15px;">Try Again</button>
+                </div>
+            `;
+
+            // Add event listener to retry button
+            const retryButton = document.getElementById('retry-fetch');
+            if (retryButton) {
+                retryButton.addEventListener('click', () => fetchAttractionsData());
+            }
+        }
+
+        // Set empty attractions array
+        attractionsData = [];
+        sessionStorage.setItem('attractions_data', JSON.stringify(attractionsData));
+    }
+}
+
+// Helper function to extract just the city name from a full location string
+function extractCityName(location) {
+    // If location is empty, return empty string (we've removed the fallback)
+    if (!location) return "";
+
+    // Extract the first part (city name) from addresses like "Miami, FL, USA"
+    const parts = location.split(',');
+    if (parts.length > 0) {
+        // Return just the city name with a comma
+        return parts[0].trim() + ',';
+    }
+
+    // If no commas found, just return the input with a comma
+    return location.trim() + ',';
+}
+
+// Helper function to get user preferences
+function getUserPreferences() {
+    // Try to get preferences from localStorage (saved in settings)
+    const weather = localStorage.getItem('weather') || 'warm';
+    const environment = localStorage.getItem('environment') || 'city';
+    const activity = localStorage.getItem('activity') || 'relaxing';
+
+    console.log("Using preferences:", { weather, environment, activity });
+
+    return { weather, environment, activity };
+}
 
 // This function will be called by the Google Maps API callback
 window.initExploreApp = function () {
@@ -60,60 +235,6 @@ function updateCurrentDateDisplay() {
         currentDateElement.textContent = now.toLocaleDateString('en-US', options);
     }
 }
-
-// NYC attractions data (simulated backend data)
-const nycAttractions = [
-    {
-        id: 1,
-        name: 'Empire State Building',
-        description: 'Iconic 102-story landmark with an observation deck offering panoramic NYC views.'
-    },
-    {
-        id: 2,
-        name: 'Central Park',
-        description: 'Sprawling park with paths, lakes, and recreational facilities.'
-    },
-    {
-        id: 3,
-        name: 'Metropolitan Museum of Art',
-        description: 'World-renowned art museum with vast collection spanning 5,000 years.'
-    },
-    {
-        id: 4,
-        name: 'Statue of Liberty',
-        description: 'Iconic copper statue on Liberty Island symbolizing freedom and democracy.'
-    },
-    {
-        id: 5,
-        name: 'Brooklyn Bridge',
-        description: 'Historic bridge connecting Manhattan and Brooklyn with pedestrian walkway.'
-    },
-    {
-        id: 6,
-        name: 'Times Square',
-        description: 'Bustling commercial intersection known for bright lights and Broadway theaters.'
-    },
-    {
-        id: 7,
-        name: 'Museum of Modern Art (MoMA)',
-        description: 'Leading modern art museum with famous works by Van Gogh, Picasso, and more.'
-    },
-    {
-        id: 8,
-        name: 'High Line',
-        description: 'Elevated linear park built on a former railroad track with gardens and art.'
-    },
-    {
-        id: 9,
-        name: 'One World Observatory',
-        description: 'Observation deck atop One World Trade Center with 360° views of the city.'
-    },
-    {
-        id: 10,
-        name: 'Broadway Show',
-        description: 'World-class theatrical performances in the Theater District.'
-    }
-];
 
 // Destination Input and Autocomplete
 function initDestinationInput() {
@@ -214,8 +335,11 @@ function initDestinationInput() {
 
         selectedDestinations.appendChild(tag);
 
+        // Store the destination in session storage for planning
+        sessionStorage.setItem('planning_destination', destination);
+
         // Load recommendations for the selected destination
-        loadRecommendationCards();
+        fetchAttractionsData(); // This will also call loadRecommendationCards when data is ready
     }
 }
 
@@ -269,7 +393,7 @@ function initTripDurationSelection() {
         const selectedIds = Array.from(selectedCards).map(card => card.getAttribute('data-id'));
 
         // Store the full attractions data as well
-        sessionStorage.setItem('attractions_data', JSON.stringify(nycAttractions));
+        sessionStorage.setItem('attractions_data', JSON.stringify(attractionsData));
 
         // Store selected attractions IDs separately
         const destination = document.querySelector('.destination-tag').textContent.trim();
@@ -431,7 +555,7 @@ function initItineraryBuilder() {
         // Add autocomplete suggestion box to the DOM
         const customDestName = document.getElementById('custom-destination-name');
         const customDestInput = customDestName.parentElement;
-        
+
         // Create suggestion dropdown container
         const suggestionsContainer = document.createElement('div');
         suggestionsContainer.classList.add('autocomplete-suggestions');
@@ -446,26 +570,26 @@ function initItineraryBuilder() {
         suggestionsContainer.style.zIndex = '1000';
         suggestionsContainer.style.borderRadius = '0 0 4px 4px';
         suggestionsContainer.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-        
+
         customDestInput.style.position = 'relative';
         customDestInput.appendChild(suggestionsContainer);
-        
+
         // Variable to store the current place details - defined outside the Google API check
         let currentPlaceDetails = null;
-        
+
         // Initialize Google Places Autocomplete if Google Maps API is available
         if (typeof google !== 'undefined' && google.maps && google.maps.places) {
             // Create autocomplete service
             const autocompleteService = new google.maps.places.AutocompleteService();
             const placesService = new google.maps.places.PlacesService(document.createElement('div'));
-            
+
             // Handle input changes
-            customDestName.addEventListener('input', function() {
+            customDestName.addEventListener('input', function () {
                 const query = this.value.trim();
-                
+
                 // Reset place details when input changes
                 currentPlaceDetails = null;
-                
+
                 if (query.length > 2) {
                     // Search for places matching the query
                     autocompleteService.getPlacePredictions({
@@ -476,16 +600,16 @@ function initItineraryBuilder() {
                     suggestionsContainer.style.display = 'none';
                 }
             });
-            
+
             // Display suggestions
             function displaySuggestions(predictions, status) {
                 suggestionsContainer.innerHTML = '';
-                
+
                 if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
                     suggestionsContainer.style.display = 'none';
                     return;
                 }
-                
+
                 predictions.forEach(prediction => {
                     const item = document.createElement('div');
                     item.classList.add('suggestion-item');
@@ -493,38 +617,38 @@ function initItineraryBuilder() {
                     item.style.padding = '8px 12px';
                     item.style.cursor = 'pointer';
                     item.style.borderBottom = '1px solid #eee';
-                    
+
                     // Hover effect
-                    item.addEventListener('mouseenter', function() {
+                    item.addEventListener('mouseenter', function () {
                         this.style.backgroundColor = '#f5f5f5';
                     });
-                    
-                    item.addEventListener('mouseleave', function() {
+
+                    item.addEventListener('mouseleave', function () {
                         this.style.backgroundColor = 'white';
                     });
-                    
+
                     // Select suggestion
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function () {
                         customDestName.value = prediction.description;
                         suggestionsContainer.style.display = 'none';
-                        
+
                         // Get place details to have more information when creating the activity
                         placesService.getDetails({
                             placeId: prediction.place_id,
                             fields: ['name', 'formatted_address', 'types']
-                        }, function(place, status) {
+                        }, function (place, status) {
                             if (status === google.maps.places.PlacesServiceStatus.OK) {
                                 // Store place details for later use
                                 currentPlaceDetails = place;
-                                
+
                                 // Auto-select activity type based on place type if possible
                                 const placeType = getPlaceType(place.types);
                                 const typeSelect = document.getElementById('custom-destination-type');
                                 if (typeSelect && placeType) {
                                     const options = Array.from(typeSelect.options);
-                                    const matchingOption = options.find(option => 
+                                    const matchingOption = options.find(option =>
                                         option.value.toLowerCase() === placeType.toLowerCase());
-                                    
+
                                     if (matchingOption) {
                                         typeSelect.value = matchingOption.value;
                                     }
@@ -532,17 +656,17 @@ function initItineraryBuilder() {
                             }
                         });
                     });
-                    
+
                     suggestionsContainer.appendChild(item);
                 });
-                
+
                 if (predictions.length > 0) {
                     suggestionsContainer.style.display = 'block';
                 } else {
                     suggestionsContainer.style.display = 'none';
                 }
             }
-            
+
             // Map Google place types to activity types
             function getPlaceType(types) {
                 if (types.includes('restaurant') || types.includes('food')) return 'food';
@@ -552,63 +676,63 @@ function initItineraryBuilder() {
                 if (types.includes('shopping_mall') || types.includes('store')) return 'shopping';
                 return 'other';
             }
-            
+
             // Close suggestions when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!customDestInput.contains(e.target)) {
                     suggestionsContainer.style.display = 'none';
                 }
             });
-            
+
             // Handle keyboard navigation in the suggestions
-            customDestName.addEventListener('keydown', function(e) {
+            customDestName.addEventListener('keydown', function (e) {
                 const items = suggestionsContainer.querySelectorAll('.suggestion-item');
                 const activeItem = suggestionsContainer.querySelector('.suggestion-item.active');
                 let activeIndex = -1;
-                
+
                 if (items.length === 0) return;
-                
+
                 // Find the current active item index
                 if (activeItem) {
                     activeIndex = Array.from(items).indexOf(activeItem);
                 }
-                
+
                 // Handle arrow keys
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
-                    
+
                     if (suggestionsContainer.style.display === 'none') {
                         suggestionsContainer.style.display = 'block';
                         activeIndex = -1;
                     }
-                    
+
                     // Remove active from current item
                     if (activeItem) {
                         activeItem.classList.remove('active');
                         activeItem.style.backgroundColor = 'white';
                     }
-                    
+
                     // Set active to next item, or first if at end
                     activeIndex = (activeIndex + 1) % items.length;
                     items[activeIndex].classList.add('active');
                     items[activeIndex].style.backgroundColor = '#f5f5f5';
-                    
+
                     // Scroll into view if needed
                     items[activeIndex].scrollIntoView({ block: 'nearest' });
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    
+
                     // Remove active from current item
                     if (activeItem) {
                         activeItem.classList.remove('active');
                         activeItem.style.backgroundColor = 'white';
                     }
-                    
+
                     // Set active to previous item, or last if at beginning
                     activeIndex = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
                     items[activeIndex].classList.add('active');
                     items[activeIndex].style.backgroundColor = '#f5f5f5';
-                    
+
                     // Scroll into view if needed
                     items[activeIndex].scrollIntoView({ block: 'nearest' });
                 } else if (e.key === 'Enter' && activeItem) {
@@ -619,7 +743,7 @@ function initItineraryBuilder() {
                 }
             });
         }
-        
+
         // Single click handler for the Add button - works with or without Google Maps API
         addCustomBtn.addEventListener('click', function () {
             const name = document.getElementById('custom-destination-name').value.trim();
@@ -639,7 +763,7 @@ function initItineraryBuilder() {
             // Clear form
             document.getElementById('custom-destination-name').value = '';
             currentPlaceDetails = null;
-            
+
             // Hide suggestions
             suggestionsContainer.style.display = 'none';
         });
@@ -679,7 +803,7 @@ function populateSelectedAttractions() {
     // Create a draggable list of selected attractions
     selectedCards.forEach(card => {
         const attractionId = parseInt(card.getAttribute('data-id'));
-        const attraction = nycAttractions.find(a => a.id === attractionId);
+        const attraction = attractionsData.find(a => a.id === attractionId);
 
         if (attraction) {
             const item = document.createElement('div');
@@ -840,7 +964,7 @@ function addCustomActivity(name, type, dayId, placeDetails) {
 
     const activityItem = document.createElement('div');
     activityItem.classList.add('activity-item', 'custom-activity');
-    
+
     // Create description text based on available information
     let description = 'Custom activity added by you';
     if (placeDetails && placeDetails.formatted_address) {
@@ -997,7 +1121,7 @@ function generateDayTabs(days, startDate = null) {
             this.classList.remove('dragover');
 
             const attractionId = parseInt(e.dataTransfer.getData('text/plain'));
-            const attraction = nycAttractions.find(a => a.id === attractionId);
+            const attraction = attractionsData.find(a => a.id === attractionId);
 
             if (attraction) {
                 addAttractionToDay(attraction, i);
@@ -1014,10 +1138,37 @@ function loadRecommendationCards() {
     const selectedCount = document.getElementById('selected-count');
     let selectionCounter = 0;
 
-    // Limit attractions to 9 results maximum
-    const limitedAttractions = nycAttractions.slice(0, 9);
+    // Clear any existing cards
+    cardContainer.innerHTML = '';
 
-    // Create cards for NYC attractions (limited to 9)
+    // Show loading state if we don't have data yet
+    if (attractionsData.length === 0) {
+        cardContainer.innerHTML = `
+            <div class="loading-attractions">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading attractions...</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Limit attractions to 9 results maximum
+    const limitedAttractions = attractionsData.slice(0, 9);
+
+    // Get current destination for fallback address
+    let currentDestination = "Unknown Location";
+    const destinationTag = document.querySelector('.destination-tag');
+    if (destinationTag) {
+        currentDestination = destinationTag.textContent.trim();
+    } else {
+        // Try to get from session storage if not in UI
+        const storedDestination = sessionStorage.getItem('planning_destination');
+        if (storedDestination) {
+            currentDestination = storedDestination;
+        }
+    }
+
+    // Create cards for attractions (limited to 9)
     limitedAttractions.forEach(attraction => {
         const card = document.createElement('div');
         card.classList.add('recommendation-card');
@@ -1029,7 +1180,7 @@ function loadRecommendationCards() {
                 <p class="card-description">${attraction.description}</p>
                 <div class="card-info">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span>New York City, USA</span>
+                    <span>${attraction.address || currentDestination}</span>
                 </div>
             </div>
             <div class="card-footer">
@@ -1099,7 +1250,7 @@ function saveTripToDatabase() {
 function updateActivityCounter() {
     const activities = document.querySelectorAll('.activity-item');
     const counter = document.getElementById('summary-activities');
-    
+
     if (counter) {
         counter.textContent = activities.length;
     }
