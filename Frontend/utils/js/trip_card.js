@@ -7,6 +7,7 @@ let currentDayIndex = -1;
 let placesService;
 let pendingTripId = null; // Store the trip ID until Google Maps is ready
 let currentBounds = null; // Store the current map bounds for resizing
+let tripDetails = null; // Store complete trip information including start_date
 
 // Initialize loading state
 document.addEventListener('DOMContentLoaded', () => {
@@ -140,6 +141,43 @@ async function loadTripData(tripId) {
     try {
         console.log('Loading trip data for ID:', tripId);
 
+        // First get the complete trip details
+        const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+        if (!userEmail) {
+            throw new Error("User not logged in");
+        }
+        
+        // Fetch full trip details
+        console.log("Fetching complete trip details");
+        const tripDetailsUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips/${tripId}`;
+        const detailsResponse = await fetch(tripDetailsUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Email': userEmail
+            }
+        });
+        
+        if (!detailsResponse.ok) {
+            throw new Error(`Failed to load trip details: ${detailsResponse.statusText}`);
+        }
+        
+        const detailsData = await detailsResponse.json();
+        console.log('Trip details loaded:', detailsData);
+        
+        // Extract trip details from the response
+        if (detailsData.statusCode && detailsData.body) {
+            // API Gateway Lambda proxy format
+            const bodyContent = typeof detailsData.body === 'string' ? JSON.parse(detailsData.body) : detailsData.body;
+            tripDetails = bodyContent.trip || bodyContent;
+        } else {
+            // Direct format
+            tripDetails = detailsData.trip || detailsData;
+        }
+        
+        console.log('Parsed trip details:', tripDetails);
+
+        // Now fetch the route data
         const routeUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/routing?trip_id=${tripId}`;
         const routeResponse = await fetch(routeUrl);
 
@@ -282,10 +320,88 @@ function updateTripSummary(firstDay) {
     
     console.log("Trip title:", tripTitle);
     
+    // Use trip title from trip details if available
+    if (tripDetails && tripDetails.title) {
+        tripTitle = tripDetails.title;
+    }
+    
     document.getElementById("trip-title").textContent = tripTitle;
-    document.getElementById("trip-dates").innerHTML = `<i class="fas fa-calendar"></i> ${formatDate(new Date())}`;
+    
+    // Date calculation ----------------------
+    // Get start date from tripDetails
+    if (!tripDetails || !tripDetails.start_date) {
+        console.error("No trip start date available!");
+        document.getElementById("trip-dates").innerHTML = `<i class="fas fa-calendar"></i> Dates not available`;
     document.getElementById("trip-duration").innerHTML = `<i class="fas fa-clock"></i> ${tripData.length} days`;
-    document.getElementById("trip-status").innerHTML = `<i class="fas fa-info-circle"></i> Active`;
+        document.getElementById("trip-status").innerHTML = `<i class="fas fa-info-circle"></i> Unknown`;
+        return;
+    }
+    
+    // Parse start date properly (ensure it's in YYYY-MM-DD format to avoid time zone issues)
+    let startDateStr = tripDetails.start_date;
+    if (startDateStr.includes('T')) {
+        // If ISO format with time, extract just the date part
+        startDateStr = startDateStr.split('T')[0];
+    }
+    console.log(`Parsing start date: ${startDateStr}`);
+    
+    const tripStartDate = new Date(startDateStr + 'T00:00:00');
+    
+    // Make sure start date is valid
+    if (isNaN(tripStartDate.getTime())) {
+        console.error(`Invalid start date: ${tripDetails.start_date}`);
+        document.getElementById("trip-dates").innerHTML = `<i class="fas fa-calendar"></i> Invalid date`;
+        return;
+    }
+    
+    console.log(`Trip start date parsed as: ${tripStartDate.toISOString()}`);
+    
+    // Get trip duration (integer)
+    const duration = Math.max(1, parseInt(tripDetails.duration) || tripData.length);
+    
+    // Calculate end date correctly (start date + duration - 1)
+    const tripEndDate = new Date(tripStartDate);
+    tripEndDate.setDate(tripStartDate.getDate() + duration - 1);
+    
+    console.log(`Trip date calculation:
+      Start date: ${tripStartDate.toISOString()}
+      Duration: ${duration} days
+      End date: ${tripEndDate.toISOString()}`);
+    
+    // Format dates properly for display
+    const dateRange = `${formatDate(tripStartDate)} - ${formatDate(tripEndDate)}`;
+    
+    // Update the UI with the correct date information
+    document.getElementById("trip-dates").innerHTML = `<i class="fas fa-calendar"></i> ${dateRange}`;
+    document.getElementById("trip-duration").innerHTML = `<i class="fas fa-clock"></i> ${duration} days`;
+    
+    // Set trip status based on the calculated dates
+    const status = calculateTripStatus(tripStartDate, duration);
+    document.getElementById("trip-status").innerHTML = `<i class="fas fa-info-circle"></i> ${status}`;
+}
+
+// Helper function to calculate trip status
+function calculateTripStatus(startDate, duration) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to beginning of day for accurate comparison
+    
+    // Ensure startDate is a Date object
+    const tripStart = new Date(startDate);
+    tripStart.setHours(0, 0, 0, 0);
+    
+    // Calculate end date
+    const tripEnd = new Date(tripStart);
+    tripEnd.setDate(tripStart.getDate() + (parseInt(duration) || 0) - 1);
+    tripEnd.setHours(23, 59, 59, 999); // End of the day
+    
+    // Determine status
+    if (tripEnd < today) {
+        return "Completed";
+    } else if (tripStart <= today && today <= tripEnd) {
+        return "In Progress";
+    } else {
+        return "Upcoming";
+    }
 }
 
 function formatDate(date) {
@@ -320,15 +436,52 @@ function renderDayButtons() {
 
 // Function to update weather for a specific day
 function updateWeatherForDay(dayIndex) {
-    if (!tripData || dayIndex < 0 || dayIndex >= tripData.length) return;
+    if (!tripData || tripData.length === 0) return;
+    
+    // Ensure the dayIndex is valid
+    if (dayIndex < 0 || dayIndex >= tripData.length) {
+        dayIndex = 0; // Fallback to the first day
+    }
     
     const day = tripData[dayIndex];
-    const cityName = extractCityFromAddress(day.destination);
     
+    // Show a loading indicator in the weather section only (not full screen)
+    const weatherContent = document.getElementById("weather-content");
+    weatherContent.innerHTML = `<div class="loading-placeholder">Finding location and loading weather...</div>`;
+    
+    // Get city from the first location of that day (origin)
+    // The extractCityFromAddress function will now handle the API calls and update the weather
+    let cityName = extractCityFromAddress(day.origin);
+    
+    // If we got an immediate city result, use it
     if (cityName) {
-        console.log(`Loading weather for day ${dayIndex + 1} (${cityName})`);
+        console.log(`Using immediate city result: ${cityName} for day ${dayIndex + 1}`);
         fetchWeatherData(cityName);
+        return;
     }
+    
+    // If origin didn't yield an immediate result, try destination (the Google API call from origin might still be processing)
+    if (day.destination && day.destination !== day.origin) {
+        cityName = extractCityFromAddress(day.destination);
+        if (cityName) {
+            console.log(`Using destination city: ${cityName} for day ${dayIndex + 1}`);
+            fetchWeatherData(cityName);
+            return;
+        }
+    }
+    
+    // If still no immediate result, try first day's origin as fallback
+    if (tripData.length > 0 && tripData[0].origin && tripData[0].origin !== day.origin) {
+        cityName = extractCityFromAddress(tripData[0].origin);
+        if (cityName) {
+            console.log(`Using trip start city: ${cityName} for day ${dayIndex + 1}`);
+            fetchWeatherData(cityName);
+            return;
+        }
+    }
+    
+    // If we reach this point with no immediate city name, the API calls will eventually update the weather
+    // or the findMostCommonCityInTrip fallback will be used
 }
 
 async function showSingleRoute(index) {
@@ -594,6 +747,11 @@ async function showAllRoutes() {
         });
 
         map.fitBounds(currentBounds);
+        
+        // When showing all routes, use the start city of the trip for weather
+        if (tripData && tripData.length > 0) {
+            updateWeatherForDay(0); // Use the first day's location for weather
+        }
     } catch (error) {
         console.error("Error showing all routes:", error);
         showError("Failed to show all routes");
@@ -646,42 +804,103 @@ function handlePlacesError(status) {
 
 // Weather Functions using OpenWeatherMap API
 async function fetchWeatherData(city) {
+    if (!city) {
+        console.error("Cannot fetch weather: city name is missing");
+        const weatherContent = document.getElementById("weather-content");
+        weatherContent.innerHTML = `
+            <div class="weather-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Unable to determine location for weather</p>
+                <p class="weather-help-text">Try selecting a different day</p>
+            </div>
+        `;
+        return;
+    }
+
     try {
         console.log(`Loading weather forecast for ${city}`);
         
-        // Show loading state
+        // Clean up city name for OpenWeatherMap API
+        // Remove any trailing periods, commas, or other non-alphanumeric characters
+        let cleanCityName = city.trim().replace(/[^\w\s,-]/g, '');
+        
+        // For multi-word city names like "New York", ensure proper formatting
+        cleanCityName = cleanCityName.replace(/\s+/g, ' ');
+        
+        // If the city already contains a state/country code (e.g., "New York, NY"), 
+        // we'll keep it as is since OpenWeatherMap can handle this format
+        
+        console.log(`Using cleaned city name: ${cleanCityName}`);
+        
+        // Show loading state in the weather section only
         const weatherContent = document.getElementById("weather-content");
-        weatherContent.innerHTML = `<div class="loading-placeholder">Loading weather for ${city}...</div>`;
+        weatherContent.innerHTML = `<div class="loading-placeholder">Loading weather for ${cleanCityName}...</div>`;
         
         // Get API key from config
         const apiKey = config.openWeatherMap.apiKey;
         
         // Fetch current weather
-        const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&units=metric&appid=${apiKey}`;
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cleanCityName)}&units=metric&appid=${apiKey}`;
         console.log("Fetching weather with URL:", weatherUrl);
         
         const response = await fetch(weatherUrl);
         
         if (!response.ok) {
+            // If specific city name fails, try different approaches
+            if (response.status === 404) {
+                // Try a different approach based on the format of the city name
+                if (cleanCityName.includes(",")) {
+                    // If it has a comma (like "New York, NY"), try just the first part
+                    const mainCity = cleanCityName.split(",")[0].trim();
+                    console.log(`City with state/country not found, trying just the city: ${mainCity}`);
+                    return fetchWeatherData(mainCity);
+                } else if (cleanCityName.includes(" ")) {
+                    // If it's a multi-word city (like "New York"), try appending a country code
+                    console.log(`City not found, trying with US country code`);
+                    return fetchWeatherData(`${cleanCityName}, US`);
+                } else if (!/^[a-zA-Z\s]+$/.test(cleanCityName)) {
+                    // If the city contains non-alphabetic characters, try to further clean it
+                    const alphabeticOnly = cleanCityName.replace(/[^a-zA-Z\s]/g, '');
+                    console.log(`Trying with alphabetic characters only: ${alphabeticOnly}`);
+                    return fetchWeatherData(alphabeticOnly);
+                }
+            }
+            
             throw new Error(`Weather API error: ${response.status}`);
         }
         
         const data = await response.json();
         console.log("Weather data received:", data);
         
+        // Store this successful city name for future reference
+        localStorage.setItem('lastSuccessfulCityName', cleanCityName);
+        
         // Display the weather data
-        displayWeatherForecast(city, data);
+        displayWeatherForecast(cleanCityName, data);
     } catch (error) {
         console.error("Error loading weather:", error);
         const weatherContent = document.getElementById("weather-content");
+        
+        // Try to get the last successful city name from storage
+        const lastSuccessfulCity = localStorage.getItem('lastSuccessfulCityName');
+        
         weatherContent.innerHTML = `
             <div class="weather-error">
                 <i class="fas fa-exclamation-circle"></i>
                 <p>Failed to load weather forecast</p>
                 <p class="weather-help-text">${error.message}</p>
+                <div class="weather-error-actions">
                 <button onclick="fetchWeatherData('${city}')" class="btn-retry">
                     <i class="fas fa-redo"></i> Retry
                 </button>
+                    ${lastSuccessfulCity && lastSuccessfulCity !== city ? 
+                      `<button onclick="fetchWeatherData('${lastSuccessfulCity}')" class="btn-alternate">
+                          Try "${lastSuccessfulCity}" instead
+                       </button>` : ''}
+                    <button onclick="fetchWeatherData('New York')" class="btn-fallback">
+                        <i class="fas fa-map-marker-alt"></i> Use New York
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -692,28 +911,62 @@ function displayWeatherForecast(city, data) {
     weatherContent.innerHTML = "";
     
     if (data && data.list && data.list.length > 0) {
-        // Add city name as header
+        // Add city name as header with country name if available
         const cityHeader = document.createElement("div");
         cityHeader.className = "weather-city";
-        cityHeader.innerHTML = `<h4>${city}</h4>`;
+        
+        // Extract city and country from API response
+        const cityName = data.city ? data.city.name : city;
+        const countryCode = data.city ? data.city.country : "";
+        
+        // Format location name with both city and country
+        let locationText = cityName;
+        if (countryCode) {
+            locationText = `${cityName}, ${countryCode}`;
+        }
+        
+        cityHeader.innerHTML = `<h4>${locationText}</h4>`;
         weatherContent.appendChild(cityHeader);
         
         // Group forecast by day (OpenWeatherMap returns 3-hour forecasts)
         const dailyForecasts = groupForecastsByDay(data.list);
         
-        // Get the current date (trip start date)
-        const tripStartDate = new Date();
+        // Get the trip start date from tripDetails if available, otherwise use current date
+        let tripStartDate;
+        if (tripDetails && tripDetails.start_date) {
+            // Parse start date properly (ensure it's in YYYY-MM-DD format to avoid time zone issues)
+            let startDateStr = tripDetails.start_date;
+            if (startDateStr.includes('T')) {
+                // If ISO format with time, extract just the date part
+                startDateStr = startDateStr.split('T')[0];
+            }
+            
+            tripStartDate = new Date(startDateStr + 'T00:00:00');
+            
+            if (isNaN(tripStartDate.getTime())) {
+                console.error(`Invalid trip start date: ${tripDetails.start_date}, using current date instead`);
+                tripStartDate = new Date();
+            }
+        } else {
+            tripStartDate = new Date();
+        }
         
         // Calculate date for the selected day based on current day index
         const selectedDay = tripData[currentDayIndex >= 0 ? currentDayIndex : 0];
         const selectedDayNumber = selectedDay ? selectedDay.day_number : 1;
         
-        // Calculate the date for the selected day
+        // Calculate the date for the selected day by adding days to trip start date
         const selectedDate = new Date(tripStartDate);
         selectedDate.setDate(tripStartDate.getDate() + (selectedDayNumber - 1));
         
+        console.log(`Weather date calculation:
+          Trip start date: ${tripStartDate.toISOString()}
+          Selected day number: ${selectedDayNumber}
+          Date for forecast: ${selectedDate.toISOString()}`);
+        
         // Format the date to match the forecast data
         const dateStr = formatDateForWeather(selectedDate);
+        console.log(`Looking for weather data for date: ${dateStr}`);
         
         // Get the forecast for the selected day
         const forecast = dailyForecasts[dateStr];
@@ -769,7 +1022,8 @@ function displayWeatherForecast(city, data) {
             weatherContent.innerHTML = `
                 <div class="weather-error">
                     <i class="fas fa-exclamation-circle"></i>
-                    <p>Weather forecast not available for ${city} on this date</p>
+                    <p>Weather forecast not available for ${locationText} on this date</p>
+                    <p class="weather-help-text">Forecast date: ${dateStr}</p>
                 </div>
             `;
         }
@@ -914,10 +1168,10 @@ async function showLocationDetails(placeId, locationName, lat, lng) {
         }
 
         displayLocationDetails(placeDetails);
-        hideLoading();
     } catch (error) {
         console.error("Error fetching location details:", error);
         showError("Failed to load location details");
+    } finally {
         hideLoading();
     }
 }
@@ -927,7 +1181,6 @@ function displayLocationDetails(place) {
 
     // Debug place object
     console.log("Place details:", place);
-    console.log("Photos available:", place.photos);
     
     // Update header
     document.getElementById('location-name').textContent = place.name;
@@ -946,7 +1199,7 @@ function displayLocationDetails(place) {
     }
 
     // Update address
-    document.querySelector('#location-address span').textContent = place.formatted_address;
+    document.querySelector('#location-address span').textContent = place.formatted_address || 'Address not available';
 
     // Update phone
     const phoneElement = document.querySelector('#location-phone span');
@@ -960,7 +1213,11 @@ function displayLocationDetails(place) {
     const websiteElement = document.querySelector('#location-website a');
     if (place.website) {
         websiteElement.href = place.website;
+        try {
         websiteElement.textContent = new URL(place.website).hostname;
+        } catch (e) {
+            websiteElement.textContent = place.website;
+        }
     } else {
         websiteElement.href = '#';
         websiteElement.textContent = 'No website available';
@@ -979,14 +1236,11 @@ function displayLocationDetails(place) {
     // Update photos
     const photosElement = document.getElementById('location-photos-gallery');
     if (place.photos && place.photos.length > 0) {
-        console.log("First photo object:", place.photos[0]);
-        // Use getUrl method for photos instead of constructing URL with photo_reference
         photosElement.innerHTML = place.photos
             .slice(0, 6) // Show up to 6 photos
             .map(photo => {
                 // Use the getUrl() method provided by Google Maps API
                 const photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
-                console.log("Generated photo URL:", photoUrl);
                 return `<img src="${photoUrl}" alt="${place.name}">`;
             })
             .join('');
@@ -1023,110 +1277,162 @@ function displayLocationDetails(place) {
 
 // Helper function to extract city name from address
 function extractCityFromAddress(address) {
-    if (!address) return "New York"; // Default fallback
+    if (!address) return null;
     
     console.log(`Extracting city from: ${address}`);
     
-    // If the address has no commas, it might be a landmark or attraction name
-    // In this case, we need to determine the city based on context
-    if (!address.includes(',')) {
-        // For testing purpose, we'll use the most common city that appears in the trip data
-        return findMostCommonCityInTrip() || "New York";
+    // If the address already contains a properly formatted city name, use that
+    if (address.includes(',')) {
+        const parts = address.split(',').map(part => part.trim());
+        
+        // Check for formats like "New York, NY" -> extract "New York"
+        if (parts.length === 2 && parts[1].match(/^\s*[A-Z]{2}\s*$/)) {
+            console.log(`Found "City, State" format - extracting: ${parts[0]}`);
+            return parts[0]; // Just the city name
+        }
     }
     
-    // Split by commas and clean the parts
-    const parts = address.split(',').map(part => part.trim());
-    
-    // For addresses with format: "Street, City, State ZIP"
-    if (parts.length >= 2) {
-        // Check common US patterns
-        // If second part contains 2-letter state code (e.g., NY, CA)
-        const stateCodeMatch = parts[1].match(/\b([A-Z]{2})\b/);
-        if (stateCodeMatch) {
-            const stateCode = stateCodeMatch[1];
-            
-            // For New York
-            if (stateCode === "NY") {
-                return "New York";
+    // Use Google Places API to get better location data
+    if (placesService) {
+        // Use geocode service to get proper address components
+        const geocoder = new google.maps.Geocoder();
+        
+        geocoder.geocode({ address: address }, (results, status) => {
+            if (status === google.maps.GeocoderStatus.OK && results && results.length > 0) {
+                // Log the full results for debugging
+                console.log("Geocoder results:", results[0]);
+                
+                // Get the address components
+                const addressComponents = results[0].address_components;
+                let cityName = null;
+                
+                // First try to find the locality (city) component
+                for (const component of addressComponents) {
+                    if (component.types.includes('locality')) {
+                        // This is the city/town component
+                        cityName = component.long_name;
+                        console.log(`Google Geocoder found city (locality): ${cityName}`);
+                        
+                        // We found a proper city, use it immediately
+                        fetchWeatherData(cityName);
+                        return;
+                    }
+                }
+                
+                // If no locality found, try sublocality or administrative_area_level_2 (county)
+                for (const component of addressComponents) {
+                    if (component.types.includes('sublocality') || 
+                        component.types.includes('sublocality_level_1')) {
+                        cityName = component.long_name;
+                        console.log(`Google Geocoder found sublocality: ${cityName}`);
+                        fetchWeatherData(cityName);
+                        return;
+                    } else if (component.types.includes('administrative_area_level_2') && !cityName) {
+                        // This is usually a county in the US
+                        cityName = component.long_name;
+                        console.log(`Google Geocoder found county: ${cityName}`);
+                        // Don't return yet, keep looking for better matches
+                    }
+                }
+                
+                // If we still don't have a city, use administrative_area_level_1 (state/province)
+                for (const component of addressComponents) {
+                    if (component.types.includes('administrative_area_level_1')) {
+                        cityName = component.long_name;
+                        console.log(`Google Geocoder found state/province: ${cityName}`);
+                        fetchWeatherData(cityName);
+                        return;
+                    }
+                }
+                
+                // If we got this far but found a county earlier, use that
+                if (cityName) {
+                    console.log(`Using county name from Geocoder: ${cityName}`);
+                    fetchWeatherData(cityName);
+                    return;
+                }
+                
+                // If no city components found but we have formatted address, extract from that
+                const formattedAddress = results[0].formatted_address;
+                if (formattedAddress) {
+                    console.log(`Using formatted address: ${formattedAddress}`);
+                    const addressParts = formattedAddress.split(',').map(part => part.trim());
+                    
+                    // Try to find a suitable part - not the first (usually street) or last (usually country)
+                    if (addressParts.length >= 3) {
+                        // Use second part as it's often the city
+                        const potentialCity = addressParts[1];
+                        console.log(`Extracted city from formatted address: ${potentialCity}`);
+                        fetchWeatherData(potentialCity);
+                        return;
+                    } else if (addressParts.length === 2) {
+                        // For 2-part addresses, use the first part unless it looks like a street address
+                        const firstPart = addressParts[0];
+                        if (!firstPart.match(/^\d+/) && !firstPart.includes("Street") && !firstPart.includes("Avenue")) {
+                            console.log(`Using first part of address: ${firstPart}`);
+                            fetchWeatherData(firstPart);
+                            return;
+                        }
+                    }
+                }
             }
             
-            // For other states, use the first part (which should be the city)
-            // But check if first part looks like a street address (has numbers)
-            if (!parts[0].match(/\d+/)) {
-                return parts[0]; // Likely the city name
-            }
-        }
-        
-        // For "Landmark, City, State" format, the city is in the second part
-        if (parts.length >= 3 && !parts[1].match(/\d+/)) {
-            return parts[1];
-        }
-        
-        // For "City, State" format, the city is in the first part
-        if (parts.length === 2 && !parts[0].match(/\d+/)) {
-            return parts[0];
-        }
-    }
-    
-    // If we can't determine the city, check context from other trip locations
-    const contextCity = findMostCommonCityInTrip();
-    if (contextCity) {
-        return contextCity;
-    }
-    
-    // Last resort: clean the address and return something usable
-    return address.replace(/\d+/g, '').replace(/,/g, ' ').trim() || "New York";
-}
-
-// Helper function to find the most common city in the trip
-function findMostCommonCityInTrip() {
-    if (!tripData || tripData.length === 0) return null;
-    
-    // Collect all addresses
-    const addresses = [];
-    
-    tripData.forEach(day => {
-        if (day.origin && day.origin.includes(',')) addresses.push(day.origin);
-        if (day.destination && day.destination.includes(',')) addresses.push(day.destination);
-        if (day.waypoints) {
-            day.waypoints.forEach(waypoint => {
-                if (waypoint && waypoint.includes(',')) addresses.push(waypoint);
+            console.log(`Google Geocoder could not find city, trying Places API`);
+            
+            // Fallback to Places API
+            const request = {
+                query: address,
+                fields: ['name', 'formatted_address']
+            };
+            
+            placesService.findPlaceFromQuery(request, (placeResults, placeStatus) => {
+                if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
+                    const formattedAddress = placeResults[0].formatted_address;
+                    console.log(`Google Places API returned: ${formattedAddress}`);
+                    
+                    // Try to extract the city from the formatted address
+                    if (formattedAddress && formattedAddress.includes(',')) {
+                        const parts = formattedAddress.split(',').map(part => part.trim());
+                        
+                        // Look for the city part - it's usually the second-to-last part in US addresses
+                        // like "New York, NY, USA" -> extract "New York"
+                        if (parts.length >= 3) {
+                            // Try the second part first (common city position)
+                            let cityPart = parts[parts.length - 2].replace(/\b[A-Z]{2}\b/g, '').trim();
+                            
+                            // If that looks like a state code or ZIP, try the part before it
+                            if (!cityPart || cityPart.length <= 2 || /^\d+$/.test(cityPart)) {
+                                cityPart = parts[parts.length - 3].trim();
+                            }
+                            
+                            if (cityPart && cityPart !== "USA") {
+                                console.log(`Extracted city from Places API: ${cityPart}`);
+                                fetchWeatherData(cityPart);
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // If we couldn't extract from the address, use the place name as a last resort
+                    const placeName = placeResults[0].name;
+                    if (placeName && placeName.split(' ').length <= 3) {
+                        console.log(`Using place name as city: ${placeName}`);
+                        fetchWeatherData(placeName);
+                        return;
+                    }
+                }
+                
+                // If all Google APIs failed, use trip context
+                const fallbackCity = getFallbackCity();
+                console.log(`Using fallback city: ${fallbackCity}`);
+                fetchWeatherData(fallbackCity);
             });
-        }
-    });
-    
-    // No useful addresses found
-    if (addresses.length === 0) return null;
-    
-    // Extract potential city names (second part after comma)
-    const potentialCities = [];
-    addresses.forEach(address => {
-        const parts = address.split(',');
-        if (parts.length >= 2) {
-            // Try to extract city from second part
-            const cityPart = parts[1].trim();
-            // Clean up state codes and zip codes
-            const cleanCity = cityPart.replace(/\b[A-Z]{2}\b|\d+/g, '').trim();
-            if (cleanCity) potentialCities.push(cleanCity);
-        }
-    });
-    
-    // Count occurrences of each city
-    const cityCounts = {};
-    potentialCities.forEach(city => {
-        cityCounts[city] = (cityCounts[city] || 0) + 1;
-    });
-    
-    // Find the most common city
-    let mostCommonCity = null;
-    let highestCount = 0;
-    
-    for (const city in cityCounts) {
-        if (cityCounts[city] > highestCount) {
-            mostCommonCity = city;
-            highestCount = cityCounts[city];
-        }
+        });
+        
+        // Return null since we're handling this asynchronously
+        return null;
     }
     
-    return mostCommonCity;
+    // If Google Maps API is not available, use fallback
+    return getFallbackCity();
 }

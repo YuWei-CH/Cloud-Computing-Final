@@ -659,9 +659,11 @@ function calculateTripStatus(tripData) {
     const startDate = new Date(tripData.start_date);
     startDate.setHours(0, 0, 0, 0);
 
-    // Calculate end date (start date + duration)
+    // Calculate end date (start date + duration - 1)
+    // Subtract 1 because the duration includes the start date
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + (tripData.duration || 0));
+    endDate.setDate(endDate.getDate() + (parseInt(tripData.duration) || 0) - 1);
+    endDate.setHours(23, 59, 59, 999); // End of the last day
 
     // Determine status
     if (endDate < today) {
@@ -675,16 +677,34 @@ function calculateTripStatus(tripData) {
 
 // Format dates for display
 function formatDateRange(startDateStr, duration) {
+    if (!startDateStr) {
+        return "Date not set";
+    }
+    
+    // Create a new date object with the UTC date string to ensure correct parsing
     const startDate = new Date(startDateStr);
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + (duration || 0));
+    
+    // Adjust for timezone differences if needed
+    // This ensures the date displayed matches the intended input date
+    const timezoneOffset = startDate.getTimezoneOffset() * 60000;
+    const adjustedStartDate = new Date(startDate.getTime() + timezoneOffset);
+    
+    // Create a new date object for the end date
+    const endDate = new Date(adjustedStartDate);
+    
+    // The end date is start date + duration - 1 (since duration includes the start date)
+    endDate.setDate(endDate.getDate() + (parseInt(duration) || 0) - 1);
 
     // Format as MM/DD/YYYY
     const formatDate = (date) => {
+        if (isNaN(date.getTime())) {
+            console.error("Invalid date encountered:", date);
+            return "Invalid date";
+        }
         return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
     };
 
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    return `${formatDate(adjustedStartDate)} - ${formatDate(endDate)}`;
 }
 
 // Helper function to render trip cards from data
