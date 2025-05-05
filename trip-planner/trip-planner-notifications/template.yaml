@@ -5,21 +5,32 @@ Parameters:
   S3BucketForCode:
     Type: String
     Description: S3 bucket for Lambda code zips
+    Default: trip-planner-artifacts-cc
+
   SenderEmail:
     Type: String
-    Description: SES-verified From email address
+    Description: SES‐verified From address
+    Default: dc4806@nyu.edu
+
   DBHostParameter:
     Type: String
     Description: RDS endpoint (host)
+    Default: database-1.czosuqseg7y8.us-east-2.rds.amazonaws.com
+
   DBUserParameter:
     Type: String
     Description: RDS username
+    Default: admin
+
   DBPasswordParameter:
     Type: String
     Description: RDS password
+    Default: admin2025cc
+
   DBNameParameter:
     Type: String
     Description: RDS database name
+    Default: Trip_Planner
 
 Resources:
   AbnormalDataQueue:
@@ -53,6 +64,8 @@ Resources:
       Runtime: python3.9
       Handler: app.handler
       Role: !GetAtt WriteAbnormalDataRole.Arn
+      Timeout: 60
+      MemorySize: 256
       Code:
         S3Bucket: !Ref S3BucketForCode
         S3Key: write_abnormal_data.zip
@@ -115,6 +128,8 @@ Resources:
       Runtime: python3.9
       Handler: app.handler
       Role: !GetAtt FetchAndEmailRole.Arn
+      Timeout: 60
+      MemorySize: 256
       Code:
         S3Bucket: !Ref S3BucketForCode
         S3Key: fetch_and_email.zip
@@ -138,3 +153,64 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt ScheduleFetchAndEmail.Arn
+
+  WriteAbnormalDataRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSQSSend
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt AbnormalDataQueue.Arn
+        - PolicyName: AllowSecretsFetch
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/weather-api-keys-*
+                  - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-*
+
+  FetchAndEmailRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSQSReceiveAndSES
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                Resource: !GetAtt AbnormalDataQueue.Arn
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+        - PolicyName: AllowSecretsFetch
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/weather-api-keys-*
+                  - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-*
