@@ -88,7 +88,11 @@
         /* Card and contained content text styles */
         .card {
             color: #333333; /* Dark text for content on light backgrounds */
-            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            background-color: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(5px) !important;
+            border: 1px solid rgba(230, 230, 230, 0.8) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
         }
         
         /* Keep card text in dark color for readability */
@@ -103,17 +107,33 @@
         .card .section-header h2,
         section .card h2,
         .section-header h2 {
-            color: var(--text-color) !important;
+            color: var(--primary-color) !important;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 8px;
+        }
+        
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
         }
         
         .file-drop-area {
-            background: #f8f9fa;
-            border: 2px dashed var(--primary-color);
+            background: rgba(255, 255, 255, 0.3) !important;
+            border: 2px dashed var(--primary-color) !important;
+            border-radius: 12px !important;
             transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
         
         .file-drop-area:hover {
-            background: #e9ecef;
+            background: rgba(255, 255, 255, 0.5) !important;
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
@@ -122,32 +142,266 @@
             position: relative;
         }
         
-        /* Card styling */
-        .card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e0e0e0;
+        /* Ghibli-style buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 30px !important;
+            box-shadow: 0 4px 12px rgba(62, 147, 145, 0.3) !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
         }
         
-        /* Improved dark mode compatibility - simpler approach */
-        /* Commented out dark mode implementation
-        body.dark-mode {
-            position: relative;
+        .btn-primary:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 6px 15px rgba(62, 147, 145, 0.4) !important;
         }
-
-        body.dark-mode::before {
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.5) !important;
+            border: 1px solid rgba(var(--primary-color-rgb), 0.3) !important;
+            color: var(--text-color) !important;
+            border-radius: 30px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.7) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .main-upload-btn {
+            font-size: 1rem !important;
+            padding: 12px 24px !important;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 30px !important;
+            box-shadow: 0 4px 12px rgba(62, 147, 145, 0.3) !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+        
+        .main-upload-btn:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 6px 15px rgba(62, 147, 145, 0.4) !important;
+        }
+        
+        /* Ticket cards styling */
+        .ticket-card {
+            background-color: rgba(255, 255, 255, 0.6) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid rgba(230, 230, 230, 0.8) !important;
+            transition: all 0.3s ease !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+        
+        .ticket-card::before {
             content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08) !important;
+        }
+        
+        /* Tab styling */
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .delete-ticket {
+            background: transparent !important;
+            color: #dc3545 !important;
+            border: 1px solid #dc3545 !important;
+            border-radius: 20px !important;
+            padding: 6px 12px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .delete-ticket:hover {
+            background: #dc3545 !important;
+            color: white !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        /* Ghibli-style popup modal */
+        .ghibli-popup {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            z-index: 0;
-            pointer-events: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
-        */
+        
+        .ghibli-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .ghibli-popup-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 240, 0.95));
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+            border: 2px solid rgba(var(--primary-color-rgb), 0.3);
+            overflow: hidden;
+        }
+        
+        .ghibli-popup.show .ghibli-popup-content {
+            transform: translateY(0);
+        }
+        
+        .popup-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+        
+        .popup-icon img {
+            width: 100%;
+            height: auto;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .ghibli-popup h3 {
+            color: var(--primary-color) !important;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .ghibli-popup p {
+            color: #555 !important;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        
+        .popup-decoration {
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            width: 140%;
+            height: 120px;
+            background: linear-gradient(135deg, 
+                rgba(var(--primary-color-rgb), 0.1),
+                rgba(var(--secondary-color-rgb), 0.1));
+            transform: rotate(-5deg);
+            z-index: -1;
+        }
+        
+        #popup-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        #popup-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(var(--primary-color-rgb), 0.3);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        /* Loading overlay with Ghibli style */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_icon.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: float 1.5s ease-in-out infinite;
+        }
+        
+        .loading-message {
+            color: white;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
         
         body.dark-mode .dashboard-header h1,
         body.dark-mode .dashboard-header p,
@@ -168,33 +422,6 @@
             background: #2a2a2a;
             border-color: #505050;
         }
-        
-        /* Dark mode toggle style */
-        /* Commented out dark mode toggle
-        .dark-mode-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .dark-mode-toggle:hover {
-            background-color: rgba(0, 0, 0, 0.6);
-            transform: scale(1.1);
-        }
-        */
         
         body.dark-mode .dark-mode-toggle {
             background-color: rgba(255, 255, 255, 0.4);
@@ -241,6 +468,19 @@
             </div>
         </nav>
 
+        <!-- Custom Ghibli-style popup for success messages -->
+        <div id="ghibli-popup" class="ghibli-popup">
+            <div class="ghibli-popup-content">
+                <div class="popup-icon">
+                    <img src="https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_icon.png" alt="Totoro">
+                </div>
+                <h3 id="popup-title">Success!</h3>
+                <p id="popup-message">Your tickets have been uploaded successfully!</p>
+                <div class="popup-decoration"></div>
+                <button id="popup-button" class="btn-primary">Continue</button>
+            </div>
+        </div>
+
         <main class="main-content">
             <header class="dashboard-header">
                 <div class="header-content">
@@ -255,6 +495,64 @@
                     </div>
                 </div>
             </header>
+
+            <style>
+                .header-content {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                    max-width: 800px;
+                    margin: 0 auto 40px;
+                    padding: 30px 20px;
+                    background-color: rgba(255, 255, 255, 0.5);
+                    backdrop-filter: blur(8px);
+                    border-radius: 20px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                }
+                
+                .dashboard-header h1 {
+                    color: var(--primary-color) !important;
+                    font-size: 2.5rem;
+                    margin-bottom: 15px;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+                    position: relative;
+                }
+                
+                .dashboard-header h1::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -8px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 80px;
+                    height: 3px;
+                    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+                    border-radius: 3px;
+                }
+                
+                .header-text {
+                    margin-bottom: 25px;
+                }
+                
+                .header-text p {
+                    font-size: 1.2rem;
+                    color: #555;
+                    max-width: 90%;
+                    margin: 0 auto;
+                }
+                
+                .header-action {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                }
+                
+                .main-upload-btn {
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                }
+            </style>
 
             <div class="upload-container">
                 <section class="card" id="upload-section" style="display: none;">

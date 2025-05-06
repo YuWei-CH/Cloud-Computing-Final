@@ -1,0 +1,560 @@
+/* Ticket Upload Page Styles */
+
+/* Ensure main content is positioned above the background overlay */
+.main-content,
+.upload-container,
+.card,
+.section-header {
+    position: relative;
+    z-index: 1;
+}
+
+.upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.trip-selector {
+    margin-bottom: 20px;
+}
+
+.trip-selector select {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+}
+
+.file-drop-area {
+    border: 2px dashed var(--primary-color);
+    border-radius: 5px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.file-drop-area:hover {
+    background-color: rgba(239, 249, 252, 0.9);
+}
+
+.file-drop-area i {
+    font-size: 40px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.file-drop-area p {
+    margin: 5px 0;
+}
+
+.file-drop-area .small {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* Remove the file-input class styling as we moved the input outside */
+.file-input {
+    display: none;
+}
+
+#file-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.file-preview-item {
+    position: relative;
+    width: 120px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.file-preview-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.file-preview-item .file-name {
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 5px;
+}
+
+.file-preview-item .remove-file {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.upload-progress {
+    height: 5px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.file-error {
+    color: var(--error-color);
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.upload-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.upload-success i {
+    margin-right: 5px;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+}
+
+.loading-indicator i {
+    margin-right: 5px;
+}
+
+.no-trips-message {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.trip-item {
+    padding: 15px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.trip-item:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.trip-item.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+.trip-details {
+    flex: 1;
+}
+
+.trip-actions {
+    margin-left: 15px;
+}
+
+.upload-tickets-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.upload-tickets-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upload-tickets-btn i {
+    margin-right: 5px;
+}
+
+.file-drop-area.dragover {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+}
+
+/* Header layout with upload button */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header-text {
+    flex: 1;
+}
+
+.main-upload-btn {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.main-upload-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.main-upload-btn i {
+    font-size: 1.2rem;
+}
+
+/* Trip dropdown styling */
+#trip-dropdown {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    margin: 10px 0 20px;
+}
+
+/* Trip card item in list to show details only */
+.trip-item {
+    cursor: default;
+    /* Remove pointer cursor as it's not clickable anymore */
+}
+
+/* Ticket Display Styles */
+.tickets-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-light);
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tickets-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.ticket-card {
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.ticket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-type {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.ticket-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.ticket-number {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.ticket-route {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.ticket-city {
+    flex: 1;
+    text-align: center;
+}
+
+.ticket-city .code {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.ticket-city .name {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.ticket-route-divider {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+}
+
+.ticket-route-line {
+    flex: 1;
+    height: 2px;
+    background-color: var(--border-color);
+    position: relative;
+}
+
+.ticket-route-line::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid var(--border-color);
+    border-right: 2px solid var(--border-color);
+    transform: rotate(45deg);
+}
+
+.ticket-route-icon {
+    margin: 0 10px;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.ticket-details {
+    display: flex;
+    margin-top: 15px;
+}
+
+.ticket-detail {
+    flex: 1;
+    text-align: center;
+}
+
+.ticket-detail-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 5px;
+}
+
+.ticket-detail-value {
+    font-weight: 500;
+}
+
+.tickets-empty {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.tickets-empty i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--border-color);
+}
+
+/* Styles for future delete button */
+.ticket-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.delete-ticket {
+    background-color: transparent;
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.delete-ticket:hover {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.delete-ticket i {
+    font-size: 0.9rem;
+}
+
+.ticket-card.deleting {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ticket-card.deleted {
+    opacity: 0;
+    transform: scale(0.8);
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Success toast styling */
+.success-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: rgba(40, 167, 69, 0.9);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.success-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.success-toast i {
+    font-size: 1.2rem;
+}

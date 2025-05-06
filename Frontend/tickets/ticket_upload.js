@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     } catch (error) {
         console.error('Error initializing upload page:', error);
-        showError("There was a problem loading your tickets.");
+        showGhibliPopup("Oops!", "There was a problem loading your tickets.", "Try Again", () => {
+            window.location.reload();
+        });
     }
 });
 
@@ -328,10 +330,25 @@ async function uploadFiles() {
             progressBar.style.width = '0';
         }, 2000);
 
+        // Show Ghibli popup for success
+        showGhibliPopup(
+            "Upload Complete!",
+            `${selectedFiles.length > 1 ? 'Your tickets have' : 'Your ticket has'} been uploaded successfully.`,
+            "View Tickets",
+            function() {
+                // Reload the page to show the new tickets
+                window.location.reload();
+            }
+        );
+
     } catch (error) {
         console.error('Error uploading files:', error);
         hideLoading();
-        showError("Couldn't upload your files. Please try again later.");
+        showGhibliPopup(
+            "Upload Failed",
+            "We couldn't upload your tickets. Please try again later.",
+            "OK"
+        );
     }
 }
 
@@ -345,7 +362,7 @@ function readFileAsArrayBuffer(file) {
     });
 }
 
-// Show loading indicator
+// Show loading indicator with Ghibli style
 function showLoading(message = "Loading...") {
     // Create loading overlay if it doesn't exist
     if (!document.getElementById('loading-overlay')) {
@@ -370,29 +387,47 @@ function hideLoading() {
     }
 }
 
-// Show error message
+// Show error message with Ghibli style
 function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    errorDiv.style.position = 'fixed';
-    errorDiv.style.top = '20px';
-    errorDiv.style.left = '50%';
-    errorDiv.style.transform = 'translateX(-50%)';
-    errorDiv.style.zIndex = '2000';
-    errorDiv.style.padding = '15px 20px';
-    errorDiv.style.borderRadius = '5px';
-    errorDiv.style.backgroundColor = '#f8d7da';
-    errorDiv.style.color = '#721c24';
-    errorDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
+    showGhibliPopup(
+        "Oops!",
+        message,
+        "OK"
+    );
+}
 
-    // Add to page
-    document.body.appendChild(errorDiv);
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 5000);
+// Function to show a custom Ghibli-style popup
+function showGhibliPopup(title, message, buttonText = "OK", callback = null) {
+    const popup = document.getElementById('ghibli-popup');
+    const popupTitle = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupButton = document.getElementById('popup-button');
+    
+    if (!popup || !popupTitle || !popupMessage || !popupButton) {
+        console.error("Popup elements not found, falling back to alert");
+        alert(message);
+        if (callback) callback();
+        return;
+    }
+    
+    // Set popup content
+    popupTitle.textContent = title;
+    popupMessage.textContent = message;
+    popupButton.textContent = buttonText;
+    
+    // Show the popup with animation
+    popup.classList.add('show');
+    
+    // Add button click handler
+    const handleButtonClick = function() {
+        popup.classList.remove('show');
+        popupButton.removeEventListener('click', handleButtonClick);
+        if (callback) {
+            setTimeout(callback, 300); // Wait for animation to complete
+        }
+    };
+    
+    popupButton.addEventListener('click', handleButtonClick);
 }
 
 // Load user tickets from the API
@@ -570,11 +605,16 @@ function renderTickets(tickets, container, type) {
     container.appendChild(ticketsList);
 }
 
-// Confirm before deleting a ticket
+// Confirm before deleting a ticket - using Ghibli popup
 function confirmDeleteTicket(ticketId, ticketElement) {
-    if (confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
-        deleteTicket(ticketId, ticketElement);
-    }
+    showGhibliPopup(
+        "Delete Ticket?",
+        "Are you sure you want to delete this ticket? This action cannot be undone.",
+        "Yes, Delete",
+        function() {
+            deleteTicket(ticketId, ticketElement);
+        }
+    );
 }
 
 // Delete a ticket using the API
@@ -608,15 +648,25 @@ async function deleteTicket(ticketId, ticketElement) {
             // Check if there are no tickets left and show empty message if needed
             updateEmptyState();
 
-            // Show success message
-            showSuccessToast('Ticket deleted successfully');
+            // Show success message using Ghibli popup
+            showGhibliPopup(
+                "Success!",
+                "Your ticket has been deleted successfully.",
+                "OK"
+            );
         }, 300);
 
     } catch (error) {
         console.error('Error deleting ticket:', error);
         ticketElement.classList.remove('deleting');
         ticketElement.querySelector('.delete-ticket').disabled = false;
-        showError("Couldn't delete the ticket. Please try again later.");
+        
+        // Show error message
+        showGhibliPopup(
+            "Delete Failed",
+            "We couldn't delete the ticket. Please try again later.",
+            "OK"
+        );
     }
 }
 
@@ -645,27 +695,4 @@ function updateEmptyState() {
             </div>
         `;
     }
-}
-
-// Show a success toast message
-function showSuccessToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'success-toast';
-    toast.innerHTML = `
-        <i class="fas fa-check-circle"></i>
-        <span>${message}</span>
-    `;
-
-    document.body.appendChild(toast);
-
-    // Animate in
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
 }
