@@ -89,6 +89,12 @@ function initializePlacesService() {
     );
 }
 
+// Helper to generate a temporary ID for new activities
+function generateTempId() {
+    return 'new-' + Math.random().toString(36).substr(2, 9);
+}
+
+// When loading trip data, also load activity IDs if present
 async function loadTripData(tripId) {
     try {
         showLoading("Loading trip data...");
@@ -180,8 +186,24 @@ async function loadTripData(tripId) {
             throw new Error("No itinerary data available");
         }
 
-        // Store all days data
-        allDaysData = itineraryData;
+        // Store all days data, and ensure waypoints are objects with id, name, etc.
+        allDaysData = itineraryData.map(day => {
+            // If waypoints are strings, convert to objects
+            if (Array.isArray(day.waypoints)) {
+                day.waypoints = day.waypoints.map(wp => {
+                    if (typeof wp === 'string') {
+                        return { id: generateTempId(), name: wp, _new: true };
+                    }
+                    // If already object, ensure id and name
+                    if (!wp.id) wp.id = generateTempId();
+                    if (!wp.name && wp.address) wp.name = wp.address;
+                    return wp;
+                });
+            } else {
+                day.waypoints = [];
+            }
+            return day;
+        });
 
         // Generate day tabs
         renderDayTabs(allDaysData);
@@ -283,27 +305,20 @@ function showDay(dayIndex) {
         return;
     }
 
-    // Update current day
     currentDay = dayIndex;
 
-    // Highlight selected tab
     document.querySelectorAll('.day-tab').forEach((tab, index) => {
         tab.classList.toggle('active', index === dayIndex);
     });
 
-    // Get the day data
     const dayData = allDaysData[dayIndex];
-
-    // Render the day content
     const contentContainer = document.querySelector('.day-content');
     contentContainer.innerHTML = '';
 
-    // Create the day form
     const dayForm = document.createElement('form');
     dayForm.className = 'day-form';
     dayForm.id = `day-form-${dayIndex}`;
 
-    // Add instruction notice about what can be edited
     const editNotice = document.createElement('div');
     editNotice.className = 'edit-notice';
     editNotice.innerHTML = `
@@ -311,11 +326,11 @@ function showDay(dayIndex) {
     `;
     dayForm.appendChild(editNotice);
 
-    // Origin field - make read-only
+    // Origin field - read-only
     const originField = createFormField('Origin', `origin-${dayIndex}`, dayData.origin || '', true);
     dayForm.appendChild(originField);
 
-    // Destination field - make read-only
+    // Destination field - read-only again
     const destField = createFormField('Destination', `destination-${dayIndex}`, dayData.destination || '', true);
     dayForm.appendChild(destField);
 
@@ -348,19 +363,18 @@ function showDay(dayIndex) {
     `;
     dayForm.appendChild(dayActions);
 
-    // Add the form to the content container
     contentContainer.appendChild(dayForm);
 
-    // Add event listeners for day actions
+    // Remove event listener for destination input
+    // dayForm.querySelector(`#destination-${dayIndex}`).addEventListener('input', function () { ... });
+
     addDayActionListeners(dayIndex);
-
-    // Populate waypoints
-    populateWaypoints(dayIndex, dayData.waypoints || []);
-
-    // Update activity count in summary
+    // Populate waypoints using the filtered list (excluding _deleted)
+    populateWaypoints(dayIndex, (dayData.waypoints || []).filter(wp => !wp._deleted));
     updateActivityCount();
 }
 
+// Update populateWaypoints to use activity objects
 function populateWaypoints(dayIndex, waypoints) {
     const container = document.getElementById(`waypoints-container-${dayIndex}`);
     container.innerHTML = '';
@@ -378,16 +392,26 @@ function populateWaypoints(dayIndex, waypoints) {
             <input type="text" class="form-control waypoint-input" 
                    id="waypoint-${dayIndex}-${wpIndex}" 
                    name="waypoint-${dayIndex}-${wpIndex}" 
-                   value="${waypoint}" required>
+                   value="${waypoint.name || waypoint}" required
+                   data-activity-id="${waypoint.id || ''}">
             <button type="button" class="btn-text delete-waypoint" data-day="${dayIndex}" data-index="${wpIndex}">
                 <i class="fas fa-times"></i>
             </button>
         `;
         container.appendChild(waypointItem);
+
+        // Mark as modified on change
+        waypointItem.querySelector('input').addEventListener('input', function () {
+            if (waypoints[wpIndex] && !waypoints[wpIndex]._new) {
+                waypoints[wpIndex]._modified = true;
+            }
+            waypoints[wpIndex].name = this.value;
+            waypoints[wpIndex].address = this.value;
+        });
     });
 
     // Add event listeners for delete buttons
-    document.querySelectorAll('.delete-waypoint').forEach(btn => {
+    container.querySelectorAll('.delete-waypoint').forEach(btn => {
         btn.addEventListener('click', function () {
             const dayIdx = parseInt(this.getAttribute('data-day'));
             const wpIdx = parseInt(this.getAttribute('data-index'));
@@ -433,6 +457,7 @@ function addDayActionListeners(dayIndex) {
     }
 }
 
+// Add waypoint as an object
 function addWaypoint(dayIndex) {
     const container = document.getElementById(`waypoints-container-${dayIndex}`);
 
@@ -445,50 +470,41 @@ function addWaypoint(dayIndex) {
     // Get current waypoints
     const currentWaypoints = allDaysData[dayIndex].waypoints || [];
 
-    // Add a new empty waypoint
+    // Add a new empty waypoint (activity)
     const wpIndex = currentWaypoints.length;
-
-    // Add to UI
-    const waypointItem = document.createElement('div');
-    waypointItem.className = 'waypoint-item';
-    waypointItem.innerHTML = `
-        <div class="waypoint-handle"><i class="fas fa-grip-lines"></i></div>
-        <input type="text" class="form-control waypoint-input" 
-               id="waypoint-${dayIndex}-${wpIndex}" 
-               name="waypoint-${dayIndex}-${wpIndex}" 
-               placeholder="Enter location or activity" required>
-        <button type="button" class="btn-text delete-waypoint" data-day="${dayIndex}" data-index="${wpIndex}">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    container.appendChild(waypointItem);
-
-    // Focus the new input
-    waypointItem.querySelector('input').focus();
-
-    // Add event listener for the delete button
-    waypointItem.querySelector('.delete-waypoint').addEventListener('click', function () {
-        deleteWaypoint(dayIndex, wpIndex);
-    });
-
-    // Update the data model
-    currentWaypoints.push('');
+    const newWp = { id: generateTempId(), name: '', address: '', _new: true };
+    currentWaypoints.push(newWp);
     allDaysData[dayIndex].waypoints = currentWaypoints;
-
-    // Update activity count
+    populateWaypoints(dayIndex, currentWaypoints);
+    container.querySelector(`#waypoint-${dayIndex}-${wpIndex}`).focus();
     updateActivityCount();
 }
 
+// Mark deleted activities with _deleted, keep in data, remove from UI
 function deleteWaypoint(dayIndex, waypointIndex) {
-    // Update the data model
     const waypoints = allDaysData[dayIndex].waypoints || [];
-    waypoints.splice(waypointIndex, 1);
-    allDaysData[dayIndex].waypoints = waypoints;
+    // Find the actual waypoint in the full list based on visible index
+    const visibleWaypoints = waypoints.filter(wp => !wp._deleted);
+    if (waypointIndex < 0 || waypointIndex >= visibleWaypoints.length) return;
 
-    // Refresh the UI
-    populateWaypoints(dayIndex, waypoints);
+    const waypointToDelete = visibleWaypoints[waypointIndex];
 
-    // Update activity count
+    if (waypointToDelete && waypointToDelete.id && !waypointToDelete.id.startsWith('new-')) {
+        // Mark existing as deleted
+        waypointToDelete._deleted = true;
+        // Clear other flags
+        delete waypointToDelete._new;
+        delete waypointToDelete._modified;
+    } else {
+        // If it was a new item not yet saved, remove it entirely from the data
+        const actualIndex = waypoints.findIndex(wp => wp.id === waypointToDelete.id);
+        if (actualIndex !== -1) {
+            waypoints.splice(actualIndex, 1);
+        }
+    }
+
+    // Refresh UI with non-deleted waypoints
+    populateWaypoints(dayIndex, waypoints.filter(w => !w._deleted));
     updateActivityCount();
 }
 
@@ -571,6 +587,7 @@ function addNewDay() {
     showDay(allDaysData.length - 1);
 }
 
+// Add custom activity as an object
 function addCustomActivity() {
     const name = document.getElementById('custom-destination-name').value.trim();
     const description = document.getElementById('custom-destination-description').value.trim();
@@ -581,7 +598,12 @@ function addCustomActivity() {
     }
 
     // Format activity
-    const activity = description ? `${name} - ${description}` : name;
+    const activity = {
+        id: generateTempId(),
+        name: description ? `${name} - ${description}` : name,
+        address: description ? `${name} - ${description}` : name,
+        _new: true
+    };
 
     // Add to current day's waypoints
     if (!allDaysData[currentDay].waypoints) {
@@ -625,123 +647,169 @@ function updateActivityCount() {
     document.getElementById('summary-activities').textContent = totalActivities;
 }
 
+// UpdateDaysDataFromForms: update activity objects, mark as _modified if changed
+function updateDaysDataFromForms() {
+    console.log("Updating days data from forms");
+
+    // Update each day's data from the corresponding form
+    allDaysData.forEach((day, index) => {
+        // Save destination for each day
+        const destInput = document.querySelector(`#destination-${index}`);
+        if (destInput) {
+            day.destination = destInput.value;
+        }
+        // ...existing code for waypoints...
+        const waypoints = [];
+        const waypointInputs = document.querySelectorAll(`#waypoints-container-${index} .waypoint-input`);
+        waypointInputs.forEach((input, i) => {
+            const id = input.getAttribute('data-activity-id') || generateTempId();
+            const value = input.value.trim();
+            if (!value) return;
+            let orig = day.waypoints && day.waypoints[i] ? day.waypoints[i] : {};
+            let obj = {
+                id: id,
+                name: value,
+                address: value
+            };
+            if (orig._new) obj._new = true;
+            if (orig._modified) obj._modified = true;
+            waypoints.push(obj);
+        });
+        // Add any _deleted activities (not shown in UI)
+        if (Array.isArray(day.waypoints)) {
+            day.waypoints.forEach(wp => {
+                if (wp._deleted) waypoints.push(wp);
+            });
+        }
+        day.waypoints = waypoints;
+    });
+
+    console.log("Updated days data:", allDaysData);
+}
+
 async function saveTripChanges() {
     try {
         showLoading("Saving trip changes...");
-
-        // Get user email for authentication - IMPORTANT
         const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-        if (!email) {
-            throw new Error("User not logged in. Please login again to continue.");
-        }
+        if (!email) throw new Error("User not logged in. Please login again to continue.");
 
-        // Always save current day's data before proceeding
+        // Save current day data (ensuring objects are saved)
         saveCurrentDayData();
 
-        // First, check if we need to adjust the number of days
+        // Adjust number of days if duration changed
         const newDuration = parseInt(document.getElementById('trip-duration').value);
+        // ... (rest of duration adjustment logic remains the same) ...
         if (newDuration !== allDaysData.length) {
-            // If the user manually edited the duration, we need to add or remove days
             if (newDuration > allDaysData.length) {
-                // Add days
                 for (let i = allDaysData.length; i < newDuration; i++) {
                     const lastDay = allDaysData[allDaysData.length - 1];
                     const newDay = {
                         day_number: i + 1,
                         origin: lastDay ? lastDay.destination : '',
-                        destination: '',
+                        destination: '', // Destination will be set by backend logic or next day's origin
                         waypoints: []
                     };
                     allDaysData.push(newDay);
                 }
             } else if (newDuration < allDaysData.length) {
-                // Remove days
                 allDaysData = allDaysData.slice(0, newDuration);
             }
+            // Re-render tabs if duration changed
+            renderDayTabs(allDaysData);
         }
 
-        // Make sure we capture the latest form data before saving
+
+        // Capture latest form data (including any final edits in the current day's form)
         updateDaysDataFromForms();
 
-        // Ensure we have the original trip ID
-        if (!tripData || !tripData.id) {
-            throw new Error("Trip ID is missing, cannot save changes");
-        }
+        if (!tripData || !tripData.id) throw new Error("Trip ID is missing, cannot save changes");
 
-        // Format the date properly to ensure it's in YYYY-MM-DD format
         const startDateInput = document.getElementById('start-date').value;
         let formattedStartDate = startDateInput;
         if (startDateInput) {
-            // Make sure we have a valid date
             const dateObj = new Date(startDateInput);
             if (!isNaN(dateObj.getTime())) {
                 formattedStartDate = dateObj.toISOString().split('T')[0];
             }
         }
 
-        // Format trip details according to Lambda expectations
+        // Use end_city directly from the main trip form
         const tripDetails = {
             id: tripData.id,
             user_id: tripData.user_id || email,
             start_city: document.getElementById('start-city').value,
-            end_city: document.getElementById('end-city').value,
-            duration: newDuration,
+            end_city: document.getElementById('end-city').value, // Use main form field
+            duration: allDaysData.length,
             start_date: formattedStartDate,
             title: document.getElementById('trip-title').value || `Trip to ${document.getElementById('start-city').value}`
         };
 
-        // Format activities from days data with _new flag as required by Lambda
+        // Build activities array with correct flags and IDs
         const activities = [];
-        allDaysData.forEach((day, dayIndex) => {
-            // Add waypoints as activities
-            if (day.waypoints && day.waypoints.length > 0) {
-                day.waypoints.forEach((waypoint) => {
-                    if (waypoint.trim()) {  // Only add non-empty waypoints
-                        activities.push({
-                            _new: true, // Mark as new since we're creating/updating all
-                            day_number: day.day_number,
-                            name: waypoint,
-                            address: waypoint // Using the waypoint name as address too
-                        });
+        allDaysData.forEach((day) => {
+            // Remove the _destination logic
+            // if (day.destination && day.destination !== '') { ... }
+
+            if (Array.isArray(day.waypoints)) {
+                day.waypoints.forEach((wp) => {
+                    // Ensure day_number is correctly assigned, especially for modified/deleted
+                    const activityPayload = {
+                        id: wp.id,
+                        day_number: day.day_number,
+                        name: wp.name,
+                        address: wp.address
+                    };
+
+                    if (wp._deleted) {
+                        // Only send ID and _deleted flag for deletion
+                        if (wp.id && !wp.id.startsWith('new-')) {
+                            activities.push({
+                                id: wp.id,
+                                _deleted: true
+                            });
+                        }
+                        // Do not send anything if a _new item was deleted before saving
+                    } else if (wp._new) {
+                        activityPayload._new = true;
+                        // Remove temporary ID for new items
+                        delete activityPayload.id;
+                        activities.push(activityPayload);
+                    } else if (wp._modified) {
+                        activityPayload._modified = true;
+                        activities.push(activityPayload);
                     }
+                    // Unchanged items are not sent
                 });
             }
         });
 
-        // Create the request body according to Lambda expectations
         const requestBody = {
             trip: tripDetails,
             activities: activities
         };
 
-        // Extra validation step
         if (!tripDetails.start_city || !tripDetails.end_city || !tripDetails.start_date) {
             throw new Error("Missing required trip details (start city, end city, or start date)");
         }
 
-        console.log("Saving trip details:", JSON.stringify(requestBody));
+        console.log("Saving trip details:", JSON.stringify(requestBody, null, 2)); // Pretty print for debugging
 
-        // Save trip details first
         const detailsUrl = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips/${tripData.id}`;
-        console.log(`Sending PUT request to ${detailsUrl}`);
-
         const detailsResponse = await fetch(detailsUrl, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-User-Email': email // Authentication header
+                'X-User-Email': email
             },
             body: JSON.stringify(requestBody)
         });
 
+        // ... (rest of response handling remains the same) ...
         // Handle response
         let responseData;
         try {
-            // First try to get text for logging purposes
             const responseText = await detailsResponse.text();
             console.log("Raw response from trip update:", responseText);
-
-            // If it's valid JSON, parse it
             try {
                 responseData = JSON.parse(responseText);
             } catch (e) {
@@ -755,7 +823,6 @@ async function saveTripChanges() {
         if (!detailsResponse.ok) {
             console.error("Error response status:", detailsResponse.status);
             console.error("Error response data:", responseData);
-
             if (detailsResponse.status === 401) {
                 throw new Error("Authentication failed. Please login again.");
             }
@@ -763,23 +830,19 @@ async function saveTripChanges() {
         }
 
         console.log("Trip details saved successfully:", responseData);
-
-        // Show success message
         hideLoading();
         alert("Trip saved successfully!");
-
-        // Redirect back to dashboard or trip view
         if (confirm("Would you like to view your updated trip?")) {
             window.location.href = `../trip_card/trip_card.html?trip_id=${tripData.id}`;
         } else {
             window.location.href = "../dashboard/dashboard.html";
         }
+
     } catch (error) {
+        // ... (rest of error handling remains the same) ...
         console.error("Error saving trip changes:", error);
         hideLoading();
         showError(error.message || "Failed to save trip changes");
-
-        // If authentication failed, redirect to login
         if (error.message.includes("Authentication") || error.message.includes("login")) {
             setTimeout(() => {
                 window.location.href = '../login/login.html';
@@ -788,44 +851,63 @@ async function saveTripChanges() {
     }
 }
 
-function updateDaysDataFromForms() {
-    console.log("Updating days data from forms");
-
-    // Update each day's data from the corresponding form
-    allDaysData.forEach((day, index) => {
-        // Only update waypoints, not origin or destination since they're read-only
-        // Update waypoints
-        const waypoints = [];
-        const waypointInputs = document.querySelectorAll(`#waypoints-container-${index} .waypoint-input`);
-        waypointInputs.forEach(input => {
-            if (input.value.trim()) {
-                waypoints.push(input.value.trim());
-            }
-        });
-        day.waypoints = waypoints;
-    });
-
-    console.log("Updated days data:", allDaysData);
-}
-
+// Updated to save waypoint objects
 function saveCurrentDayData() {
     if (currentDay >= 0 && currentDay < allDaysData.length) {
-        console.log(`Saving current day(${currentDay}) data before navigation`);
+        console.log(`Saving current day (${currentDay}) data before navigation/saving`);
 
-        // Save only the current day's waypoints
-        const waypoints = [];
+        const dayData = allDaysData[currentDay];
+        if (!dayData) return; // Should not happen
+
+        // Update destination (read-only, but ensure data model is consistent with UI)
+        const destInput = document.querySelector(`#destination-${currentDay}`);
+        if (destInput) dayData.destination = destInput.value;
+
+        // Update waypoints based on current input fields
+        const currentWaypoints = dayData.waypoints || [];
+        const updatedWaypoints = [];
         const waypointInputs = document.querySelectorAll(`#waypoints-container-${currentDay} .waypoint-input`);
 
         waypointInputs.forEach(input => {
-            if (input.value.trim()) {
-                waypoints.push(input.value.trim());
+            const activityId = input.getAttribute('data-activity-id');
+            const name = input.value.trim();
+
+            // Find the original waypoint object using the ID
+            const originalWp = currentWaypoints.find(wp => wp.id === activityId);
+
+            if (name) { // Only save if there's a name
+                if (originalWp) {
+                    // If name changed and it's not a new item, mark as modified
+                    if (originalWp.name !== name && !originalWp._new) {
+                        originalWp._modified = true;
+                    }
+                    originalWp.name = name;
+                    originalWp.address = name; // Keep address same as name for simplicity
+                    updatedWaypoints.push(originalWp);
+                } else {
+                    // This case should ideally not happen if IDs are managed correctly
+                    // But as a fallback, treat it like a new item if ID wasn't found
+                    updatedWaypoints.push({
+                        id: activityId || generateTempId(), // Use existing temp ID or generate new
+                        name: name,
+                        address: name,
+                        _new: true
+                    });
+                }
             }
         });
 
-        // Update in memory
-        allDaysData[currentDay].waypoints = waypoints;
+        // Add back any waypoints marked as _deleted (they are not in the UI inputs)
+        currentWaypoints.forEach(wp => {
+            if (wp._deleted && !updatedWaypoints.some(uwp => uwp.id === wp.id)) {
+                updatedWaypoints.push(wp);
+            }
+        });
 
-        console.log(`Saved ${waypoints.length} waypoints for day ${currentDay + 1}`);
+        // Update the main data structure
+        allDaysData[currentDay].waypoints = updatedWaypoints;
+
+        console.log(`Saved data for day ${currentDay + 1}:`, allDaysData[currentDay]);
     }
 }
 
