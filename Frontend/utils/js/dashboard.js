@@ -741,10 +741,16 @@ function renderTripCards(trips) {
         // Get trip image URL or use placeholder
         const imageUrl = trip.cover_url || `https://via.placeholder.com/300x150?text=${encodeURIComponent(trip.start_city)}`;
 
-        // Create trip card HTML
+        // Create trip card HTML with explicit data attributes
         const tripCard = document.createElement('div');
         tripCard.className = 'trip-card';
         tripCard.dataset.tripId = trip.id;
+        tripCard.dataset.title = trip.title || `Trip to ${trip.start_city}`;
+        tripCard.dataset.startCity = trip.start_city;
+        tripCard.dataset.endCity = trip.end_city;
+        tripCard.dataset.startDate = trip.start_date;
+        tripCard.dataset.duration = trip.duration;
+
         tripCard.innerHTML = `
             <div class="trip-image">
                 <img src="${imageUrl}" alt="${trip.title || 'Trip'}">
@@ -794,8 +800,16 @@ function renderTripCards(trips) {
             const tripName = tripCard.querySelector('h3').textContent;
 
             if (this.classList.contains('edit-trip')) {
-                // Direct to the edit trip page with the trip ID
-                window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+                // Use try-catch to handle errors
+                try {
+                    console.log(`Editing trip: ${tripName} (ID: ${tripId})`);
+
+                    // Direct to the edit trip page with the trip ID
+                    window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+                } catch (error) {
+                    console.error("Error redirecting to edit page:", error);
+                    alert("Failed to open trip editor. Please try again.");
+                }
             } else {
                 // Show clone trip modal
                 showCloneTripModal(tripId, tripName, tripCard);
