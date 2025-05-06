@@ -5,7 +5,7 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Nunito', Arial, sans-serif;
     overflow: hidden;
     background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/dashboardBG.png') !important;
     background-size: 100% auto !important;
@@ -20,7 +20,7 @@ body {
     position: relative;
 }
 
-/* Loading overlay */
+/* Loading overlay with Ghibli style */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -28,60 +28,61 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
     display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     pointer-events: none;
-    /* Allow clicks to pass through */
 }
 
 .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #1a73e8;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+    width: 80px;
+    height: 80px;
+    background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_icon.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: float 2s ease-in-out infinite;
     margin-bottom: 20px;
 }
 
 .loading-text {
-    color: #1a73e8;
+    color: var(--primary-color);
     font-size: 18px;
     font-weight: 500;
     text-align: center;
     padding: 0 20px;
     max-width: 80%;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
     }
-
-    100% {
-        transform: rotate(360deg);
+    50% {
+        transform: translateY(-15px);
     }
 }
 
-/* Loading placeholder */
+/* Loading placeholder with Ghibli style */
 .loading-placeholder {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, rgba(240, 240, 240, 0.7) 25%, rgba(224, 224, 224, 0.7) 50%, rgba(240, 240, 240, 0.7) 75%);
     background-size: 200% 100%;
     animation: loading-pulse 1.5s infinite;
-    border-radius: 4px;
+    border-radius: 12px;
     padding: 15px;
     text-align: center;
     color: transparent;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 @keyframes loading-pulse {
     0% {
         background-position: 200% 0;
     }
-
     100% {
         background-position: -200% 0;
     }
@@ -106,6 +107,7 @@ body {
     z-index: 1;
 }
 
+/* Ghibli-style sidebar */
 #sidebar {
     position: relative;
     width: 350px;
@@ -114,9 +116,12 @@ body {
     height: 100vh;
     z-index: 10;
     overflow-y: auto;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.7);
+    padding: 0;
+    transition: all 0.3s ease;
 }
 
 #map {
@@ -130,260 +135,331 @@ body {
     background: transparent;
 }
 
+/* Trip summary with Ghibli style */
 #trip-summary {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    margin: 15px;
+    padding: 18px;
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+#trip-summary::before {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: -50px;
+    width: 100px;
+    height: 100px;
+    background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.07;
+    transform: rotate(10deg);
+    z-index: 0;
+}
+
+#trip-title {
+    font-size: 1.6rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
 .trip-info {
-    margin: 8px 0;
-    color: #666;
+    margin: 10px 0;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    position: relative;
+    z-index: 1;
 }
 
+.trip-info i {
+    color: var(--primary-color);
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Ghibli-style weather section */
 .weather-section {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    margin: 15px;
+    padding: 18px;
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .weather-section h3 {
     margin-top: 0;
     margin-bottom: 15px;
     color: var(--primary-color);
-    font-size: 18px;
+    font-size: 1.2rem;
+    position: relative;
+    display: inline-block;
+}
+
+.weather-section h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+    border-radius: 2px;
 }
 
 .weather-city {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .weather-city h4 {
     margin: 0;
-    padding: 5px 0;
-    font-size: 16px;
-    color: #333;
-    border-bottom: 1px solid #eee;
+    padding: 8px 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
+/* Ghibli-style weather day cards */
 .weather-day {
     display: flex;
     align-items: center;
-    margin: 10px 0;
-    padding: 10px;
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
+    margin: 12px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .weather-day:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .weather-day-empty {
-    background: #f8f9fa;
+    background: rgba(248, 249, 250, 0.6);
     opacity: 0.8;
 }
 
 .today-badge {
     display: inline-block;
-    font-size: 10px;
-    background: #1a73e8;
+    font-size: 0.65rem;
+    background: var(--primary-color);
     color: white;
-    padding: 2px 6px;
+    padding: 2px 8px;
     border-radius: 10px;
-    margin-left: 5px;
+    margin-left: 6px;
     vertical-align: middle;
-}
-
-.weather-icon {
-    margin-right: 15px;
-    width: 50px;
-    text-align: center;
-}
-
-.weather-icon img {
-    width: 50px;
-    height: 50px;
-}
-
-.weather-details {
-    flex: 1;
-}
-
-.weather-date {
-    font-weight: 500;
-    color: #333;
-}
-
-.weather-temp {
-    font-weight: 600;
-    font-size: 18px;
-    color: #e74c3c;
-}
-
-.weather-condition {
-    color: #666;
-    font-size: 13px;
-    text-transform: capitalize;
-}
-
-.weather-error {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.weather-error i {
-    font-size: 24px;
-    color: #e74c3c;
-    margin-bottom: 10px;
-}
-
-.weather-error p {
-    margin: 0;
-    font-size: 14px;
-    margin-bottom: 8px;
-}
-
-.weather-help-text {
-    font-size: 12px !important;
-    color: #888;
-    font-style: italic;
-}
-
-.weather-help-text a {
-    color: #1a73e8;
-    text-decoration: none;
-}
-
-.weather-help-text a:hover {
-    text-decoration: underline;
-}
-
-.weather-error-actions {
+/* Ghibli-style day buttons */
+.day-buttons-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    gap: 10px;
     margin-top: 15px;
 }
 
-.btn-retry, .btn-alternate, .btn-fallback {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    transition: background-color 0.2s;
-}
-
-.btn-retry {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-retry:hover {
-    background-color: var(--primary-color-dark, #0056b3);
-}
-
-.btn-alternate {
-    background-color: #4caf50;
-    color: white;
-}
-
-.btn-alternate:hover {
-    background-color: #388e3c;
-}
-
-.btn-fallback {
-    background-color: #ff9800;
-    color: white;
-}
-
-.btn-fallback:hover {
-    background-color: #f57c00;
-}
-
-.btn-retry i, .btn-alternate i, .btn-fallback i {
-    margin-right: 6px;
-    font-size: 12px;
-    color: white;
-}
-
 .day-button {
-    width: 100%;
+    flex: 1 0 calc(50% - 10px);
+    min-width: 120px;
     padding: 12px;
-    margin: 5px 0;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    text-align: left;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     cursor: pointer;
-    transition: var(--transition-regular);
-    box-shadow: var(--soft-shadow);
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    backdrop-filter: blur(5px);
 }
 
 .day-button:hover {
-    background: var(--light-gray);
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .day-button.active {
-    background: #e6f7f7;
-    border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(62, 147, 145, 0.15);
+    background: linear-gradient(135deg, var(--primary-color-light), var(--primary-color));
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.3);
 }
 
 .day-button i {
-    margin-right: 5px;
-    color: var(--primary-color);
-}
-
-.day-button strong {
-    display: block;
+    font-size: 1.2rem;
     margin-bottom: 5px;
     color: var(--primary-color);
 }
 
+.day-button.active i {
+    color: white;
+}
+
+.day-button strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
 .day-button small {
     display: block;
-    color: var(--light-text);
-    line-height: 1.4;
+    font-size: 0.75rem;
+    opacity: 0.8;
 }
 
+/* Status message with Ghibli style */
+.status-message {
+    margin: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+/* Section styling with Ghibli theme */
+.section {
+    margin: 15px;
+    padding: 18px;
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+    border-radius: 2px;
+}
+
+.section h3 i {
+    margin-right: 8px;
+}
+
+/* Action buttons with Ghibli style */
 .action-buttons {
-    margin: 15px 0;
     display: flex;
+    flex-direction: column;
     gap: 10px;
+    margin: 15px;
 }
 
-.action-buttons button {
-    flex: 1;
-    padding: 8px;
-    background: #2196f3;
-    color: white;
+.action-buttons button,
+.navigation-buttons button {
+    padding: 12px 16px;
     border: none;
-    border-radius: 4px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-color);
+    font-size: 0.95rem;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow: hidden;
 }
 
-.action-buttons button:hover {
-    background: #1976d2;
+.action-buttons button i,
+.navigation-buttons button i {
+    margin-right: 8px;
 }
 
-/* Modal styles */
+.action-buttons button:hover,
+.navigation-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.action-buttons button::after,
+.navigation-buttons button::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: width 0.5s, height 0.5s, opacity 0.5s;
+}
+
+.action-buttons button:active::after,
+.navigation-buttons button:active::after {
+    width: 300%;
+    height: 300%;
+    opacity: 1;
+}
+
+.btn-primary {
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Navigation buttons with Ghibli style */
+.navigation-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px;
+    margin-top: 25px;
+}
+
+/* Ghibli-style modals */
 .modal {
     display: none;
     position: fixed;
@@ -392,611 +468,248 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
 }
 
 .modal-content {
-    background-color: #fff;
-    margin: 5% auto;
+    background: rgba(255, 255, 255, 0.9);
+    margin: 10% auto;
     padding: 25px;
-    width: 90%;
-    max-width: 1000px;
-    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    width: 80%;
+    max-width: 700px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.4s;
+    backdrop-filter: blur(10px);
     position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.05;
+    transform: rotate(10deg);
+    z-index: 0;
 }
 
 .modal-content h3 {
+    margin-top: 0;
     color: var(--primary-color);
+    font-size: 1.5rem;
     margin-bottom: 20px;
-    font-size: 24px;
+    position: relative;
+    z-index: 1;
 }
 
 .close {
+    color: var(--text-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
     position: absolute;
-    right: 25px;
     top: 15px;
-    font-size: 35px;
-    font-weight: 300;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.2s ease;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    z-index: 2;
 }
 
 .close:hover {
-    color: #1a73e8;
+    color: var(--primary-color);
+    text-decoration: none;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.05);
 }
 
+/* Photo gallery with Ghibli style */
 #photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
     margin-top: 20px;
 }
 
 .photo-item {
-    position: relative;
-    padding-bottom: 75%;
     overflow: hidden;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    position: relative;
 }
 
 .photo-item img {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
+    height: 150px;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: all 0.5s ease;
+    vertical-align: middle;
+}
+
+.photo-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
 }
 
 .photo-item:hover img {
-    transform: scale(1.05);
+    transform: scale(1.1);
 }
 
-/* Info window styles */
-.gm-style .gm-style-iw {
-    padding: 0 !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
+/* Sidebar footer with Ghibli style */
+.sidebar-footer {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
 }
 
-.gm-style .gm-style-iw-d {
-    overflow: hidden !important;
-    padding: 0 !important;
+.sidebar-footer-links a {
+    display: block;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin: 8px 0;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
 }
 
-.info-window-content {
-    width: 280px;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.info-window-image {
-    width: 100%;
-    height: 160px;
-    position: relative;
-    overflow: hidden;
-    background: #f5f5f5;
-}
-
-.info-window-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.info-window-image:hover img {
-    transform: scale(1.05);
-}
-
-.info-window-details {
-    padding: 16px;
-    background: white;
-}
-
-.info-window-title {
-    font-size: 16px;
-    font-weight: 600;
+.sidebar-footer-links a:hover {
     color: var(--primary-color);
-    margin-bottom: 8px;
-    line-height: 1.4;
+    opacity: 1;
+    transform: translateX(5px);
 }
 
-.info-window-subtitle {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.sidebar-footer-links a i {
+    margin-right: 5px;
+    width: 16px;
+    text-align: center;
 }
 
-.info-window-rating {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 12px;
-}
-
-.info-window-rating i {
-    color: #ffd700;
-}
-
-.info-window-button {
-    width: 100%;
-    padding: 10px 0;
-    background: #1a73e8;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
-}
-
-.info-window-button:hover {
-    background: #1557b0;
-}
-
-/* Location Details Modal Styles - Updated for minimalist design */
-.location-content {
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 0;
-    border-radius: 16px;
-}
-
-.location-header {
-    padding: 24px 32px;
-    background: white;
-    border-bottom: 1px solid #f0f0f0;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    backdrop-filter: blur(10px);
-}
-
-.location-header h3 {
-    font-size: 28px;
-    color: var(--primary-color);
-    margin: 0 0 8px 0;
-}
-
-.rating {
-    font-size: 16px;
-    color: #666;
-}
-
-.location-body {
-    padding: 32px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-}
-
-.location-info {
-    background: #f8f9fa;
-    padding: 24px;
-    border-radius: 12px;
-}
-
-.info-item {
-    margin-bottom: 20px;
-}
-
-.info-item i {
-    font-size: 18px;
-    color: #1a73e8;
-}
-
-.info-item span,
-.info-item a {
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.photos-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-}
-
-.photos-grid img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
-}
-
-.reviews-list {
-    margin-top: 32px;
-}
-
-.review-item {
-    background: white;
-    border: 1px solid #f0f0f0;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-}
-
-.review-author img {
-    width: 48px;
-    height: 48px;
-    border-radius: 24px;
-}
-
+/* Mobile responsiveness with Ghibli style */
 @media (max-width: 768px) {
-    .location-content {
-        width: 95%;
-        margin: 10px auto;
-    }
-
-    .location-body {
-        grid-template-columns: 1fr;
-        padding: 20px;
-    }
-
-    .photos-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
     #sidebar {
-        width: 280px;
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.7);
     }
-
+    
     #map {
-        left: 280px;
-        width: calc(100% - 280px);
+        width: 100%;
+        height: 50vh;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+        margin: 5% auto;
     }
 }
 
 @media (max-width: 576px) {
-    #sidebar {
-        width: 100%;
-        height: 200px;
-        bottom: auto;
+    .day-button {
+        flex: 1 0 calc(100% - 10px);
     }
-
-    #map {
-        left: 0;
-        top: 200px;
-        height: calc(100vh - 200px);
-        width: 100%;
+    
+    .modal-content {
+        padding: 15px;
     }
 }
 
-/* Enhance route line appearance */
-.gm-style .route-segment {
-    transition: all 0.3s ease;
+/* Dark mode styles with Ghibli theme */
+body.dark-mode .day-button,
+body.dark-mode #sidebar,
+body.dark-mode .section,
+body.dark-mode .status-message,
+body.dark-mode #trip-summary,
+body.dark-mode .weather-section,
+body.dark-mode .action-buttons button,
+body.dark-mode .navigation-buttons button,
+body.dark-mode .modal-content {
+    background-color: rgba(30, 30, 30, 0.85);
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-.gm-style .route-segment:hover {
-    stroke-opacity: 1 !important;
-    z-index: 1;
-    stroke-width: 6px !important;
+body.dark-mode .day-button i,
+body.dark-mode .section h3,
+body.dark-mode .weather-section h3,
+body.dark-mode .trip-info i,
+body.dark-mode #trip-title,
+body.dark-mode .modal-content h3 {
+    color: var(--primary-color-light);
 }
 
-/* Add animation for markers */
-@keyframes bounce {
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-15px);
-    }
+body.dark-mode .weather-day {
+    background-color: rgba(40, 40, 40, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-.marker-bounce {
-    animation: bounce 0.5s ease infinite;
+body.dark-mode .day-button.active {
+    background: linear-gradient(135deg, var(--primary-color-dark), var(--primary-color));
 }
 
-/* Section styles */
-.section {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
+body.dark-mode .close {
+    color: #e0e0e0;
 }
 
-.section h3 {
-    margin: 0 0 15px 0;
-    color: var(--primary-color);
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.section h3 i {
-    color: #1a73e8;
-}
-
-/* Status message */
-.status-message {
-    margin-bottom: 10px;
-    padding: 8px 12px;
-    background: #e8f0fe;
-    border-radius: 4px;
-    color: var(--primary-color);
-    font-size: 14px;
-}
-
-/* Button styles */
-.btn-primary,
-.btn-secondary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background: var(--primary-color);
+body.dark-mode .close:hover {
     color: white;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.btn-primary:hover {
-    background: var(--primary-hover);
+/* Ensure all text is readable in dark mode */
+body.dark-mode .dashboard-header h1,
+body.dark-mode .dashboard-header p,
+body.dark-mode .section-header h2,
+body.dark-mode h2, 
+body.dark-mode h3,
+body.dark-mode .trip-info,
+body.dark-mode .weather-date,
+body.dark-mode .weather-condition,
+body.dark-mode .weather-city h4 {
+    color: #ffffff;
+    text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
-.btn-secondary {
-    background: #f8f9fa;
-    color: #1a73e8;
-    border: 1px solid #1a73e8;
+body.dark-mode .sidebar-footer-links a {
+    color: #e0e0e0;
+    opacity: 0.8;
 }
 
-.btn-secondary:hover {
-    background: #e8f0fe;
-}
-
-/* Navigation buttons */
-.navigation-buttons {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Error modal */
-.error-content {
-    text-align: center;
-    padding: 30px;
-}
-
-.error-content h3 {
-    color: #d93025;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.error-content i {
-    font-size: 24px;
-}
-
-.error-content p {
-    margin-bottom: 20px;
-    color: #5f6368;
-    line-height: 1.5;
-}
-
-/* Ensure elements are positioned above the background overlay */
-.main-content,
-.trips-container,
-.trip-cards,
-.trip-card,
-.trip-actions,
-.section-header {
-    position: relative;
-    z-index: 1;
-}
-
-/* Existing styles for trip cards, modified to work with background */
-.trip-card {
-    border-radius: 12px;
-    margin-bottom: 25px;
-    background-color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #e0e0e0;
-}
-
-.trip-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-/* Trip Actions */
-.trip-actions {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #e9ecef;
-}
-
-/* Create Trip Button */
-.create-trip-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    z-index: 5;
-    border: none;
-    cursor: pointer;
-}
-
-.create-trip-btn:hover {
-    transform: scale(1.1);
-    background-color: var(--primary-color-dark);
-}
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 50px 20px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    margin: 40px auto;
-    max-width: 600px;
-}
-
-/* Dialog/Modal styles */
-.trip-dialog {
-    background-color: rgba(255, 255, 255, 0.98);
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    max-width: 600px;
-    width: 100%;
-    padding: 0;
-    backdrop-filter: blur(10px);
-}
-
-/* Toast notification */
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background-color: var(--primary-color);
-    color: white;
-    padding: 15px 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease;
-    z-index: 1000;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.dashboard-navbar {
-    z-index: 100;
-}
-
-.weather-day.detailed {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.weather-main {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.weather-icon {
-    margin-right: 15px;
-    width: 60px;
-    text-align: center;
-}
-
-.weather-icon img {
-    width: 60px;
-    height: 60px;
-}
-
-.weather-temp-main {
-    flex: 1;
-}
-
-.temp-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: #e74c3c;
-}
-
-.temp-feels {
-    font-size: 14px;
-    color: #666;
-    margin-top: 2px;
-}
-
-.weather-details {
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-}
-
-.weather-date {
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 5px;
-}
-
-.weather-condition {
-    color: #666;
-    font-size: 14px;
-    text-transform: capitalize;
-    margin-bottom: 15px;
-}
-
-.weather-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    font-size: 13px;
-    color: #666;
-}
-
-.stat-item i {
-    margin-right: 8px;
-    color: var(--primary-color);
-    width: 16px;
-    text-align: center;
+body.dark-mode .sidebar-footer-links a:hover {
+    color: var(--primary-color-light);
+    opacity: 1;
 }

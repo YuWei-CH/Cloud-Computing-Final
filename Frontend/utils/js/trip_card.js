@@ -977,6 +977,8 @@ function displayWeatherForecast(city, data) {
 
         // Group forecast by day (OpenWeatherMap returns 3-hour forecasts)
         const dailyForecasts = groupForecastsByDay(data.list);
+        
+        console.log("Available forecast dates:", Object.keys(dailyForecasts));
 
         // Get the trip start date from tripDetails if available, otherwise use current date
         let tripStartDate;
@@ -1016,7 +1018,39 @@ function displayWeatherForecast(city, data) {
         console.log(`Looking for weather data for date: ${dateStr}`);
 
         // Get the forecast for the selected day
-        const forecast = dailyForecasts[dateStr];
+        let forecast = dailyForecasts[dateStr];
+        
+        // If no exact match, try to find the closest available forecast date
+        if (!forecast) {
+            console.log("Exact date not found in forecast, looking for closest available date");
+            
+            const availableDates = Object.keys(dailyForecasts).sort();
+            if (availableDates.length > 0) {
+                // Find the closest date to our requested date
+                const selectedTimestamp = new Date(dateStr).getTime();
+                let closestDate = availableDates[0];
+                let minDiff = Math.abs(new Date(closestDate).getTime() - selectedTimestamp);
+                
+                for (let i = 1; i < availableDates.length; i++) {
+                    const currDate = availableDates[i];
+                    const currDiff = Math.abs(new Date(currDate).getTime() - selectedTimestamp);
+                    
+                    if (currDiff < minDiff) {
+                        closestDate = currDate;
+                        minDiff = currDiff;
+                    }
+                }
+                
+                console.log(`Found closest date in forecast: ${closestDate}`);
+                forecast = dailyForecasts[closestDate];
+                
+                // Calculate how many days difference for the user message
+                const daysDiff = Math.round(minDiff / (1000 * 60 * 60 * 24));
+                if (daysDiff > 0) {
+                    console.log(`Showing forecast for a date ${daysDiff} days different from requested date`);
+                }
+            }
+        }
 
         if (forecast) {
             // Create a more detailed weather display
@@ -1070,7 +1104,7 @@ function displayWeatherForecast(city, data) {
                 <div class="weather-error">
                     <i class="fas fa-exclamation-circle"></i>
                     <p>Weather forecast not available for ${locationText} on this date</p>
-                    <p class="weather-help-text">Forecast date: ${dateStr}</p>
+                    <p class="weather-help-text">Forecast beyond 5 days is not available. Current available dates: ${Object.keys(dailyForecasts).join(', ')}</p>
                 </div>
             `;
         }
@@ -1079,6 +1113,7 @@ function displayWeatherForecast(city, data) {
             <div class="weather-error">
                 <i class="fas fa-exclamation-circle"></i>
                 <p>Weather forecast not available for ${city}</p>
+                <p class="weather-help-text">Try another location or check your internet connection</p>
             </div>
         `;
     }
@@ -1086,9 +1121,11 @@ function displayWeatherForecast(city, data) {
 
 // Helper function to format date as YYYY-MM-DD for weather API
 function formatDateForWeather(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    // Create a new date object to avoid timezone issues
+    const localDate = new Date(date);
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
 
@@ -1099,6 +1136,9 @@ function groupForecastsByDay(forecastList) {
     forecastList.forEach(forecast => {
         // Get date string (YYYY-MM-DD) from timestamp
         const date = forecast.dt_txt.split(' ')[0];
+        
+        // Log the forecast date for debugging
+        console.log(`Processing forecast for: ${date}, time: ${forecast.dt_txt.split(' ')[1]}`);
 
         // If we haven't processed this day yet, initialize it
         if (!dailyForecasts[date]) {
@@ -1110,7 +1150,8 @@ function groupForecastsByDay(forecastList) {
                 tempMin: forecast.main.temp_min,
                 tempMax: forecast.main.temp_max,
                 humidity: forecast.main.humidity,
-                wind_speed: forecast.wind.speed
+                wind_speed: forecast.wind.speed,
+                dt_txt: forecast.dt_txt // Save the full datetime for reference
             };
         } else {
             // Update min/max temperature
@@ -1129,6 +1170,7 @@ function groupForecastsByDay(forecastList) {
                 dailyForecasts[date].icon = forecast.weather[0].icon;
                 dailyForecasts[date].humidity = forecast.main.humidity;
                 dailyForecasts[date].wind_speed = forecast.wind.speed;
+                dailyForecasts[date].dt_txt = forecast.dt_txt;
             }
         }
     });
