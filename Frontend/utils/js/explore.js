@@ -16,6 +16,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Preload attractions data so it's ready when needed
     fetchAttractionsData();
+
+    // When the DOM is loaded, remove any close buttons from info page
+    const infoPage = document.getElementById('info-page');
+    if (infoPage) {
+        const closeButtons = infoPage.querySelectorAll('.close-modal, .close, .info-page-close');
+        closeButtons.forEach(button => {
+            button.remove();
+        });
+    }
 });
 
 // Global variable to store attractions data
@@ -386,45 +395,8 @@ function initTripDurationSelection() {
     const durationNextBtn = document.getElementById('duration-next-btn');
     const itinerarySection = document.getElementById('itinerary-section');
 
-    // Show duration section when Create Trip button is clicked
-    createTripBtn.addEventListener('click', function () {
-        // Store selected attractions in sessionStorage for the planning page
-        const selectedCards = document.querySelectorAll('.recommendation-card.selected');
-        const selectedIds = Array.from(selectedCards).map(card => card.getAttribute('data-id'));
-
-        // Get the destination from the UI
-        const destination = document.querySelector('.destination-tag').textContent.trim();
-        
-        // Store the full attractions data
-        sessionStorage.setItem('attractions_data', JSON.stringify(attractionsData));
-
-        // Store destination and selected attractions IDs
-        sessionStorage.setItem('planning_destination', destination);
-        sessionStorage.setItem('planning_attractions', JSON.stringify(selectedIds));
-
-        // Also store city information explicitly for the database schema
-        sessionStorage.setItem('start_city', destination);
-        sessionStorage.setItem('end_city', destination);
-
-        // Check if any attractions are selected
-        if (selectedIds.length === 0) {
-            alert("Please select at least one attraction before planning your trip.");
-            return;
-        }
-
-        // Navigate to planning page
-        window.location.href = 'planning.html';
-    });
-
-    // Handle back button click in planning mode
-    const backToRecsBtn = document.getElementById('back-to-recommendations');
-    if (backToRecsBtn) {
-        backToRecsBtn.addEventListener('click', function () {
-            // Navigate back to explore page
-            window.location.href = 'explore.html';
-        });
-    }
-
+    // ORIGINAL HANDLER REMOVED - Event handler is now in explore.html for better consistency
+    /*
     // Show duration section when Create Trip button is clicked
     createTripBtn.addEventListener('click', function () {
         // Get selected attractions before moving to next step
@@ -446,6 +418,16 @@ function initTripDurationSelection() {
         document.getElementById('start-date').valueAsDate = today;
         document.getElementById('end-date').valueAsDate = endDate;
     });
+    */
+
+    // Handle back button click in planning mode
+    const backToRecsBtn = document.getElementById('back-to-recommendations');
+    if (backToRecsBtn) {
+        backToRecsBtn.addEventListener('click', function () {
+            // Navigate back to explore page
+            window.location.href = 'explore.html';
+        });
+    }
 
     // Switch between duration selection methods
     durationOptions.forEach(option => {

@@ -51,6 +51,1155 @@
         color: #333 !important;
         text-shadow: 0 1px 3px rgba(255,255,255,0.12);
       }
+      
+      /* Welcome section styling - Ghibli themed */
+      .welcome-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        position: relative;
+        margin-bottom: 20px;
+      }
+      
+      .welcome-section #back-to-recommendations {
+        align-self: flex-start;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white !important;
+        border: none;
+        border-radius: 30px;
+        box-shadow: 0 3px 8px rgba(62, 147, 145, 0.25);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+      
+      .welcome-section #back-to-recommendations:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(62, 147, 145, 0.35);
+      }
+      
+      .welcome-section #back-to-recommendations i {
+        font-size: 0.9rem;
+      }
+      
+      .welcome-container {
+        width: 100%;
+        max-width: 900px;
+        padding: 25px 20px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+      
+      .welcome-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+      }
+      
+      .welcome-content h1 {
+        color: var(--primary-color) !important;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .welcome-content .subtitle {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 25px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .welcome-content .section-header h2 {
+        color: var(--text-color) !important;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-top: 10px;
+      }
+      
+      .welcome-details {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 900px;
+        align-items: center;
+      }
+      
+      .welcome-detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        font-size: 1rem;
+        color: var(--text-color);
+      }
+      
+      .welcome-detail i {
+        color: var(--primary-color);
+      }
+      
+      /* Make the save button match the Ghibli theme */
+      .btn-save-trip {
+        font-size: 1rem;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        border-radius: 30px;
+        box-shadow: 0 3px 8px rgba(62, 147, 145, 0.25);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-save-trip:hover:not(.disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(62, 147, 145, 0.35);
+      }
+      
+      /* Override card styling for section cards */
+      .card.section-card {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        backdrop-filter: blur(5px) !important;
+        border: 1px solid rgba(230, 230, 230, 0.5);
+      }
+      
+      /* Duration options styling to ensure clickability */
+      .duration-options {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 25px;
+        position: relative;
+        z-index: 5;
+      }
+      
+      .duration-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 1px solid transparent;
+        min-width: 120px;
+        user-select: none;
+      }
+      
+      .duration-option:hover {
+        background-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-2px);
+      }
+      
+      .duration-option i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+      }
+      
+      .duration-option span {
+        font-weight: 500;
+        text-align: center;
+      }
+      
+      .duration-option.active {
+        background-color: rgba(62, 147, 145, 0.1);
+        border-color: var(--primary-color);
+        font-weight: 500;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+      
+      /* Ensure input containers are properly displayed */
+      #days-input, #dates-input {
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .welcome-content h1 {
+          font-size: 1.8rem;
+        }
+        
+        .welcome-details {
+          flex-direction: column;
+          gap: 15px;
+          align-items: center;
+        }
+        
+        .welcome-detail {
+          width: 100%;
+          justify-content: center;
+        }
+        
+        .btn-save-trip {
+          width: 100%;
+        }
+        
+        .duration-options {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .duration-option {
+          width: 100%;
+          flex-direction: row;
+          justify-content: center;
+        }
+      }
+      
+      /* Duration actions styling */
+      .duration-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 25px;
+      }
+      
+      #duration-next-btn {
+        padding: 16px 30px !important;
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        border: none !important;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        color: white !important;
+        border-radius: 30px !important;
+        box-shadow: 0 4px 12px rgba(62, 147, 145, 0.3) !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        position: relative !important;
+        overflow: hidden !important;
+        z-index: 5 !important;
+      }
+      
+      #duration-next-btn:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 15px rgba(62, 147, 145, 0.4) !important;
+      }
+      
+      #duration-next-btn:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 8px rgba(62, 147, 145, 0.3) !important;
+      }
+      
+      /* Add a ripple effect for better feedback */
+      #duration-next-btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: width 0.5s, height 0.5s, opacity 0.5s;
+      }
+      
+      #duration-next-btn:active::after {
+        width: 300% !important;
+        height: 300% !important;
+        opacity: 1 !important;
+        transition: width 0s, height 0s !important;
+      }
+      
+      /* Style for active button state */
+      #duration-next-btn.button-active {
+        transform: scale(0.97) !important;
+        box-shadow: 0 2px 5px rgba(62, 147, 145, 0.2) !important;
+      }
+      
+      /* Make sure date range option is clickable */
+      .duration-option {
+        cursor: pointer !important;
+        z-index: 10 !important;
+        user-select: none !important;
+      }
+      
+      /* Itinerary section styling with Ghibli theme */
+      .itinerary-section {
+        position: relative;
+        padding: 0 15px;
+      }
+      
+      .itinerary-section::before {
+        content: '';
+        position: absolute;
+        top: -30px;
+        right: 5%;
+        width: 80px;
+        height: 80px;
+        background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        opacity: 0.08;
+        z-index: 0;
+      }
+      
+      .itinerary-container {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        backdrop-filter: blur(5px) !important;
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        position: relative;
+      }
+      
+      /* Day tabs styling with Ghibli theme */
+      .day-tabs {
+        display: flex;
+        overflow-x: auto;
+        padding: 15px;
+        gap: 10px;
+        background: rgba(248, 249, 250, 0.3);
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        border-bottom: 1px solid rgba(230, 230, 230, 0.5);
+      }
+      
+      .day-tab {
+        flex: 0 0 auto;
+        padding: 12px 18px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        min-width: 80px;
+      }
+      
+      .day-tab span {
+        font-weight: 600;
+        color: var(--text-color);
+        display: block;
+        font-size: 0.9rem;
+      }
+      
+      .day-tab small {
+        font-size: 0.75rem;
+        color: #6c757d;
+        display: block;
+        margin-top: 3px;
+      }
+      
+      .day-tab:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .day-tab.active {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1), rgba(var(--secondary-color-rgb), 0.1));
+        border-color: rgba(var(--primary-color-rgb), 0.3);
+        box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.15);
+        transform: translateY(-3px);
+      }
+      
+      .day-tab.active span {
+        color: var(--primary-color);
+      }
+      
+      /* Day content styling */
+      .day-content {
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .day-content-item {
+        display: none;
+      }
+      
+      .day-content-item h3 {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+        position: relative;
+        display: inline-block;
+      }
+      
+      .day-content-item h3:after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary-color), transparent);
+        border-radius: 2px;
+      }
+      
+      /* Empty day message */
+      .empty-day-message {
+        padding: 25px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px dashed rgba(var(--primary-color-rgb), 0.3);
+      }
+      
+      .empty-day-message i {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+      
+      .empty-day-message p {
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+      
+      /* Activity list styling */
+      .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .activity-item {
+        display: flex;
+        align-items: flex-start;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        position: relative;
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+      
+      .activity-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+      }
+      
+      .activity-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      }
+      
+      .activity-date {
+        flex: 0 0 80px;
+        padding: 5px 10px;
+        background: rgba(var(--primary-color-rgb), 0.1);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: var(--primary-color);
+        text-align: center;
+        font-weight: 500;
+        margin-right: 15px;
+      }
+      
+      .activity-details {
+        flex: 1;
+      }
+      
+      .activity-details h4 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        color: var(--text-color);
+      }
+      
+      .activity-details p {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0;
+      }
+      
+      .activity-actions {
+        align-self: flex-start;
+        margin-left: 10px;
+      }
+      
+      .activity-actions button {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+      
+      .activity-actions button:hover {
+        background: rgba(220, 53, 69, 0.1);
+        transform: scale(1.1);
+      }
+      
+      /* Add activity button */
+      .add-activity-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px dashed rgba(var(--primary-color-rgb), 0.3);
+        background: rgba(255, 255, 255, 0.3);
+        color: var(--primary-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .add-activity-btn i {
+        font-size: 1.2rem;
+        margin-right: 10px;
+      }
+      
+      .add-activity-btn:hover {
+        background: rgba(255, 255, 255, 0.6);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      
+      /* Itinerary sidebar styling */
+      .itinerary-sidebar {
+        padding: 0 15px;
+      }
+      
+      .sidebar-card {
+        background: rgba(255, 255, 255, 0.3) !important;
+        backdrop-filter: blur(5px) !important;
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+      }
+      
+      .sidebar-card::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 80px;
+        height: 80px;
+        background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        opacity: 0.08;
+        z-index: 0;
+        pointer-events: none;
+      }
+      
+      .sidebar-card h3 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 15px;
+        position: relative;
+        padding-bottom: 8px;
+      }
+      
+      .sidebar-card h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        border-radius: 3px;
+      }
+      
+      /* Hide start and end city display as requested */
+      .summary-item:nth-child(3),
+      .summary-item:nth-child(4) {
+        display: none;
+      }
+      
+      .summary-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+      
+      .summary-item:hover {
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateX(5px);
+      }
+      
+      .summary-item i {
+        color: var(--primary-color);
+        margin-right: 10px;
+        font-size: 1rem;
+      }
+      
+      .summary-item span {
+        color: var(--text-color);
+        font-size: 0.95rem;
+      }
+      
+      .summary-item strong {
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+      
+      /* Routing info */
+      .routing-info {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(var(--primary-color-rgb), 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+      }
+      
+      .routing-info h4 {
+        color: var(--primary-color);
+        font-size: 1rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+      }
+      
+      .routing-info h4 i {
+        margin-right: 8px;
+      }
+      
+      .routing-info p {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0;
+      }
+      
+      /* Available attractions section */
+      .available-attractions {
+        margin-top: 20px;
+      }
+      
+      .available-attractions h4 {
+        color: var(--primary-color);
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+      
+      .selection-hint {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+      }
+      
+      #selected-attractions-list {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 5px;
+      }
+      
+      .sidebar-attraction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .sidebar-attraction-item:hover {
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateX(5px);
+      }
+      
+      .attraction-item-content {
+        flex: 1;
+      }
+      
+      .attraction-name {
+        font-size: 0.9rem;
+        color: var(--text-color);
+      }
+      
+      .attraction-actions {
+        display: flex;
+        gap: 5px;
+      }
+      
+      .attraction-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+      
+      .remove-btn {
+        color: #dc3545;
+      }
+      
+      .remove-btn:hover {
+        background: rgba(220, 53, 69, 0.1);
+      }
+      
+      .add-to-day-btn {
+        color: var(--primary-color);
+      }
+      
+      .add-to-day-btn:hover {
+        background: rgba(var(--primary-color-rgb), 0.1);
+      }
+      
+      /* Custom destination form with transparency */
+      .custom-destination-form {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(230, 230, 230, 0.8);
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+      }
+      
+      .custom-destination-form h4 {
+        color: var(--primary-color);
+        font-size: 1rem;
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+      }
+      
+      .custom-destination-form h4::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary-color), transparent);
+        border-radius: 2px;
+      }
+      
+      .form-hint {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+      }
+      
+      .custom-destination-form input,
+      .custom-destination-form select,
+      .custom-destination-form textarea {
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        backdrop-filter: blur(2px);
+      }
+      
+      .custom-destination-form input:focus,
+      .custom-destination-form select:focus,
+      .custom-destination-form textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+        background: rgba(255, 255, 255, 0.7);
+      }
+      
+      .custom-destination-form .btn-secondary {
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+        transition: all 0.3s ease;
+      }
+      
+      .custom-destination-form .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.15);
+      }
+      
+      #add-custom-destination {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.8), rgba(var(--secondary-color-rgb), 0.8));
+        color: white;
+        font-weight: 600;
+        border: none;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      #add-custom-destination:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(var(--primary-color-rgb), 0.2);
+      }
+      
+      #add-custom-destination::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: width 0.5s, height 0.5s, opacity 0.5s;
+      }
+      
+      #add-custom-destination:active::after {
+        width: 200%;
+        height: 200%;
+        opacity: 1;
+        transition: width 0s, height 0s;
+      }
+      
+      /* Map preview and sidebar actions */
+      .map-preview {
+        margin-top: 20px;
+        height: 250px;
+      }
+      
+      .attraction-preview-container {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        backdrop-filter: blur(5px) !important;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+        border: 1px solid rgba(230, 230, 230, 0.8);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      .preview-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--primary-color);
+      }
+      
+      .preview-loading i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      
+      .attraction-slide {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      
+      .slide-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.8s ease;
+      }
+      
+      .slide-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, 
+            rgba(0,0,0,0) 50%, 
+            rgba(0,0,0,0.7) 100%);
+      }
+      
+      .attraction-slide:hover .slide-image {
+        transform: scale(1.05);
+      }
+      
+      .slide-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px 15px 15px;
+        color: white;
+        z-index: 2;
+      }
+      
+      .slide-caption h5 {
+        margin: 0;
+        font-size: 1.2rem;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        padding-bottom: 5px;
+      }
+      
+      .slide-indicator {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        background: rgba(0,0,0,0.3);
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        margin-top: 5px;
+      }
+      
+      .preview-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      
+      .preview-placeholder img {
+        width: 80px;
+        height: auto;
+        opacity: 0.5;
+        margin-bottom: 10px;
+      }
+      
+      .preview-placeholder p {
+        color: var(--text-color);
+        opacity: 0.7;
+      }
+      
+      .preview-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #dc3545;
+      }
+      
+      .preview-error i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      
+      /* Save trip button */
+      .save-trip-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+      }
+      
+      .btn-save-trip {
+        padding: 12px 20px;
+        border-radius: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transform-origin: center;
+        animation: pulse 2s infinite;
+      }
+      
+      .btn-save-trip.disabled {
+        opacity: 0.7;
+        animation: none;
+      }
+      
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .itinerary-section {
+          flex-direction: column;
+        }
+        
+        .itinerary-container {
+          margin-bottom: 20px;
+        }
+        
+        .day-tabs {
+          padding: 10px;
+          gap: 5px;
+        }
+        
+        .day-tab {
+          padding: 8px 12px;
+          min-width: 70px;
+        }
+        
+        .activity-item {
+          flex-direction: column;
+        }
+        
+        .activity-date {
+          margin-right: 0;
+          margin-bottom: 10px;
+          align-self: flex-start;
+        }
+        
+        .activity-actions {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+        }
+        
+        .save-trip-container {
+          bottom: 20px;
+          right: 20px;
+        }
+      }
+      
+      /* Ghibli-style popup modal */
+      .ghibli-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      
+      .ghibli-popup.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .ghibli-popup-content {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 240, 0.95));
+        border-radius: 20px;
+        padding: 30px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transform: translateY(20px);
+        transition: transform 0.4s ease;
+        border: 2px solid rgba(var(--primary-color-rgb), 0.3);
+        overflow: hidden;
+      }
+      
+      .ghibli-popup.show .ghibli-popup-content {
+        transform: translateY(0);
+      }
+      
+      .popup-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 15px;
+        position: relative;
+      }
+      
+      .popup-icon img {
+        width: 100%;
+        height: auto;
+      }
+      
+      .ghibli-popup h3 {
+        color: var(--primary-color) !important;
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+      
+      .ghibli-popup p {
+        color: #555 !important;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+      }
+      
+      .popup-decoration {
+        position: absolute;
+        bottom: -20px;
+        left: -20px;
+        width: 140%;
+        height: 120px;
+        background: linear-gradient(135deg, 
+          rgba(var(--primary-color-rgb), 0.1),
+          rgba(var(--secondary-color-rgb), 0.1));
+        transform: rotate(-5deg);
+        z-index: -1;
+      }
+      
+      #popup-button {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
+        position: relative;
+        z-index: 2;
+      }
+      
+      #popup-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(var(--primary-color-rgb), 0.3);
+      }
+      
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      
+      .popup-icon img {
+        animation: float 3s ease-in-out infinite;
+      }
     </style>
 </head>
 <body>
@@ -87,30 +1236,50 @@
             </div>
         </nav>
 
+        <!-- Custom Ghibli-style popup for success messages -->
+        <div id="ghibli-popup" class="ghibli-popup">
+            <div class="ghibli-popup-content">
+                <div class="popup-icon">
+                    <img src="https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_icon.png" alt="Totoro">
+                </div>
+                <h3 id="popup-title">Success!</h3>
+                <p id="popup-message">Your trip has been saved successfully!</p>
+                <div class="popup-decoration"></div>
+                <button id="popup-button" class="btn-primary">Continue</button>
+            </div>
+        </div>
+
         <main class="main-content">
-            <header class="dashboard-header planning-header">
-                <div class="planning-title">
-                    <a href="explore.html" id="back-to-recommendations" class="btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Recommendations
-                    </a>
-                    <h1>Plan Your Adventure</h1>
+            <section class="welcome-section">
+                <a href="explore.html" id="back-to-recommendations" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Recommendations
+                </a>
+                
+                <div class="welcome-container">
+                    <div class="welcome-content">
+                        <h1>Plan Your Adventure</h1>
+                        <p class="subtitle">Create your perfect itinerary by adding attractions to your day plans.</p>
+                    
+                        <div class="section-header">
+                            <h2>Plan Your Trip Duration</h2>
+                        </div>
+                    </div>
                 </div>
-                <div class="current-date-display">
-                    <i class="far fa-calendar-alt"></i>
-                    <span id="current-date">Today's Date</span>
-                </div>
-                <div class="planning-actions">
+                
+                <div class="welcome-details">
+                    <div class="welcome-detail">
+                        <i class="far fa-calendar-alt"></i>
+                        <span id="current-date">Today's Date</span>
+                    </div>
+                    
                     <button class="btn-primary btn-save-trip disabled" id="save-trip-btn" title="Add attractions to your itinerary before saving">
                         <i class="fas fa-save"></i> Save Trip
                     </button>
                 </div>
-            </header>
-            
+            </section>
+
             <section id="trip-duration-section" class="trip-duration-section">
-                <div class="section-header">
-                    <h2>Plan Your Trip Duration</h2>
-                </div>
-                <div class="card">
+                <div class="card section-card">
                     <div class="duration-options">
                         <div class="duration-option active" data-option="days">
                             <i class="fas fa-calendar-day"></i>
@@ -174,14 +1343,6 @@
                             <span>Duration: <strong id="summary-duration">0 days</strong></span>
                         </div>
                         <div class="summary-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Start City: <strong id="summary-start-city"></strong></span>
-                        </div>
-                        <div class="summary-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>End City: <strong id="summary-end-city"></strong></span>
-                        </div>
-                        <div class="summary-item">
                             <i class="fas fa-map"></i>
                             <span>Activities: <strong id="summary-activities">0</strong></span>
                         </div>
@@ -212,8 +1373,12 @@
                         </div>
                         
                         <div class="map-preview">
-                            <!-- Replace with a base64 encoded placeholder image to avoid 404 errors -->
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADICAYAAABS39xVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QjgwRkFGQ0U4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QjgwRkFGQ0Q4MzFDMTFFNDk0QzFBRjFGQjhGQjREODQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NDQ2RTM1RTc4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ2RTM1RTg4MzE4MTFFNDk0QzFBRjFGQjhGQjREODQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4wjM2NAAAG70lEQVR42uzcP4hTaRTG4ZOdZBGRhcVmWGxkFouAjWixItiJNmJnJ9qJnZ1oJ9qJnYVgJVgELCzEImVAixTDgOOQSzIs+x8vnnuTM+c88A273OTN5du8v2amJm2+vHhyse31fPb+0/1Nrzdvv03lcZ9tvqZXV/UxtOFD+/LlOL+/mWnLuqbpn5w/p8rX8/zF63pLXl8cL+oj2LB/b17Uaw5XFmvL17jvdjYej9V9Xn+cHYfDFWBYAMMCGBYgLMCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAMMCDAsQLsCwAGEBhgUYFiAswLAAwwIMCxAWYFiAYQGGBQgLMCzAsADDAoQFGBZgWIBhAcICDAsQFiAswLAAYQGGBRgWYFiAsADDAgwLMCxAWIBhAcICDAswLEBYgGEBhgUYFiAswLAAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAYYFCAswLEBYgLAAwwIMCzAsQFiAYQGGBRgWICzAsADDAgwLEBZgWIBhAcIChAUYFmBYgLAAw/orXvzxcTb02Z9tXJ/9dZya+Prya/08vKvPx/Vbf46/zs1rvs+fXnMKYQHCAgwLMCxAWIBhAYYFGBYgLMCwAMMChAUYFmBYgGEBwgIMCzAsQFiAYQGGBQgLEFY1mUz+fBdW/wd6Jx6E3UYrLwAAAABJRU5ErkJggg==" alt="Trip Map Preview">
+                            <div id="attraction-preview" class="attraction-preview-container">
+                                <div class="preview-loading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading preview...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -223,6 +1388,661 @@
 
 <!-- Load only planning.js since we've made it self-contained -->
 <script src="../utils/js/planning.js"></script>
+
+<script>
+    // This script ensures proper functionality when navigating from explore.html to planning.html
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Planning page initialized - setting up functionality");
+        
+        // Format today's date as YYYY-MM-DD for date inputs
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        
+        // Set default values for date inputs
+        const daysStartDate = document.getElementById('days-start-date');
+        if (daysStartDate) {
+            daysStartDate.value = formattedDate;
+        }
+        
+        const startDate = document.getElementById('start-date');
+        if (startDate) {
+            startDate.value = formattedDate;
+        }
+        
+        // Set default end date (today + 3 days)
+        const endDate = new Date();
+        endDate.setDate(today.getDate() + 3);
+        const endYear = endDate.getFullYear();
+        const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+        const endDay = String(endDate.getDate()).padStart(2, '0');
+        const formattedEndDate = `${endYear}-${endMonth}-${endDay}`;
+        
+        const endDateInput = document.getElementById('end-date');
+        if (endDateInput) {
+            endDateInput.value = formattedEndDate;
+        }
+        
+        // Display current date in header
+        const currentDateDisplay = document.getElementById('current-date');
+        if (currentDateDisplay) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            currentDateDisplay.textContent = today.toLocaleDateString('en-US', options);
+        }
+        
+        // Setup duration option toggles
+        const daysOption = document.querySelector('.duration-option[data-option="days"]');
+        const datesOption = document.querySelector('.duration-option[data-option="dates"]');
+        
+        if (daysOption) {
+            daysOption.addEventListener('click', function() {
+                document.querySelectorAll('.duration-option').forEach(opt => 
+                    opt.classList.remove('active')
+                );
+                this.classList.add('active');
+                
+                const daysInput = document.getElementById('days-input');
+                const datesInput = document.getElementById('dates-input');
+                
+                if (daysInput) daysInput.style.display = 'block';
+                if (datesInput) datesInput.style.display = 'none';
+            });
+        }
+        
+        if (datesOption) {
+            datesOption.addEventListener('click', function() {
+                document.querySelectorAll('.duration-option').forEach(opt => 
+                    opt.classList.remove('active')
+                );
+                this.classList.add('active');
+                
+                const daysInput = document.getElementById('days-input');
+                const datesInput = document.getElementById('dates-input');
+                
+                if (daysInput) daysInput.style.display = 'none';
+                if (datesInput) datesInput.style.display = 'block';
+            });
+        }
+        
+        // Setup "Continue to Itinerary" button - ensure it doesn't conflict with planning.js
+        // but provide a fallback if the planning.js handler isn't working
+        const durationNextBtn = document.getElementById('duration-next-btn');
+        if (durationNextBtn) {
+            // Check if the button already has event listeners (from planning.js)
+            let hasExistingHandler = false;
+            
+            // Create a backup handler that will only run if planning.js doesn't handle the click
+            const ensureButtonWorks = function() {
+                // Wait to see if planning.js loads and works
+                setTimeout(function() {
+                    // Add our handler only if necessary
+                    if (!hasExistingHandler) {
+                        console.log("Adding fallback handler for Continue button");
+                        
+                        durationNextBtn.addEventListener('click', function() {
+                            // Get the active option
+                            const activeOption = document.querySelector('.duration-option.active');
+                            let days = 3; // Default value
+                            let startDate = new Date();
+                            
+                            if (activeOption) {
+                                const optionType = activeOption.getAttribute('data-option');
+                                
+                                if (optionType === 'days') {
+                                    // Process number of days option
+                                    const daysInput = document.getElementById('number-of-days');
+                                    const startDateInput = document.getElementById('days-start-date');
+                                    
+                                    if (daysInput) {
+                                        days = parseInt(daysInput.value) || 3;
+                                    }
+                                    
+                                    if (startDateInput && startDateInput.value) {
+                                        const parts = startDateInput.value.split('-');
+                                        startDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                                    }
+                                } else if (optionType === 'dates') {
+                                    // Process date range option
+                                    const startDateInput = document.getElementById('start-date');
+                                    const endDateInput = document.getElementById('end-date');
+                                    
+                                    if (startDateInput && startDateInput.value) {
+                                        const startParts = startDateInput.value.split('-');
+                                        startDate = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+                                    }
+                                    
+                                    if (endDateInput && endDateInput.value) {
+                                        const endParts = endDateInput.value.split('-');
+                                        const endDate = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+                                        
+                                        // Calculate number of days
+                                        const timeDiff = endDate.getTime() - startDate.getTime();
+                                        days = Math.round(timeDiff / (1000 * 3600 * 24)) + 1;
+                                    }
+                                }
+                            }
+                            
+                            // Call generateDayTabs if it exists
+                            if (typeof generateDayTabs === 'function') {
+                                generateDayTabs(days, startDate);
+                                
+                                // Update UI components
+                                const durationSection = document.getElementById('trip-duration-section');
+                                const itinerarySection = document.getElementById('itinerary-section');
+                                
+                                if (durationSection && itinerarySection) {
+                                    durationSection.style.display = 'none';
+                                    itinerarySection.style.display = 'flex';
+                                }
+                                
+                                // Update summary with duration
+                                const summaryDuration = document.getElementById('summary-duration');
+                                if (summaryDuration) {
+                                    summaryDuration.textContent = `${days} days`;
+                                }
+                                
+                                // Try to populate selected attractions
+                                if (typeof populateSelectedAttractions === 'function') {
+                                    try {
+                                        const attractionIds = JSON.parse(sessionStorage.getItem('planning_attractions') || '[]');
+                                        populateSelectedAttractions(attractionIds);
+                                        
+                                        // After populating attractions, load the preview carousel
+                                        initAttractionSlideshow();
+                                    } catch (ex) {
+                                        console.error("Error populating attractions:", ex);
+                                    }
+                                }
+                            } else {
+                                console.error("generateDayTabs function not available - planning.js may not be loaded properly");
+                            }
+                        });
+                    }
+                }, 1000); // Wait 1 second to see if planning.js handles the click
+            };
+            
+            // Check if click is handled by planning.js
+            const testClick = function() {
+                durationNextBtn.addEventListener('click', function() {
+                    // If we see itinerary-section displayed after a small delay, then planning.js is working
+                    setTimeout(function() {
+                        const itinerarySection = document.getElementById('itinerary-section');
+                        if (itinerarySection && itinerarySection.style.display === 'flex') {
+                            hasExistingHandler = true;
+                            console.log("Planning.js handler is working correctly");
+                            
+                            // If handler works, still load attraction slideshow
+                            setTimeout(initAttractionSlideshow, 500);
+                        }
+                    }, 100);
+                }, { once: true });
+            };
+            
+            // Start our checks
+            ensureButtonWorks();
+        }
+        
+        // Handle Back to Recommendations button
+        const backToRecsBtn = document.getElementById('back-to-recommendations');
+        if (backToRecsBtn) {
+            backToRecsBtn.addEventListener('click', function() {
+                window.location.href = 'explore.html';
+            });
+        }
+        
+        // Function to show a custom Ghibli-style popup
+        function showGhibliPopup(title, message, buttonText, callback) {
+            const popup = document.getElementById('ghibli-popup');
+            const popupTitle = document.getElementById('popup-title');
+            const popupMessage = document.getElementById('popup-message');
+            const popupButton = document.getElementById('popup-button');
+            
+            if (!popup || !popupTitle || !popupMessage || !popupButton) {
+                console.error("Popup elements not found, falling back to alert");
+                alert(message);
+                if (callback) callback();
+                return;
+            }
+            
+            // Set popup content
+            popupTitle.textContent = title;
+            popupMessage.textContent = message;
+            popupButton.textContent = buttonText;
+            
+            // Show the popup with animation
+            popup.classList.add('show');
+            
+            // Add button click handler
+            const handleButtonClick = function() {
+                popup.classList.remove('show');
+                popupButton.removeEventListener('click', handleButtonClick);
+                if (callback) {
+                    setTimeout(callback, 300); // Wait for animation to complete
+                }
+            };
+            
+            popupButton.addEventListener('click', handleButtonClick);
+        }
+        
+        // Ensure Save Trip button works
+        const saveTripBtn = document.getElementById('save-trip-btn');
+        if (saveTripBtn) {
+            saveTripBtn.addEventListener('click', function() {
+                // Only proceed if button is not disabled
+                if (!saveTripBtn.classList.contains('disabled')) {
+                    console.log("Save Trip button clicked");
+                    
+                    // Check if the planning.js saveTripToDatabase function exists
+                    if (typeof saveTripToDatabase === 'function') {
+                        // Override the default alert in the saveTripToDatabase success callback
+                        const originalAlert = window.alert;
+                        window.alert = function(message) {
+                            if (message && message.includes('successfully')) {
+                                showGhibliPopup(
+                                    "Trip Saved!", 
+                                    "Your adventure has been saved successfully! You can view it in your dashboard.",
+                                    "Go to Dashboard",
+                                    function() {
+                                        window.location.href = '../dashboard/dashboard.html';
+                                    }
+                                );
+                            } else {
+                                originalAlert(message);
+                            }
+                        };
+                        
+                        // Call the planning.js function
+                        saveTripToDatabase();
+                        
+                        // Restore the original alert function after a delay
+                        setTimeout(function() {
+                            window.alert = originalAlert;
+                        }, 1000);
+                    } else {
+                        console.error("saveTripToDatabase function not found in planning.js");
+                        showGhibliPopup(
+                            "Oops!", 
+                            "Unable to save trip. Please try again later.",
+                            "OK"
+                        );
+                    }
+                } else {
+                    // Inform user that they need to add activities first
+                    showGhibliPopup(
+                        "Add Activities", 
+                        "Please add at least one attraction to your itinerary before saving.",
+                        "OK"
+                    );
+                }
+            });
+        }
+        
+        // Function to check and update the save button state based on activities
+        function updateSaveButtonState() {
+            const saveBtn = document.getElementById('save-trip-btn');
+            if (!saveBtn) return;
+            
+            // Count activities to determine if save button should be enabled
+            const hasActivities = document.querySelectorAll('.activity-item').length > 0;
+            
+            if (hasActivities) {
+                saveBtn.classList.remove('disabled');
+                saveBtn.disabled = false;
+                saveBtn.title = "Save your trip";
+            } else {
+                saveBtn.classList.add('disabled');
+                saveBtn.disabled = true;
+                saveBtn.title = "Add attractions to your itinerary before saving";
+            }
+        }
+        
+        // Check for activity changes periodically to update save button state
+        setInterval(updateSaveButtonState, 2000);
+        
+        // Global variables for attraction slideshow
+        let attractionsData = [];
+        let selectedIds = [];
+        let destination = '';
+        let currentSlideIndex = 0;
+        let slideshowInterval = null;
+        
+        // Initialize attraction slideshow (carousel)
+        function initAttractionSlideshow() {
+            const previewContainer = document.getElementById('attraction-preview');
+            if (!previewContainer) return;
+            
+            try {
+                // Get attractions data from session storage
+                attractionsData = JSON.parse(sessionStorage.getItem('attractions_data') || '[]');
+                selectedIds = JSON.parse(sessionStorage.getItem('planning_attractions') || '[]');
+                destination = sessionStorage.getItem('planning_destination') || '';
+                
+                console.log('Initializing slideshow with:');
+                console.log('- Attractions data:', attractionsData);
+                console.log('- Selected IDs:', selectedIds);
+                console.log('- Destination:', destination);
+                
+                // If no attractions or no selected IDs, show a placeholder
+                if (attractionsData.length === 0 || selectedIds.length === 0) {
+                    previewContainer.innerHTML = `
+                        <div class="preview-placeholder">
+                            <img src="https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_placeholder.png" alt="No attractions selected">
+                            <p>No attractions selected</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Validate that the selected IDs match attractions in our data
+                // If not, we'll use all attractions data instead
+                const validIds = selectedIds.filter(id => 
+                    attractionsData.some(attraction => String(attraction.id) === String(id))
+                );
+                
+                if (validIds.length === 0) {
+                    console.warn("None of the selected IDs match attractions in data, using all attractions instead");
+                    // If no valid matches, use all attractions data instead
+                    selectedIds = attractionsData.map(attraction => attraction.id);
+                } else if (validIds.length < selectedIds.length) {
+                    console.warn(`Only ${validIds.length} of ${selectedIds.length} selected IDs match attractions data`);
+                    selectedIds = validIds;
+                }
+                
+                // Start the slideshow
+                startSlideshow();
+                
+            } catch (error) {
+                console.error('Error initializing attraction slideshow:', error);
+                previewContainer.innerHTML = `
+                    <div class="preview-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading preview</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Start slideshow that cycles through all attractions
+        function startSlideshow() {
+            // Clear any existing interval
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval);
+            }
+            
+            // Show the first attraction immediately
+            showAttractionSlide(0);
+            
+            // Start cycling through attractions every 5 seconds
+            slideshowInterval = setInterval(() => {
+                // Increment the index and wrap around if needed
+                currentSlideIndex = (currentSlideIndex + 1) % selectedIds.length;
+                showAttractionSlide(currentSlideIndex);
+            }, 5000);
+        }
+        
+        // Show a specific attraction slide
+        function showAttractionSlide(index) {
+            const previewContainer = document.getElementById('attraction-preview');
+            if (!previewContainer) return;
+            
+            // Get the attraction based on selected IDs
+            const attractionId = selectedIds[index];
+            console.log(`Looking for attraction with ID: ${attractionId} (type: ${typeof attractionId})`);
+            console.log(`Available attractions:`, attractionsData);
+            
+            // Convert IDs to strings for comparison to ensure correct matching
+            const attraction = attractionsData.find(a => String(a.id) === String(attractionId));
+            
+            if (!attraction) {
+                console.error('Attraction not found for index:', index, 'ID:', attractionId);
+                // Fallback to display a generic placeholder
+                showFallbackImage(attraction, index);
+                return;
+            }
+            
+            console.log(`Showing attraction ${index + 1}/${selectedIds.length}: ${attraction.name}`);
+            
+            // Set loading state
+            previewContainer.innerHTML = `
+                <div class="preview-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading ${attraction.name}...</p>
+                </div>
+            `;
+            
+            // Check if Google API is available
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+                console.error('Google Maps API not available');
+                showFallbackImage(attraction, index);
+                return;
+            }
+            
+            // Create PlacesService instance
+            const placesService = new google.maps.places.PlacesService(document.createElement('div'));
+            
+            // Search for the place
+            const searchRequest = {
+                query: `${attraction.name}, ${destination}`,
+                fields: ['place_id']
+            };
+            
+            placesService.findPlaceFromQuery(searchRequest, function(results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+                    // Get place details to access the photos
+                    const detailsRequest = {
+                        placeId: results[0].place_id,
+                        fields: ['name', 'photos']
+                    };
+                    
+                    placesService.getDetails(detailsRequest, function(place, detailsStatus) {
+                        if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && place && place.photos && place.photos.length > 0) {
+                            // Get photo URL at a good size
+                            const photoUrl = place.photos[0].getUrl({
+                                maxWidth: 800,
+                                maxHeight: 600
+                            });
+                            
+                            // Display the photo with attraction name overlay
+                            previewContainer.innerHTML = `
+                                <div class="attraction-slide">
+                                    <img src="${photoUrl}" alt="${attraction.name}" class="slide-image">
+                                    <div class="slide-overlay"></div>
+                                    <div class="slide-caption">
+                                        <h5>${attraction.name}</h5>
+                                        <div class="slide-indicator">
+                                            ${index + 1} / ${selectedIds.length}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            showFallbackImage(attraction, index);
+                        }
+                    });
+                } else {
+                    showFallbackImage(attraction, index);
+                }
+            });
+        }
+        
+        // Show a fallback image when Google Places API doesn't return a usable photo
+        function showFallbackImage(attraction, index) {
+            const previewContainer = document.getElementById('attraction-preview');
+            if (!previewContainer) return;
+            
+            // Ensure attraction name exists
+            const attractionName = attraction && attraction.name ? attraction.name : `Attraction ${index + 1}`;
+            
+            // Default fallback image based on type or a generic one
+            let fallbackImageUrl = 'https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/generic_attraction.jpg';
+            
+            // Try to determine a more specific fallback based on attraction type/category
+            if (attraction && attraction.type && typeof attraction.type === 'string') {
+                const type = attraction.type.toLowerCase();
+                if (type.includes('museum') || type.includes('gallery')) {
+                    fallbackImageUrl = 'https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/museum_placeholder.jpg';
+                } else if (type.includes('park') || type.includes('garden')) {
+                    fallbackImageUrl = 'https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/park_placeholder.jpg';
+                } else if (type.includes('restaurant') || type.includes('cafe') || type.includes('food')) {
+                    fallbackImageUrl = 'https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/restaurant_placeholder.jpg';
+                }
+            }
+            
+            // If we still have valid selected IDs, show the slide indicator
+            const totalSlides = selectedIds.length > 0 ? selectedIds.length : 1;
+            const currentSlide = index !== undefined && index >= 0 ? index + 1 : 1;
+            
+            // Display the fallback image with attraction name overlay
+            previewContainer.innerHTML = `
+                <div class="attraction-slide">
+                    <img src="${fallbackImageUrl}" alt="${attractionName}" class="slide-image">
+                    <div class="slide-overlay"></div>
+                    <div class="slide-caption">
+                        <h5>${attractionName}</h5>
+                        <div class="slide-indicator">
+                            ${currentSlide} / ${totalSlides}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // CSS for the attraction slideshow
+        const style = document.createElement('style');
+        style.textContent = `
+            .map-preview {
+                margin-top: 20px;
+                height: 250px;
+            }
+            
+            .attraction-preview-container {
+                background-color: rgba(255, 255, 255, 0.3) !important;
+                backdrop-filter: blur(5px) !important;
+                border-radius: 16px;
+                overflow: hidden;
+                position: relative;
+                height: 100%;
+                border: 1px solid rgba(230, 230, 230, 0.8);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+            
+            .preview-loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                color: var(--primary-color);
+            }
+            
+            .preview-loading i {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+            
+            .attraction-slide {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+            
+            .slide-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                transition: transform 0.8s ease;
+            }
+            
+            .slide-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to bottom, 
+                    rgba(0,0,0,0) 50%, 
+                    rgba(0,0,0,0.7) 100%);
+            }
+            
+            .attraction-slide:hover .slide-image {
+                transform: scale(1.05);
+            }
+            
+            .slide-caption {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                padding: 20px 15px 15px;
+                color: white;
+                z-index: 2;
+            }
+            
+            .slide-caption h5 {
+                margin: 0;
+                font-size: 1.2rem;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                padding-bottom: 5px;
+            }
+            
+            .slide-indicator {
+                font-size: 0.8rem;
+                opacity: 0.8;
+                background: rgba(0,0,0,0.3);
+                display: inline-block;
+                padding: 3px 8px;
+                border-radius: 12px;
+                margin-top: 5px;
+            }
+            
+            .preview-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                padding: 20px;
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .preview-placeholder img {
+                width: 80px;
+                height: auto;
+                opacity: 0.5;
+                margin-bottom: 10px;
+            }
+            
+            .preview-placeholder p {
+                color: var(--text-color);
+                opacity: 0.7;
+            }
+            
+            .preview-error {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                color: #dc3545;
+            }
+            
+            .preview-error i {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // If we're already on the itinerary page, initialize slideshow
+        if (document.getElementById('itinerary-section').style.display === 'flex') {
+            initAttractionSlideshow();
+        }
+    });
+</script>
 
 </body>
 </html>

@@ -45,6 +45,13 @@
             color: #333333; /* Base text color for light mode */
         }
         
+        /* IMPORTANT: Override card backgrounds for transparent sections */
+        .card.section-card,
+        .itinerary-container.section-card {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            backdrop-filter: blur(5px) !important;
+        }
+        
         /* Text color adjustments for content */
         .dashboard-header h1 {
             color: #ffffff; /* White text for main title */
@@ -102,10 +109,13 @@
             text-decoration: underline;
         }
         
-        /* Card and contained content text styles */
+        /* Card and contained content text styles - updated with 30% transparency */
         .card {
             color: #333333; /* Dark text for content on light backgrounds */
-            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            background-color: rgba(255, 255, 255, 0.7); /* 30% transparent white */
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
         }
         
         /* Keep card text in dark color for readability */
@@ -138,7 +148,7 @@
             color: var(--text-color) !important;
         }
         
-        /* Enhance recommendation cards */
+        /* Enhance recommendation cards - updated with 30% transparency */
         .recommendation-cards {
             gap: 25px;
         }
@@ -149,7 +159,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: 1px solid #e0e0e0;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.7); /* 30% transparent white */
         }
         
         .recommendation-card:hover {
@@ -158,25 +168,11 @@
         }
         
         /* Enhance cards and UI elements */
-        .card {
-            border-radius: 16px;
-            border: 1px solid #e0e0e0;
-            background-color: white;
-        }
-        
         .destination-input-section .card {
-            background: white;
+            background: rgba(255, 255, 255, 0.7); /* 30% transparent white */
         }
         
-        .btn-primary {
-            border-radius: 30px;
-        }
-        
-        .btn-secondary {
-            border-radius: 30px;
-        }
-        
-        /* Improve form fields */
+        /* Improved form fields with Ghibli theme */
         .destination-field input {
             border-radius: 30px;
             padding: 15px 20px;
@@ -190,158 +186,233 @@
             box-shadow: 0 0 0 3px rgba(62, 147, 145, 0.2);
         }
         
-        /* Improved dark mode compatibility - simpler approach */
-        /* Commented out dark mode implementation
-        body.dark-mode {
+        /* Ghibli-styled sidebar card */
+        .sidebar-card {
+            background-color: rgba(255, 255, 255, 0.7); /* 30% transparent white */
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 20px;
             position: relative;
+            overflow: hidden;
         }
         
-        body.dark-mode::before {
+        .sidebar-card::before {
             content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 80px;
+            height: 80px;
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.08;
             z-index: 0;
             pointer-events: none;
         }
-        */
         
-        body.dark-mode .dashboard-header h1,
-        body.dark-mode .page-intro .subtitle,
-        body.dark-mode .section-header h2,
-        body.dark-mode .dashboard-header p,
-        body.dark-mode .selection-instructions p,
-        body.dark-mode .instruction-text,
-        body.dark-mode .current-date-display,
-        body.dark-mode .selection-summary {
-            color: #ffffff;
-            text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+        .sidebar-card h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
         }
         
-        body.dark-mode .card,
-        body.dark-mode .recommendation-card {
-            background-color: rgba(30, 30, 30, 0.9); /* Dark background for cards in dark mode */
-            color: #e0e0e0;
-            border-color: rgba(255, 255, 255, 0.1);
+        /* Ghibli-styled select elements */
+        .select-wrapper {
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
         
-        /* Dark mode toggle style */
-        /* Commented out dark mode toggle
-        .dark-mode-toggle {
+        .select-wrapper:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: #d0d0d0;
+        }
+        
+        .select-wrapper::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--primary-color);
+            transition: transform 0.2s ease;
+        }
+        
+        .select-wrapper:hover::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        .select-wrapper select {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
+            appearance: none;
+            font-size: 15px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .select-wrapper select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+        }
+        
+        /* Ghibli-styled buttons */
+        .btn-primary {
+            border-radius: 30px;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            border-radius: 30px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e0e0e0;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Ghibli-themed modal */
+        .modal {
+            display: none;
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
             background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
+            backdrop-filter: blur(4px);
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            animation: modalFadeIn 0.5s;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             border: none;
+            margin: 5% auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: var(--primary-hover);
+            transform: rotate(90deg);
+        }
+        
+        /* Current date display like a badge */
+        .current-date-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
             color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Itinerary container styling */
+        .itinerary-container {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* Day tabs styling */
+        .day-tabs {
+            background-color: rgba(248, 249, 250, 0.7);
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        
+        .day-tab {
+            position: relative;
             transition: all 0.3s ease;
         }
         
-        .dark-mode-toggle:hover {
-            background-color: rgba(0, 0, 0, 0.6);
-            transform: scale(1.1);
-        }
-        */
-        
-        /* Remove previous discover-btn custom styles if present */
-        .discover-btn, .discover-btn .icon-wrapper, .discover-btn .btn-text, .discover-btn .ripple { all: unset; }
-        
-        .discover-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            width: 38px;
-            height: 38px;
-            min-width: 0;
-            border-radius: 50%;
-            box-shadow: none;
-            background: var(--primary-color);
-        }
-        .discover-btn .circle-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: transparent;
-            color: #fff;
-            font-size: 1.2em;
-        }
-        .discover-btn:hover, .discover-btn:focus {
-            background: var(--primary-hover);
+        .day-tab.active {
+            background-color: rgba(255, 255, 255, 0.5);
         }
         
-        .search-btn {
+        .day-tab.active::after {
+            content: '';
             position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 38px;
-            height: 38px;
-            min-width: 0;
-            border-radius: 50%;
-            background: #fff;
-            border: 1.5px solid var(--border-color);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1em;
-            box-shadow: 0 1px 4px rgba(62, 147, 145, 0.07);
-            cursor: pointer;
-            transition: background 0.18s, color 0.18s, border 0.18s;
-            z-index: 2;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
         }
-        .search-btn:hover, .search-btn:focus {
-            background: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
+        
+        /* Activity card styling with Ghibli theme */
+        .activity-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
         }
-        .destination-field input {
-            height: 38px;
-            border-radius: 30px;
-            padding-right: 50px;
+        
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
-        .selected-badge {
-            color: #fff !important;
-            background: var(--primary-color) !important;
-            display: inline-block;
-            min-width: 28px;
-            padding: 4px 10px;
-            border-radius: 16px;
-            font-weight: 700;
-            font-size: 1.1em;
-            text-align: center;
-            margin-right: 10px;
-            box-shadow: 0 2px 8px rgba(62, 147, 145, 0.10);
-            vertical-align: middle;
-        }
-        .selected-label {
-            font-weight: 600;
-            font-size: 1.08em;
-            color: #fff;
-            letter-spacing: 0.2px;
-            vertical-align: middle;
-        }
-        .selection-summary {
-            background: var(--primary-color);
-            border-radius: 18px;
-            padding: 6px 18px;
-            display: inline-block;
+        
+        /* Hide close button on info page */
+        #info-page .close-modal,
+        #info-page .info-page-close,
+        .info-page .close-modal,
+        .info-page-container .close {
+            display: none !important;
         }
     </style>
 </head>
@@ -381,28 +452,31 @@
         </nav>
 
         <main class="main-content">
-            <header class="dashboard-header">
-                <h1>Plan Your Perfect Trip</h1>
-                <div class="current-date-display">
-                    <i class="far fa-calendar-alt"></i>
-                    <span id="current-date">Today's Date</span>
+            <!-- Welcome header section - Ghibli inspired -->
+            <section class="welcome-section">
+                <div class="welcome-container">
+                    <div class="welcome-content">
+                        <h1>Plan Your Perfect Trip</h1>
+                        <p class="subtitle">Discover magical destinations, get personalized recommendations, and build your dream itinerary.</p>
+                    </div>
                 </div>
-            </header>
-            
-            <section class="page-intro">
-                <p class="subtitle">Discover magical destinations, get personalized recommendations, and build your dream itinerary.</p>
+                <div class="welcome-details">
+                    <div class="welcome-detail">
+                        <i class="far fa-calendar-alt"></i>
+                        <span id="current-date">Today's Date</span>
+                    </div>
+                </div>
             </section>
 
             <section class="destination-input-section">
-                <div class="section-header">
-                    <h2>Where would you like to go?</h2>
-                </div>
-                <div class="card">
+                <div class="card section-card">
                     <div class="destination-input-container">
+                        <div class="section-header">
+                            <h2>Where would you like to go?</h2>
+                        </div>
                         <div class="input-field destination-field">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <input type="text" id="destination-input" placeholder="Enter a city or country" autocomplete="off">
-                            <button id="add-destination-btn" class="search-btn" aria-label="Search or Discover Attractions">
+                            <input type="text" id="destination-input" placeholder="input a city or country" autocomplete="off">
+                            <button id="add-destination-btn" class="search-btn" aria-label="Search">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
@@ -436,68 +510,71 @@
                         <span class="selected-label">attractions selected</span>
                     </div>
                     <button id="create-trip-btn" class="btn-primary">
-                        <i class="fas fa-route"></i> Plan My Trip
+                        <i class="fas fa-route"></i> Start Planning My Trip
                     </button>
                 </div>
             </section>
 
             <section id="trip-duration-section" class="trip-duration-section" style="display: none;">
-                <div class="section-header">
-                    <h2>Plan Your Trip Duration</h2>
-                </div>
-                <div class="card">
-                    <div class="duration-options">
-                        <div class="duration-option active" data-option="days">
-                            <i class="fas fa-calendar-day"></i>
-                            <span>Number of Days</span>
+                <div class="card section-card">
+                    <div class="duration-options-container">
+                        <div class="section-header">
+                            <h2>Plan Your Trip Duration</h2>
                         </div>
-                        <div class="duration-option" data-option="dates">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Date Range</span>
-                        </div>
-                    </div>
-                    
-                    <div id="days-input" class="duration-input-container">
-                        <label for="number-of-days">How many days?</label>
-                        <input type="number" id="number-of-days" min="1" max="30" value="3" class="form-control">
                         
-                        <div class="start-date-field">
-                            <label for="days-start-date">Starting on</label>
-                            <input type="date" id="days-start-date" class="form-control">
-                        </div>
-                    </div>
-                    
-                    <div id="dates-input" class="duration-input-container" style="display: none;">
-                        <div class="dates-row">
-                            <div class="date-field">
-                                <label for="start-date">Start Date</label>
-                                <input type="date" id="start-date" class="form-control">
+                        <div class="duration-options">
+                            <div class="duration-option active" data-option="days">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>Number of Days</span>
                             </div>
-                            <div class="date-field">
-                                <label for="end-date">End Date</label>
-                                <input type="date" id="end-date" class="form-control">
+                            <div class="duration-option" data-option="dates">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Date Range</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="duration-actions">
-                        <button id="duration-back-btn" class="btn-secondary">Back</button>
-                        <button id="duration-next-btn" class="btn-primary">Continue to Itinerary</button>
+                        
+                        <div id="days-input" class="duration-input-container">
+                            <label for="number-of-days">How many days?</label>
+                            <input type="number" id="number-of-days" min="1" max="30" value="3" class="form-control">
+                            
+                            <div class="start-date-field">
+                                <label for="days-start-date">Starting on</label>
+                                <input type="date" id="days-start-date" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div id="dates-input" class="duration-input-container" style="display: none;">
+                            <div class="dates-row">
+                                <div class="date-field">
+                                    <label for="start-date">Start Date</label>
+                                    <input type="date" id="start-date" class="form-control">
+                                </div>
+                                <div class="date-field">
+                                    <label for="end-date">End Date</label>
+                                    <input type="date" id="end-date" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="duration-actions">
+                            <button id="duration-back-btn" class="btn-secondary">Back</button>
+                            <button id="duration-next-btn" class="btn-primary">Continue to Itinerary</button>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <section id="itinerary-section" class="itinerary-section" style="display: none;">
-                <div class="section-header">
-                    <h2>Plan Your Adventure</h2>
-                    <div class="itinerary-actions">
-                        <button id="back-to-recommendations" class="btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Recommendations
-                        </button>
+                <div class="itinerary-container section-card">
+                    <div class="section-header">
+                        <h2>Plan Your Adventure</h2>
+                        <div class="itinerary-actions">
+                            <button id="back-to-recommendations" class="btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Recommendations
+                            </button>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="itinerary-container">
+                    
                     <div class="day-tabs">
                         <!-- Day tabs will be generated dynamically -->
                     </div>
@@ -572,6 +649,102 @@
                     </div>
                 </div>
             </section>
+            
+            <!-- Info page template (initially hidden, will be shown when destination is clicked) -->
+            <section id="info-page" class="info-page" style="display: none;">
+                <div class="info-page-container">
+                    <!-- Magical Ghibli elements -->
+                    <div class="magical-element leaves"></div>
+                    <div class="magical-element dust"></div>
+                    
+                    <div class="info-page-image-container">
+                        <img src="https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/sample_destination.jpg" alt="Destination Name" class="info-page-image">
+                        <div class="info-page-image-caption">Beautiful view of the destination</div>
+                    </div>
+                    
+                    <div class="info-page-content">
+                        <div class="info-page-description">
+                            <div class="info-page-header">
+                                <h1 class="info-page-title">South Beach</h1>
+                                <p class="info-page-subtitle">Miami, Florida</p>
+                                <div class="no-ratings">No ratings available</div>
+                            </div>
+                            
+                            <div class="info-page-tags">
+                                <div class="info-page-tag">Beach</div>
+                                <div class="info-page-tag">Nightlife</div>
+                                <div class="info-page-tag">Art Deco</div>
+                                <div class="info-page-tag">Restaurants</div>
+                            </div>
+                            
+                            <p>South Beach (also known as SoBe) is a vibrant neighborhood in the city of Miami Beach, Florida. It's known for its colorful art deco buildings, white sand beaches, and energetic nightlife. South Beach is a major entertainment destination with hundreds of nightclubs, restaurants, and oceanfront hotels.</p>
+                            
+                            <p>The area is popular with both American and international tourists, with German, Brazilian, and Italian being the main languages spoken after English. The large area of oceanfront property attracts visitors all year round.</p>
+                            
+                            <div class="info-action-buttons">
+                                <button class="info-action-btn primary">
+                                    <i class="fas fa-plus"></i> Add to Trip
+                                </button>
+                                <button class="info-action-btn secondary">
+                                    <i class="fas fa-bookmark"></i> Save for Later
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="info-page-sidebar">
+                            <h3>Destination Details</h3>
+                            
+                            <div class="info-detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div class="info-detail-content">
+                                    <span class="info-detail-label">Location</span>
+                                    <span class="info-detail-value">Street Address, City, Country</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <div class="info-detail-content">
+                                    <span class="info-detail-label">Best Time to Visit</span>
+                                    <span class="info-detail-value">Spring and Fall</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-detail-item">
+                                <i class="fas fa-ticket-alt"></i>
+                                <div class="info-detail-content">
+                                    <span class="info-detail-label">Entrance Fee</span>
+                                    <span class="info-detail-value">$10 - $25</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-detail-item">
+                                <i class="fas fa-hourglass-half"></i>
+                                <div class="info-detail-content">
+                                    <span class="info-detail-label">Suggested Duration</span>
+                                    <span class="info-detail-value">2-3 hours</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-detail-item">
+                                <i class="fas fa-star"></i>
+                                <div class="info-detail-content">
+                                    <span class="info-detail-label">Rating</span>
+                                    <span class="info-detail-value">4.7/5 (3,245 reviews)</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-detail-item">
+                                <i class="fas fa-globe"></i>
+                                <div class="info-detail-content">
+                                    <span class="info-detail-label">Website</span>
+                                    <span class="info-detail-value"><a href="#">www.destination.com</a></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
     
@@ -636,6 +809,47 @@
                     ripple.style.top = (e.clientY - rect.top) + 'px';
                     discoverBtn.appendChild(ripple);
                     setTimeout(() => ripple.remove(), 600);
+                });
+            }
+            
+            // Handle "Plan My Trip" button click
+            const createTripBtn = document.getElementById('create-trip-btn');
+            if (createTripBtn) {
+                createTripBtn.addEventListener('click', function() {
+                    console.log("Plan My Trip button clicked");
+                    
+                    // Check if any attractions are selected
+                    const selectedCards = document.querySelectorAll('.recommendation-card.selected');
+                    const selectedIds = Array.from(selectedCards).map(card => card.getAttribute('data-id'));
+                    
+                    if (selectedIds.length === 0) {
+                        alert("Please select at least one attraction before planning your trip.");
+                        return;
+                    }
+                    
+                    // Get the destination from the UI
+                    const destination = document.querySelector('.destination-tag').textContent.trim();
+                    
+                    // Store data in sessionStorage
+                    try {
+                        // Store the full attractions data
+                        sessionStorage.setItem('attractions_data', JSON.stringify(attractionsData));
+                        
+                        // Store destination and selected attractions IDs
+                        sessionStorage.setItem('planning_destination', destination);
+                        sessionStorage.setItem('planning_attractions', JSON.stringify(selectedIds));
+                        
+                        // Also store city information explicitly
+                        sessionStorage.setItem('start_city', destination);
+                        sessionStorage.setItem('end_city', destination);
+                        
+                        console.log("Data stored in sessionStorage, navigating to planning page");
+                    } catch (error) {
+                        console.error("Error storing planning data:", error);
+                    }
+                    
+                    // Navigate to planning page
+                    window.location.href = 'planning.html';
                 });
             }
         });

@@ -236,9 +236,20 @@ function setupEventListeners() {
                 // Show the edit button again
                 document.getElementById('edit-profile-btn').style.display = 'block';
 
-                alert('Profile updated successfully!');
+                // Use custom Ghibli-themed success modal instead of alert
+                if (window.showSuccessMessage) {
+                    window.showSuccessMessage('Profile Updated', 'Your profile has been updated successfully!');
+                } else {
+                    // Fallback to alert if modal function is not available
+                    alert('Profile updated successfully!');
+                }
             } catch (error) {
-                alert('Failed to update profile. Please try again.');
+                // Use custom error modal if available
+                if (window.showErrorMessage) {
+                    window.showErrorMessage('Profile Update Failed', 'Could not update your profile. Please try again later.');
+                } else {
+                    showError('Failed to update profile. Please try again.');
+                }
             }
         });
     }
@@ -248,20 +259,48 @@ function setupEventListeners() {
     if (preferencesForm) {
         preferencesForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-
+            
             // Get form values
-            const formData = {
-                weather: document.getElementById('weather').value,
-                environment: document.getElementById('environment').value,
-                activity: document.getElementById('activity').value
+            const weatherValue = document.getElementById('weather').value;
+            const environmentValue = document.getElementById('environment').value;
+            const activityValue = document.getElementById('activity').value;
+            
+            // Create preferences object
+            const preferences = {
+                weather: weatherValue,
+                environment: environmentValue,
+                activity: activityValue
             };
-
+            
             try {
-                // Actually call the update function
-                await updateUserPreferences(formData);
-                alert('Preferences updated successfully!');
+                // Send update to database
+                await updateUserPreferences(preferences);
+                
+                // Use custom Ghibli-themed success modal instead of alert
+                if (window.showSuccessMessage) {
+                    window.showSuccessMessage('Preferences Saved', 'Your travel preferences have been updated successfully!');
+                } else {
+                    // Fallback to alert if modal function is not available
+                    alert('Preferences updated successfully!');
+                }
             } catch (error) {
-                alert('Failed to update preferences. Please try again.');
+                // Use custom error modal if available
+                if (window.showErrorMessage) {
+                    window.showErrorMessage('Preferences Update Failed', 'Could not update your preferences. Please try again later.');
+                } else {
+                    showError('Failed to update preferences. Please try again.');
+                }
+            }
+        });
+    }
+
+    // Update preferences button (outside of form)
+    const updatePrefsBtn = document.getElementById('update-prefs-btn');
+    if (updatePrefsBtn) {
+        updatePrefsBtn.addEventListener('click', function() {
+            if (preferencesForm) {
+                // Trigger form submission
+                preferencesForm.dispatchEvent(new Event('submit'));
             }
         });
     }
@@ -426,28 +465,36 @@ async function submitCloneTrip() {
 // Update user preferences in the database
 async function updateUserPreferences(preferences) {
     try {
-        showLoading("Updating your preferences...");
-
-        // Get email and verify it exists before proceeding
-        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-        console.log("Email from storage for preferences update:", email);
-
-        if (!email) {
-            console.error("No email found in storage for preferences update!");
-            throw new Error("User email not found. Please login again.");
+        // Skip the update if we removed the preferences UI
+        if (!document.getElementById('weather') || 
+            !document.getElementById('environment') || 
+            !document.getElementById('activity')) {
+            console.log("Preferences UI removed, skipping preferences update");
+            return { success: true };
         }
-
-        // Add email to query parameters AND include in the body
+        
+        showLoading("Updating your preferences...");
+        
+        // Get user email from storage
+        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+        
+        if (email) {
+            console.log("Email from storage for preferences update:", email);
+        } else {
+            console.error("No email found in storage for preferences update!");
+            throw new Error("User not authenticated");
+        }
+        
+        // Prepare updated preferences data
         const updatedPreferences = {
             ...preferences,
-            email: email  // Include email in the request body too
+            email: email
         };
-
+        
         console.log("Full preferences payload:", updatedPreferences);
-
+        
         const url = `https://8pwhgwx173.execute-api.us-east-2.amazonaws.com/prod/users/preferences?email=${encodeURIComponent(email)}`;
-        console.log("Request URL:", url);
-
+        
         const response = await fetch(url, {
             method: 'PUT',
             headers: {
@@ -456,46 +503,33 @@ async function updateUserPreferences(preferences) {
             },
             body: JSON.stringify(updatedPreferences)
         });
-
-        console.log("Response status:", response.status);
-        const responseData = await response.json();
+        
+        const responseData = await response.text();
         console.log("Raw preferences update response:", responseData);
-
-        // Handle Lambda proxy response format
+        
         let result;
-        if (responseData.statusCode) {
-            // API Gateway Lambda proxy format
-            if (responseData.statusCode !== 200) {
-                let errorMessage = 'Unknown error';
-                try {
-                    const errorBody = JSON.parse(responseData.body);
-                    errorMessage = errorBody.error || errorMessage;
-                } catch (e) {
-                    console.error("Failed to parse error body:", e);
-                }
-                throw new Error(`Server returned an error: ${errorMessage}`);
-            }
-
-            // Parse the response body if successful
-            try {
-                result = JSON.parse(responseData.body);
-                console.log("Processed preferences update response:", result);
-            } catch (e) {
-                console.error("Failed to parse response body:", e);
-                throw new Error("Invalid response format from server");
-            }
-        } else if (!response.ok) {
-            throw new Error(`Failed to update preferences: ${response.status}`);
-        } else {
-            // Direct response (not wrapped by API Gateway)
-            result = responseData;
+        try {
+            result = JSON.parse(responseData);
+        } catch (e) {
+            console.error("Could not parse preferences update response:", e);
+            hideLoading();
+            throw new Error("Invalid response from server");
         }
-
+        
+        // Check for API Gateway formatted response
+        if (result.statusCode && result.body) {
+            result = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+        }
+        
         hideLoading();
+        console.log("Processed preferences update response:", result);
+        
         return result;
     } catch (error) {
-        console.error('Error updating preferences:', error);
         hideLoading();
+        
+        console.error('Error updating preferences:', error);
+        
         showError("Couldn't update your preferences. Please try again later.");
         throw error;
     }
@@ -937,6 +971,13 @@ function hideLoading() {
 
 // Show error message
 function showError(message) {
+    // Use custom Ghibli-themed modal if available
+    if (window.showErrorMessage) {
+        window.showErrorMessage('Error', message);
+        return;
+    }
+    
+    // Fallback to inline error message
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.textContent = message;
