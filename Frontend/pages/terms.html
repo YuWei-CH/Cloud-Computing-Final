@@ -96,6 +96,44 @@
             background-repeat: no-repeat;
             opacity: 0.3;
         }
+
+        /* Update footer styling for transparency */
+        .app-footer {
+            background-color: transparent !important;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            gap: 30px;
+        }
+        
+        .footer-container p {
+            margin: 0;
+            color: #666;
+        }
+        
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
@@ -121,7 +159,6 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-dropdown">
-                        <a href="../settings/settings.html"><i class="fas fa-user-circle"></i> Profile</a>
                         <a href="../pages/about.html"><i class="fas fa-info-circle"></i> About Us</a>
                         <a href="../pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
                         <a href="../pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
@@ -179,7 +216,7 @@
             <!-- Footer section -->
             <footer class="app-footer">
                 <div class="footer-container">
-                    <p>&copy; 2023 Trip Planner. All rights reserved.</p>
+                    <p>&copy; 2025 Trip Planner. All rights reserved.</p>
                     <div class="footer-links">
                         <a href="../pages/privacy.html">Privacy Policy</a>
                         <a href="../pages/terms.html">Terms of Service</a>

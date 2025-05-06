@@ -197,6 +197,13 @@ function setupEventListeners() {
             // Use stored data instead of trying to fetch again
             document.getElementById('edit-username').value = currentUserData.username;
             document.getElementById('edit-email').value = currentUserData.email;
+
+            // Hide edit mode, show view mode
+            document.getElementById('profile-edit-mode').style.display = 'none';
+            document.getElementById('profile-view-mode').style.display = 'flex';
+
+            // Show the edit button again
+            document.getElementById('edit-profile-btn').style.display = 'block';
         });
     }
 
@@ -680,18 +687,18 @@ function formatDateRange(startDateStr, duration) {
     if (!startDateStr) {
         return "Date not set";
     }
-    
+
     // Create a new date object with the UTC date string to ensure correct parsing
     const startDate = new Date(startDateStr);
-    
+
     // Adjust for timezone differences if needed
     // This ensures the date displayed matches the intended input date
     const timezoneOffset = startDate.getTimezoneOffset() * 60000;
     const adjustedStartDate = new Date(startDate.getTime() + timezoneOffset);
-    
+
     // Create a new date object for the end date
     const endDate = new Date(adjustedStartDate);
-    
+
     // The end date is start date + duration - 1 (since duration includes the start date)
     endDate.setDate(endDate.getDate() + (parseInt(duration) || 0) - 1);
 
@@ -734,10 +741,16 @@ function renderTripCards(trips) {
         // Get trip image URL or use placeholder
         const imageUrl = trip.cover_url || `https://via.placeholder.com/300x150?text=${encodeURIComponent(trip.start_city)}`;
 
-        // Create trip card HTML
+        // Create trip card HTML with explicit data attributes
         const tripCard = document.createElement('div');
         tripCard.className = 'trip-card';
         tripCard.dataset.tripId = trip.id;
+        tripCard.dataset.title = trip.title || `Trip to ${trip.start_city}`;
+        tripCard.dataset.startCity = trip.start_city;
+        tripCard.dataset.endCity = trip.end_city;
+        tripCard.dataset.startDate = trip.start_date;
+        tripCard.dataset.duration = trip.duration;
+
         tripCard.innerHTML = `
             <div class="trip-image">
                 <img src="${imageUrl}" alt="${trip.title || 'Trip'}">
@@ -759,7 +772,6 @@ function renderTripCards(trips) {
                 ${status === "upcoming" ? '<button class="btn-text edit-trip"><i class="fas fa-pencil-alt"></i> Edit</button>' :
                 '<button class="btn-text clone-trip"><i class="fas fa-copy"></i> Clone</button>'}
                 <button class="btn-text delete-trip"><i class="fas fa-trash-alt"></i> Delete</button>
-                <button class="btn-text upload-tickets"><i class="fas fa-ticket-alt"></i> Upload Tickets</button>
             </div>
         `;
 
@@ -788,8 +800,16 @@ function renderTripCards(trips) {
             const tripName = tripCard.querySelector('h3').textContent;
 
             if (this.classList.contains('edit-trip')) {
-                // Direct to the edit trip page with the trip ID
-                window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+                // Use try-catch to handle errors
+                try {
+                    console.log(`Editing trip: ${tripName} (ID: ${tripId})`);
+
+                    // Direct to the edit trip page with the trip ID
+                    window.location.href = `../edit_trip/edit_trip.html?trip_id=${tripId}`;
+                } catch (error) {
+                    console.error("Error redirecting to edit page:", error);
+                    alert("Failed to open trip editor. Please try again.");
+                }
             } else {
                 // Show clone trip modal
                 showCloneTripModal(tripId, tripName, tripCard);

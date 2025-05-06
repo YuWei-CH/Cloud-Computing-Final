@@ -433,3 +433,325 @@
     transform: translateX(-50%) translateY(0);
     opacity: 1;
 }
+
+/* Add/update these styles for the edit trip page */
+
+/* Day tabs styling */
+.day-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.day-tab {
+    padding: 8px 15px;
+    background-color: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.day-tab:hover {
+    background-color: var(--card-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--soft-shadow);
+}
+
+.day-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: var(--soft-shadow);
+}
+
+.day-tab.add-day {
+    background-color: var(--accent-color, #4caf50);
+    color: white;
+    border-color: var(--accent-color, #4caf50);
+}
+
+.day-tab.add-day:hover {
+    background-color: var(--accent-hover, #3d8b40);
+}
+
+/* Day content styling */
+.day-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+}
+
+/* Waypoints styling */
+.waypoints-section {
+    margin-top: 25px;
+}
+
+.waypoints-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.waypoints-container {
+    margin-bottom: 15px;
+}
+
+.waypoint-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    background-color: var(--light-gray);
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.waypoint-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.waypoint-handle {
+    cursor: move;
+    color: #999;
+}
+
+.delete-waypoint {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.no-waypoints {
+    font-style: italic;
+    color: #999;
+    margin: 15px 0;
+}
+
+/* Day actions */
+.day-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+/* Day navigation */
+.day-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Custom activity section */
+.custom-destination-form {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+}
+
+.custom-destination-form h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Trip summary section styling */
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.summary-item i {
+    width: 20px;
+    color: var(--primary-color);
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--light-gray);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: #e2e6ea;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    transform: none;
+}
+
+/* Itinerary grid layout */
+.itinerary-container {
+    flex: 1;
+}
+
+.itinerary-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.itinerary-sidebar {
+    width: 300px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .itinerary-section {
+        flex-direction: column;
+    }
+
+    .itinerary-sidebar {
+        width: 100%;
+        order: -1;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .day-tabs {
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .day-tab {
+        white-space: nowrap;
+    }
+
+    .day-actions {
+        flex-direction: column;
+    }
+}
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-message {
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+/* Error message styling */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}

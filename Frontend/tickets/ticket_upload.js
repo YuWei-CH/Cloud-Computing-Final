@@ -9,46 +9,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        // Check if a trip ID was provided in the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const tripIdFromUrl = urlParams.get('tripId');
-
-        // Load upcoming trips
-        const trips = await loadUpcomingTrips(email);
-
         // Set up event listeners for the page
-        setupEventListeners(trips);
-
-        // If trip ID was provided in URL, pre-select that trip and open upload section
-        if (tripIdFromUrl) {
-            preSelectTrip(tripIdFromUrl, trips);
-        }
+        setupEventListeners();
 
         // Load user tickets
         await loadUserTickets(email);
 
     } catch (error) {
         console.error('Error initializing upload page:', error);
-        showError("There was a problem loading your trips.");
+        showError("There was a problem loading your tickets.");
     }
 });
-
-// Pre-select a trip based on ID from URL parameter
-function preSelectTrip(tripId, trips) {
-    if (!tripId || !trips || trips.length === 0) return;
-
-    // Find the trip in our loaded trips
-    const trip = trips.find(t => t.id === tripId);
-    if (!trip) return;
-
-    // Show the upload section
-    document.getElementById('upload-section').style.display = 'block';
-
-    // Scroll to the upload section
-    document.getElementById('upload-section').scrollIntoView({
-        behavior: 'smooth'
-    });
-}
 
 // Authentication check function
 function checkAuthentication() {
@@ -70,133 +41,13 @@ function checkAuthentication() {
     return email;
 }
 
-// Function to load upcoming trips for current user
-async function loadUpcomingTrips(email) {
-    try {
-        showLoading("Loading your upcoming trips...");
-
-        // Get userId from email - just use email as userId for simplicity
-        const userId = email;
-
-        const url = `https://af6zo8cu88.execute-api.us-east-2.amazonaws.com/Prod/trips?user_id=${encodeURIComponent(userId)}`;
-        console.log("Fetching trips from:", url);
-
-        // Fetch trips from API
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log("Trips API response status:", response.status);
-        const data = await response.json();
-        console.log("Trips API raw response:", data);
-
-        // Extract trips from the response
-        let trips = [];
-
-        if (data.statusCode && data.body) {
-            // Handle Lambda proxy response format
-            try {
-                // Handle both string and object body
-                const bodyContent = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-                if (bodyContent.trips) {
-                    trips = bodyContent.trips;
-                }
-            } catch (e) {
-                console.error("Failed to parse response body:", e);
-            }
-        } else if (data.trips) {
-            // Direct response with trips array
-            trips = data.trips;
-        }
-
-        console.log(`Found ${trips.length} trips:`, trips);
-
-        // Filter for upcoming trips only
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const upcomingTrips = trips.filter(trip => {
-            const startDate = new Date(trip.start_date);
-            startDate.setHours(0, 0, 0, 0);
-            return startDate >= today;
-        });
-
-        console.log(`Found ${upcomingTrips.length} upcoming trips:`, upcomingTrips);
-
-        // Render the upcoming trips in the UI
-        renderUpcomingTrips(upcomingTrips);
-
-        hideLoading();
-        return upcomingTrips;
-    } catch (error) {
-        console.error('Error loading trips:', error);
-        hideLoading();
-        showError("Couldn't load your trips. Please try again later.");
-
-        // Return empty array to avoid errors
-        return [];
-    }
-}
-
-// Render upcoming trips in the trip selector
-function renderUpcomingTrips(trips) {
-    const tripSelector = document.getElementById('trip-selector');
-
-    // Clear existing content
-    tripSelector.innerHTML = '';
-
-    if (!trips || trips.length === 0) {
-        tripSelector.innerHTML = '<div class="no-trips-message">You have no upcoming trips. Create a trip first!</div>';
-        return;
-    }
-
-    // Sort trips by start date (earliest first)
-    trips.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
-
-    // Create trip cards for display in list
-    trips.forEach(trip => {
-        const startDate = new Date(trip.start_date);
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + (trip.duration || 0));
-
-        // Format dates for display
-        const formatDate = (date) => {
-            return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
-        };
-
-        const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
-
-        const tripElement = document.createElement('div');
-        tripElement.className = 'trip-item';
-        tripElement.dataset.tripId = trip.id;
-        tripElement.innerHTML = `
-            <div class="trip-details">
-                <h3>${trip.title || `Trip to ${trip.start_city}`}</h3>
-                <div>
-                    <i class="far fa-calendar-alt"></i> ${dateRange}
-                </div>
-                <div>
-                    <i class="fas fa-map-marker-alt"></i> ${trip.start_city} to ${trip.end_city}
-                </div>
-            </div>
-        `;
-
-        tripSelector.appendChild(tripElement);
-    });
-}
-
 // Set up event listeners for all page functionality
-function setupEventListeners(trips) {
+function setupEventListeners() {
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
     const uploadBtn = document.getElementById('upload-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const mainUploadBtn = document.getElementById('main-upload-btn');
-
-    // Remove tripDropdown reference and event listener
 
     // Main upload button shows the upload section
     mainUploadBtn.addEventListener('click', function () {
