@@ -10,7 +10,7 @@ Parameters:
   SenderEmail:
     Type: String
     Description: SES‐verified From address
-    Default: dc4806@nyu.edu
+    Default: chelseacdx@gmail.com
 
   DBHostParameter:
     Type: String
@@ -38,8 +38,8 @@ Resources:
     Properties:
       QueueName: abnormal-data-queue
 
-  # 1) WriteAbnormalData Lambda + Role + Schedule
-  WriteAbnormalDataRole:
+  # 1) WriteWeatherReport Lambda + Role + Schedule
+  WriteWeatherReportRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -57,13 +57,13 @@ Resources:
                 Action: sqs:SendMessage
                 Resource: !GetAtt AbnormalDataQueue.Arn
 
-  WriteAbnormalDataFunction:
+  WriteWeatherReportFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: WriteAbnormalData
+      FunctionName: WriteWeatherReport
       Runtime: python3.9
       Handler: app.handler
-      Role: !GetAtt WriteAbnormalDataRole.Arn
+      Role: !GetAtt WriteWeatherReportRole.Arn
       Timeout: 60
       MemorySize: 256
       Code:
@@ -77,23 +77,22 @@ Resources:
           DB_PASSWORD:     !Ref DBPasswordParameter
           DB_NAME:         !Ref DBNameParameter
           WEATHER_API_KEY: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/weather-api-keys-2514yj:SecretString:WEATHER_API_KEY}}"
-          FLIGHT_API_KEY:  "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-es3rtQ:SecretString:FLIGHT_API_KEY}}"
 
-  ScheduleWriteAbnormalData:
+  ScheduleWriteWeatherReport:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: rate(4 hours)
+      ScheduleExpression: rate(1 day)
       State: ENABLED
       Targets:
-        - Arn: !GetAtt WriteAbnormalDataFunction.Arn
-          Id: WriteAbnormalData
+        - Arn: !GetAtt WriteWeatherReportFunction.Arn
+          Id: WriteWeatherReport
   PermissionWriteInvoke:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref WriteAbnormalDataFunction
+      FunctionName: !Ref WriteWeatherReportFunction
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt ScheduleWriteAbnormalData.Arn
+      SourceArn: !GetAtt ScheduleWriteWeatherReport.Arn
 
   # 2) FetchAndEmail Lambda + Role + Schedule
   FetchAndEmailRole:
@@ -141,7 +140,7 @@ Resources:
   ScheduleFetchAndEmail:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: rate(4 hours)
+      ScheduleExpression: rate(1 day)
       State: ENABLED
       Targets:
         - Arn: !GetAtt FetchAndEmailFunction.Arn
@@ -154,7 +153,7 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt ScheduleFetchAndEmail.Arn
 
-  WriteAbnormalDataRole:
+  WriteWeatherReportRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -179,7 +178,6 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource:
                   - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/weather-api-keys-*
-                  - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-*
 
   FetchAndEmailRole:
     Type: AWS::IAM::Role
@@ -214,3 +212,138 @@ Resources:
                 Resource:
                   - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/weather-api-keys-*
                   - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-*
+ 
+### WriteAbnormalDataFlight Lambda + Role
+
+  WriteAbnormalDataFlightRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSQSSend
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt AbnormalDataQueue.Arn
+        - PolicyName: AllowSecretsFetch
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-*
+
+  WriteAbnormalDataFlightFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: WriteAbnormalDataFlight
+      Runtime: python3.9
+      Handler: app.handler
+      Role: !GetAtt WriteAbnormalDataFlightRole.Arn
+      Timeout: 60
+      MemorySize: 256
+      Code:
+        S3Bucket: !Ref S3BucketForCode
+        S3Key: write_abnormal_data_flight.zip
+      Environment:
+        Variables:
+      Environment:
+        Variables:
+          QUEUE_URL:       !Ref AbnormalDataQueue
+          DB_HOST:         !Ref DBHostParameter
+          DB_USER:         !Ref DBUserParameter
+          DB_PASSWORD:     !Ref DBPasswordParameter
+          DB_NAME:         !Ref DBNameParameter
+          FLIGHT_API_KEY:  "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-2:442042526278:secret:trip-planner/flight-api-key-es3rtQ:SecretString:FLIGHT_API_KEY}}"
+
+  ScheduleWriteAbnormalDataFlight:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(2 hours)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt WriteAbnormalDataFlightFunction.Arn
+          Id: WriteAbnormalDataFlight
+
+  PermissionInvokeWriteFlight:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WriteAbnormalDataFlightFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduleWriteAbnormalDataFlight.Arn
+
+  ### FetchAndEmailFlight Lambda + Role
+
+  FetchAndEmailFlightRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSQSReceiveAndSES
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                Resource: !GetAtt AbnormalDataQueue.Arn
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+
+  FetchAndEmailFlightFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: FetchAndEmailFlight
+      Runtime: python3.9
+      Handler: app.handler
+      Role: !GetAtt FetchAndEmailFlightRole.Arn
+      Timeout: 60
+      MemorySize: 256
+      Code:
+        S3Bucket: !Ref S3BucketForCode
+        S3Key: fetch_and_email_flight.zip
+      Environment:
+        Variables:
+          QUEUE_URL:    !GetAtt AbnormalDataQueue.QueueUrl
+          SENDER_EMAIL: !Ref SenderEmail
+
+  ScheduleFetchAndEmailFlight:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(2 hours)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt FetchAndEmailFlightFunction.Arn
+          Id: FetchAndEmailFlight
+
+  PermissionInvokeFetchFlight:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FetchAndEmailFlightFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduleFetchAndEmailFlight.Arn
+
+Outputs:
+  WriteAbnormalDataFlightFunction:
+    Value: !Ref WriteAbnormalDataFlightFunction
+  FetchAndEmailFlightFunction:
+    Value: !Ref FetchAndEmailFlightFunction
