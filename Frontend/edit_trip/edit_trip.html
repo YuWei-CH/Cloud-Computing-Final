@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../utils/css/styles.css">
     <link rel="stylesheet" href="../utils/css/dashboard.css">
     <link rel="stylesheet" href="../utils/css/planning.css">
+    <link rel="stylesheet" href="../utils/css/trip_card.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Dark theme stylesheet (disabled by default) -->
     <link rel="stylesheet" href="../utils/css/dark-theme.css" id="dark-theme" disabled>
@@ -15,33 +16,479 @@
     <!-- Config file with API keys -->
     <script src="../utils/js/config.js"></script>
     <style>
-        /* Styles for read-only fields */
-        .readonly-field {
-            background-color: #f8f9fa;
-            cursor: not-allowed;
-            color: #6c757d;
-            border-color: #e9ecef;
+        /* Reset some dashboard container styles */
+        .dashboard-container {
+            display: block;
         }
         
-        .edit-notice {
-            background-color: #e8f4fd;
-            border-left: 4px solid #0d6efd;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            font-size: 0.9rem;
+        body {
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/dashboardBG.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            animation: backgroundShift 60s ease-in-out infinite alternate;
         }
         
-        .edit-notice p {
+        @keyframes backgroundShift {
+            0% { background-position: center; }
+            100% { background-position: center 20%; }
+        }
+        
+        /* Make main content take full height and center content */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 100px);
+            max-width: 100%;
+            padding: 80px 20px 20px 20px;
+            position: relative;
+        }
+        
+        /* Add floating dust particles like in Totoro */
+        .main-content::before,
+        .main-content::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            filter: blur(3px);
+            animation: float 15s infinite linear;
+            z-index: -1;
+            box-shadow: 
+                100px 100px 0 -2px rgba(255, 255, 255, 0.3),
+                200px -150px 0 -1px rgba(255, 255, 255, 0.4),
+                -150px 50px 0 0px rgba(255, 255, 255, 0.5),
+                -100px -100px 0 -3px rgba(255, 255, 255, 0.3),
+                250px 80px 0 -2px rgba(255, 255, 255, 0.4);
+        }
+        
+        .main-content::after {
+            width: 6px;
+            height: 6px;
+            top: 30%;
+            left: 60%;
+            animation: float 18s infinite linear reverse;
+            box-shadow: 
+                -120px 100px 0 -2px rgba(255, 255, 255, 0.4),
+                170px -80px 0 -1px rgba(255, 255, 255, 0.3),
+                -200px 50px 0 0px rgba(255, 255, 255, 0.5),
+                -50px -150px 0 -3px rgba(255, 255, 255, 0.3),
+                220px 40px 0 -2px rgba(255, 255, 255, 0.4);
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.7; }
+            25% { transform: translateY(-20px) translateX(10px) rotate(90deg); opacity: 0.9; }
+            50% { transform: translateY(0) translateX(20px) rotate(180deg); opacity: 0.7; }
+            75% { transform: translateY(20px) translateX(10px) rotate(270deg); opacity: 0.9; }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); opacity: 0.7; }
+        }
+        
+        .edit-trip-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 0;
+            position: relative;
+        }
+        
+        /* Add tiny Soot Sprite as decoration */
+        .edit-trip-container::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/soot_sprite.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            top: -30px;
+            right: 30%;
+            animation: bounceSoot 4s ease-in-out infinite;
+            z-index: 2;
+        }
+        
+        @keyframes bounceSoot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .ghibli-card {
+            background: rgba(255,255,255,0.85);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 
+                        0 2px 8px rgba(62, 147, 145, 0.2),
+                        inset 0 0 32px rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            padding: 35px 40px 30px 40px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+            transition: all 0.4s ease;
+        }
+        
+        .ghibli-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 
+                       0 4px 12px rgba(62, 147, 145, 0.25),
+                       inset 0 0 32px rgba(255, 255, 255, 0.6);
+            transform: translateY(-5px);
+        }
+        
+        /* Add a leaf decoration to the card */
+        .ghibli-card::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/ghibli_leaf.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.6;
+            transform: rotate(-15deg);
+            animation: leafSway 8s ease-in-out infinite;
+        }
+        
+        @keyframes leafSway {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(5deg); }
+        }
+        
+        .ghibli-card::before {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: -40px;
+            width: 150px;
+            height: 150px;
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.07;
+            z-index: 0;
+            animation: breathe 6s ease-in-out infinite;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .ghibli-header-container {
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+            border-bottom: 2px dotted rgba(62, 147, 145, 0.3);
+            width: 100%;
+            text-align: left;
+        }
+        
+        .ghibli-header-title {
             margin: 0;
-            color: #0d6efd;
+            font-size: 2.2rem;
+            color: #4A7B7D;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            position: relative;
+            display: inline-block;
         }
         
-        .form-group label small {
-            font-weight: normal;
+        /* Add a cute underline to the header */
+        .ghibli-header-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                rgba(62, 147, 145, 0), 
+                rgba(62, 147, 145, 0.7) 20%, 
+                rgba(62, 147, 145, 0.9) 50%, 
+                rgba(62, 147, 145, 0.7) 80%, 
+                rgba(62, 147, 145, 0));
+        }
+        
+        .ghibli-header-date {
+            font-size: 1.1rem;
+            color: #5A6D6D;
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            padding: 8px 18px;
+            display: inline-block;
+            margin-top: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.8);
+            text-align: left;
+        }
+        
+        /* Add a cloud icon to the date */
+        .ghibli-header-date::before {
+            content: '\f0c2';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-right: 8px;
+            color: #4A7B7D;
+        }
+        
+        .ghibli-label {
+            color: #4A7B7D;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+            letter-spacing: 0.5px;
+            border-bottom: 2px dashed rgba(62, 147, 145, 0.2);
+            padding-bottom: 5px;
+            position: relative;
+        }
+        
+        /* Add small icon before each label */
+        .ghibli-label::before {
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-right: 8px;
+            font-size: 0.9em;
+            opacity: 0.9;
+            position: relative;
+            top: -1px;
+        }
+        
+        /* Different icon for each label */
+        .ghibli-label[for="trip-title"]::before {
+            content: '\f084';  /* key icon */
+        }
+        
+        .ghibli-label[for="start-city"]::before {
+            content: '\f3c5';  /* map marker */
+        }
+        
+        .ghibli-label[for="end-city"]::before {
+            content: '\f05b';  /* crosshairs */
+        }
+        
+        .ghibli-label[for="start-date"]::before {
+            content: '\f133';  /* calendar */
+        }
+        
+        .ghibli-label[for="trip-duration"]::before {
+            content: '\f017';  /* clock */
+        }
+        
+        .ghibli-input {
+            font-size: 1.1rem;
+            color: #4d6a6c;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 22px;
+            border: 1px solid rgba(200,200,200,0.4);
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .ghibli-input:focus {
+            background: rgba(255,255,255,0.9);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02), 0 0 0 3px rgba(62, 147, 145, 0.1);
+            border-color: rgba(62, 147, 145, 0.3);
+            outline: none;
+        }
+        
+        .ghibli-input[readonly], .ghibli-input[disabled] {
             color: #6c757d;
-            font-style: italic;
-            font-size: 0.8rem;
+            background: rgba(245,245,245,0.7);
+            cursor: not-allowed;
+        }
+        
+        .ghibli-btn-primary {
+            margin-top: 30px;
+            padding: 15px 32px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #5CAC9E, #2d7e7b);
+            color: white;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 8px 20px rgba(30, 98, 96, 0.25), 
+                        0 4px 8px rgba(0, 0, 0, 0.1),
+                        inset 0 2px 3px rgba(255, 255, 255, 0.4);
+            font-size: 1.15rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            align-self: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Add a magic glow effect to the button on hover */
+        .ghibli-btn-primary::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .ghibli-btn-primary:hover {
+            background: linear-gradient(135deg, #4D9C8F, #1b5e5b);
+            box-shadow: 0 10px 25px rgba(30, 98, 96, 0.35),
+                        0 6px 12px rgba(0, 0, 0, 0.15),
+                        inset 0 2px 5px rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+        
+        .ghibli-btn-primary:hover::before {
+            opacity: 1;
+            animation: magicGlow 1.5s infinite;
+        }
+        
+        @keyframes magicGlow {
+            0% { transform: translate(-60%, -30%) rotate(0deg); }
+            100% { transform: translate(60%, 30%) rotate(360deg); }
+        }
+        
+        .ghibli-btn-primary:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(30, 98, 96, 0.3);
+        }
+        
+        /* Add save icon to button */
+        .ghibli-btn-primary::after {
+            content: '\f0c7';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-left: 10px;
+        }
+        
+        .ghibli-value {
+            font-size: 1.15rem;
+            color: #5A6D6D;
+            padding: 12px 18px;
+            margin-bottom: 22px;
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            /* Styled like an organic paper note */
+            background: rgba(253, 252, 245, 0.6);
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            border-left: 3px solid rgba(92, 172, 158, 0.4);
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+            width: 100%;
+        }
+        
+        .trip-details-form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Loading overlay with Ghibli style */
+        #loading-overlay {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+        }
+        
+        #loading-overlay div:first-child {
+            border: 4px solid rgba(92, 172, 158, 0.15);
+            border-top-color: #5CAC9E;
+            width: 60px;
+            height: 60px;
+        }
+        
+        /* Add a small nature decoration to bottom of form */
+        .trip-details-form::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 20px;
+            background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/ghibli_grass.png');
+            background-size: contain;
+            background-repeat: repeat-x;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Custom dark mode styles with Ghibli feel */
+        .dark-mode .ghibli-card {
+            background: rgba(51, 65, 85, 0.85);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25),
+                        0 2px 8px rgba(0, 0, 0, 0.2),
+                        inset 0 0 32px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .dark-mode .ghibli-header-title {
+            color: #7ACCC7;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .dark-mode .ghibli-label {
+            color: #7ACCC7;
+            border-bottom-color: rgba(122, 204, 199, 0.2);
+        }
+        
+        .dark-mode .ghibli-value {
+            color: #D1D8E0;
+            background: rgba(30, 40, 50, 0.4);
+            border-left-color: rgba(122, 204, 199, 0.4);
+        }
+        
+        .dark-mode .ghibli-header-date {
+            color: #D1D8E0;
+            background: rgba(30, 40, 50, 0.6);
+        }
+        
+        .dark-mode .ghibli-input {
+            color: #D1D8E0;
+            background: rgba(30, 40, 50, 0.6);
+            border-color: rgba(122, 204, 199, 0.2);
+        }
+        
+        .dark-mode .ghibli-btn-primary {
+            background: linear-gradient(135deg, #3D7875, #1A4E4C);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3),
+                        0 4px 8px rgba(0, 0, 0, 0.2),
+                        inset 0 2px 3px rgba(255, 255, 255, 0.1);
+        }
+        
+        .dark-mode .ghibli-btn-primary:hover {
+            background: linear-gradient(135deg, #4A8D8A, #266361);
         }
     </style>
 </head>
@@ -81,126 +528,44 @@
         </nav>
 
         <main class="main-content">
-            <header class="dashboard-header">
-                <h1>Edit Your Trip</h1>
-                <div class="current-date-display">
-                    <i class="far fa-calendar-alt"></i>
-                    <span id="current-date">Today's Date</span>
-                </div>
-            </header>
-            
-            <section id="trip-details-section" class="trip-duration-section">
-                <div class="section-header">
-                    <h2>Trip Details</h2>
-                </div>
-                <div class="card">
-                    <form id="trip-details-form">
+            <div class="edit-trip-container">
+                <div class="ghibli-card">
+                    <div class="ghibli-header-container">
+                        <h1 class="ghibli-header-title">Edit Your Trip</h1>
+                        <div class="ghibli-header-date" id="current-date"></div>
+                    </div>
+                    <form id="trip-details-form" class="trip-details-form">
                         <div class="form-group">
-                            <label for="trip-title">Trip Title</label>
-                            <input type="text" id="trip-title" class="form-control" required>
+                            <label for="trip-title" class="ghibli-label">Trip Title</label>
+                            <div class="ghibli-value" id="trip-title"></div>
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="start-city">Start City</label>
-                                <input type="text" id="start-city" class="form-control" required>
-                            </div>
-                            <div class="form-group half">
-                                <label for="end-city">End City</label>
-                                <input type="text" id="end-city" class="form-control" required>
-                            </div>
+                        <div class="form-group">
+                            <label for="start-city" class="ghibli-label">Start City</label>
+                            <div class="ghibli-value" id="start-city"></div>
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="start-date">Start Date</label>
-                                <input type="date" id="start-date" class="form-control" required>
-                            </div>
-                            <div class="form-group half">
-                                <label for="trip-duration">Duration (days)</label>
-                                <input type="number" id="trip-duration" min="1" max="30" class="form-control" required>
-                            </div>
+                        <div class="form-group">
+                            <label for="end-city" class="ghibli-label">End City</label>
+                            <div class="ghibli-value" id="end-city"></div>
                         </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" onclick="window.location.href='../dashboard/dashboard.html'" class="btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                            <button type="submit" id="save-trip-btn" class="btn-primary">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
+                        <div class="form-group">
+                            <label for="start-date" class="ghibli-label">Start Date</label>
+                            <input type="date" id="start-date" name="start-date" class="ghibli-input">
                         </div>
+                        <div class="form-group">
+                            <label for="trip-duration" class="ghibli-label">Duration (days)</label>
+                            <div class="ghibli-value" id="trip-duration"></div>
+                        </div>
+                        <button type="submit" class="ghibli-btn-primary" id="save-trip-btn">Save Date</button>
                     </form>
                 </div>
-            </section>
-
-            <section id="itinerary-section" class="itinerary-section">
-                <div class="section-header">
-                    <h2>Trip Itinerary</h2>
-                </div>
-                
-                <div class="itinerary-container">
-                    <div class="day-tabs">
-                        <!-- Day tabs will be generated dynamically -->
-                    </div>
-                    
-                    <div class="day-content">
-                        <!-- Day content will be generated dynamically -->
-                        <div class="loading-placeholder">Loading trip data...</div>
-                    </div>
-                </div>
-                
-                <div class="itinerary-sidebar">
-                    <div class="sidebar-card">
-                        <h3>Trip Summary</h3>
-                        <div class="summary-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Start City: <strong id="summary-start-city"></strong></span>
-                        </div>
-                        <div class="summary-item">
-                            <i class="fas fa-flag-checkered"></i>
-                            <span>End City: <strong id="summary-end-city"></strong></span>
-                        </div>
-                        <div class="summary-item">
-                            <i class="fas fa-calendar-day"></i>
-                            <span>Duration: <strong id="summary-duration"></strong></span>
-                        </div>
-                        <div class="summary-item">
-                            <i class="fas fa-map"></i>
-                            <span>Activities: <strong id="summary-activities">0</strong></span>
-                        </div>
-                        
-                        <!-- Add custom destination form -->
-                        <div class="custom-destination-form">
-                            <h4>Add Custom Activity</h4>
-                            <input type="text" id="custom-destination-name" placeholder="Activity name" class="form-control">
-                            <textarea id="custom-destination-description" placeholder="Brief description" class="form-control" rows="3"></textarea>
-                            <button id="add-custom-destination" class="btn-secondary btn-full">
-                                <i class="fas fa-plus"></i> Add to Current Day
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Loading overlay for operations -->
-            <div id="loading-overlay" style="display: none;">
-                <div class="loading-spinner"></div>
-                <div class="loading-message">Loading...</div>
             </div>
-            
-            <!-- Footer section -->
-            <footer class="app-footer">
-                <div class="footer-container">
-                    <p>&copy; 2025 Trip Planner. All rights reserved.</p>
-                    <div class="footer-links">
-                        <a href="../pages/privacy.html">Privacy Policy</a>
-                        <a href="../pages/terms.html">Terms of Service</a>
-                        <a href="../pages/contact.html">Contact Us</a>
-                    </div>
-                </div>
-            </footer>
         </main>
+    </div>
+
+    <!-- Add a loading overlay -->
+    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="width: 50px; height: 50px; border: 3px solid var(--primary-color-light); border-radius: 50%; border-top-color: var(--primary-color); animation: spin 1s linear infinite;"></div>
+        <div class="loading-message" style="margin-top: 20px; color: var(--primary-color); font-weight: 600;">Loading...</div>
     </div>
 
     <script>
@@ -209,17 +574,47 @@
             document.getElementById('burger-menu').addEventListener('click', function() {
                 document.querySelector('.nav-links').classList.toggle('active');
             });
-            
             // Set current date
             const today = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
             
-            // REMOVE THIS ENTIRE BLOCK THAT ADDS DUPLICATE BUTTONS
-            // (Block removed as per instruction)
+            // Add loading animation
+            function showLoading(message = "Loading...") {
+                const loadingEl = document.getElementById('loading-overlay');
+                if (loadingEl) {
+                    const msgEl = loadingEl.querySelector('.loading-message');
+                    if (msgEl) msgEl.textContent = message;
+                    loadingEl.style.display = 'flex';
+                }
+            }
+            
+            function hideLoading() {
+                const loadingEl = document.getElementById('loading-overlay');
+                if (loadingEl) loadingEl.style.display = 'none';
+            }
+            
+            // Show loading when page loads
+            showLoading("Loading trip details...");
+            window.addEventListener('load', function() {
+                // Hide loading after everything has loaded
+                setTimeout(hideLoading, 500);
+            });
+        });
+
+        // Fix for non-input elements
+        // Need to update how we set values since we changed from inputs to divs
+        // This code patch handles this transition
+        const originalSetValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+        Object.defineProperty(HTMLDivElement.prototype, 'value', {
+            set: function(val) {
+                this.textContent = val;
+            },
+            get: function() {
+                return this.textContent;
+            }
         });
     </script>
-    
     <!-- Load Google Maps API dynamically with key from config -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -229,15 +624,20 @@
             script.defer = true;
             document.head.appendChild(script);
         });
-        
         // Global initialization function that will be called after API loads
         window.initializeApp = function() {
             console.log("Google Maps API loaded successfully");
             // Call any initialization functions here
         };
     </script>
-
     <!-- Make sure to include the edit_trip.js script -->
     <script src="../utils/js/edit_trip.js"></script>
+
+    <style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
 </body>
 </html>
