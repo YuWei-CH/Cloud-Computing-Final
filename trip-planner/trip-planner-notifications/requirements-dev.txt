@@ -1,5 +1,0 @@
-pytest
-moto
-requests-mock
-pymysql
-requests
