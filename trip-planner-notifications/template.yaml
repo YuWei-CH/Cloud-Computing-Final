@@ -81,7 +81,7 @@ Resources:
   ScheduleWriteWeatherReport:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: rate(1 day)
+      ScheduleExpression: cron(0 16 * * ? *)
       State: ENABLED
       Targets:
         - Arn: !GetAtt WriteWeatherReportFunction.Arn
@@ -140,7 +140,7 @@ Resources:
   ScheduleFetchAndEmail:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: rate(1 day)
+      ScheduleExpression: cron(0 16 * * ? *)
       State: ENABLED
       Targets:
         - Arn: !GetAtt FetchAndEmailFunction.Arn
