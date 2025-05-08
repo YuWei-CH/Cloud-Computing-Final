@@ -120,6 +120,11 @@
           </div>
         </div>
       </div>
+      
+      <!-- Sidebar toggle button -->
+      <div class="sidebar-toggle" id="sidebar-toggle">
+        <i class="fas fa-chevron-left"></i>
+      </div>
 
       <div id="map"></div>
 
@@ -159,11 +164,11 @@
               </div>
             </div>
             <div class="location-photos">
-              <h4>Photos</h4>
+              <h4><i class="fas fa-camera"></i> Photos</h4>
               <div id="location-photos-gallery" class="photos-grid"></div>
             </div>
             <div class="location-reviews">
-              <h4>Reviews</h4>
+              <h4><i class="fas fa-comment"></i> Reviews</h4>
               <div id="location-reviews-list" class="reviews-list"></div>
             </div>
           </div>
@@ -204,8 +209,30 @@
   <script>
     // Mobile menu toggle
     document.addEventListener('DOMContentLoaded', function() {
+      // Mobile burger menu
       document.getElementById('burger-menu').addEventListener('click', function() {
         document.querySelector('.nav-links').classList.toggle('active');
+      });
+      
+      // Sidebar toggle functionality
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const map = document.getElementById('map');
+      
+      sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        map.classList.toggle('expanded');
+        
+        // Change the icon direction based on the state
+        const icon = this.querySelector('i');
+        if (sidebar.classList.contains('collapsed')) {
+          icon.className = 'fas fa-chevron-right';
+        } else {
+          icon.className = 'fas fa-chevron-left';
+        }
+        
+        // Resize the map to fit the new container size
+        setTimeout(resizeMap, 400); // Wait for transition to complete
       });
     });
   </script>

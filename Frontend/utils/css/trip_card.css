@@ -107,12 +107,12 @@ body {
     z-index: 1;
 }
 
-/* Ghibli-style sidebar */
+/* Ghibli-style sidebar with transition */
 #sidebar {
     position: relative;
-    width: 350px;
-    min-width: 300px;
-    max-width: 400px;
+    width: 320px;
+    min-width: 280px;
+    max-width: 320px;
     height: 100vh;
     z-index: 10;
     overflow-y: auto;
@@ -121,31 +121,39 @@ body {
     backdrop-filter: blur(10px);
     border-right: 1px solid rgba(255, 255, 255, 0.7);
     padding: 0;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
+    flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 #map {
     position: relative;
-    flex: 1 1 0;
+    flex: 1;
     height: 100vh;
-    width: 100%;
     left: 0;
     top: 0;
     z-index: 1;
     background: transparent;
+    transition: all 0.4s ease;
 }
 
-/* Trip summary with Ghibli style */
+/* Enhanced Ghibli-style trip summary */
 #trip-summary {
     margin: 15px;
-    padding: 18px;
+    padding: 20px;
     background: rgba(248, 249, 250, 0.8);
     border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.7);
     position: relative;
     overflow: hidden;
+    transform: translateZ(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#trip-summary:hover {
+    transform: translateY(-3px) translateZ(0);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
 }
 
 #trip-summary::before {
@@ -153,41 +161,50 @@ body {
     position: absolute;
     bottom: -50px;
     right: -50px;
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/totoro_silhouette.png');
     background-size: contain;
     background-repeat: no-repeat;
-    opacity: 0.07;
+    opacity: 0.09;
     transform: rotate(10deg);
     z-index: 0;
+    transition: opacity 0.3s ease;
+}
+
+#trip-summary:hover::before {
+    opacity: 0.15;
 }
 
 #trip-title {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
     margin-top: 0;
     margin-bottom: 15px;
-    color: var(--primary-color);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    color: var(--ghibli-deep-blue);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     position: relative;
     z-index: 1;
+    font-weight: 700;
+    letter-spacing: -0.2px;
 }
 
 .trip-info {
-    margin: 10px 0;
+    margin: 12px 0;
     color: var(--text-color);
     display: flex;
     align-items: center;
-    font-size: 0.95rem;
+    font-size: 1rem;
     position: relative;
     z-index: 1;
+    padding-left: 5px;
 }
 
 .trip-info i {
-    color: var(--primary-color);
-    margin-right: 8px;
-    width: 20px;
+    color: var(--ghibli-teal);
+    margin-right: 10px;
+    width: 22px;
     text-align: center;
+    font-size: 1.1rem;
 }
 
 /* Ghibli-style weather section */
@@ -611,24 +628,178 @@ body {
     text-align: center;
 }
 
-/* Mobile responsiveness with Ghibli style */
+/* Enhanced sidebar toggle with Ghibli style */
+.sidebar-toggle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -36px;
+    width: 36px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0 8px 8px 0;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-left: none;
+}
+
+.sidebar-toggle i {
+    color: var(--ghibli-teal);
+    font-size: 1rem;
+}
+
+.sidebar-toggle:hover {
+    background: white;
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-toggle:hover i {
+    color: var(--ghibli-deep-blue);
+}
+
+/* Google Maps controls enhancement */
+.gm-style .gm-style-iw-c {
+    border-radius: 12px !important;
+    padding: 16px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.gm-style .gm-style-iw-d {
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+.info-window-content {
+    font-family: 'Nunito', Arial, sans-serif !important;
+}
+
+.info-window-image img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.info-window-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ghibli-deep-blue);
+    margin-bottom: 5px;
+}
+
+.info-window-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.info-window-subtitle i {
+    color: var(--ghibli-teal);
+    margin-right: 5px;
+}
+
+.info-window-rating {
+    margin-bottom: 12px;
+}
+
+.info-window-rating i {
+    color: var(--ghibli-orange);
+    font-size: 0.9rem;
+}
+
+.info-window-button {
+    background-color: var(--ghibli-teal);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-window-button i {
+    margin-right: 5px;
+}
+
+.info-window-button:hover {
+    background-color: var(--ghibli-deep-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Update media queries for toggle button */
+@media (max-width: 992px) {
+    #sidebar {
+        width: 280px;
+        min-width: 260px;
+    }
+    
+    .sidebar-toggle {
+        display: flex;
+    }
+    
+    #sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+    
+    #map.expanded {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     #sidebar {
         width: 100%;
         max-width: 100%;
         padding: 10px;
-        height: 50vh;
+        height: 40vh;
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+        transform: translateY(0);
+    }
+    
+    #sidebar.collapsed {
+        transform: translateY(-100%);
     }
     
     #map {
         width: 100%;
-        height: 50vh;
+        height: 60vh;
     }
     
     .main-content {
         flex-direction: column;
+    }
+    
+    .sidebar-toggle {
+        top: auto;
+        right: 20px;
+        bottom: -36px;
+        width: 80px;
+        height: 36px;
+        border-radius: 0 0 8px 8px;
+        transform: rotate(0);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-top: none;
+    }
+    
+    .sidebar-toggle i {
+        transform: rotate(90deg);
+    }
+    
+    #sidebar.collapsed + .sidebar-toggle i {
+        transform: rotate(-90deg);
     }
     
     .modal-content {
@@ -712,4 +883,298 @@ body.dark-mode .sidebar-footer-links a {
 body.dark-mode .sidebar-footer-links a:hover {
     color: var(--primary-color-light);
     opacity: 1;
+}
+
+/* Ghibli-style location modal */
+.location-content {
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 25px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 244, 233, 0.95));
+}
+
+.location-header {
+    position: relative;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(146, 178, 90, 0.3);
+    margin-bottom: 20px;
+}
+
+.location-header h3 {
+    font-size: 1.8rem;
+    color: var(--ghibli-deep-blue);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.rating i {
+    color: var(--ghibli-orange);
+    margin-right: 2px;
+}
+
+/* Ghibli-style review section */
+.reviews-list {
+    margin-top: 15px;
+    padding: 5px;
+}
+
+.review-item {
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+    padding: 15px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.review-item::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: -50px;
+    width: 80px;
+    height: 80px;
+    background-image: url('https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/small_kodama.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.04;
+    transform: rotate(10deg);
+    z-index: 0;
+}
+
+.review-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.review-author {
+    display: flex;
+    align-items: center;
+}
+
+.review-author img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid rgba(146, 178, 90, 0.3);
+}
+
+.review-author span {
+    font-weight: 600;
+    color: var(--ghibli-deep-blue);
+}
+
+.review-time {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.review-text {
+    line-height: 1.5;
+    color: #4a5568;
+    font-size: 0.95rem;
+}
+
+.location-photos {
+    margin: 20px 0;
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-gap: 10px;
+    margin-top: 10px;
+}
+
+.photos-grid img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.photos-grid img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.location-info {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.info-item {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.info-item i {
+    color: var(--ghibli-teal);
+    min-width: 25px;
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+.info-item a {
+    color: var(--ghibli-deep-blue);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.info-item a:hover {
+    color: var(--ghibli-teal);
+    text-decoration: underline;
+}
+
+/* Compact opening hours styling */
+.hours-list {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+    max-height: 160px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+.hours-list div {
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.05);
+    padding-bottom: 4px;
+}
+
+.hours-list div:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.hours-list div strong {
+    min-width: 35px;
+    margin-right: 15px;
+    color: var(--ghibli-deep-blue);
+}
+
+.hours-toggle {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--ghibli-teal);
+    cursor: pointer;
+    margin-top: 5px;
+    transition: all 0.2s ease;
+}
+
+.hours-toggle:hover {
+    color: var(--ghibli-deep-blue);
+    text-decoration: underline;
+}
+
+.hours-compact {
+    max-height: 58px;
+    overflow: hidden;
+}
+
+.hours-today {
+    font-weight: 600;
+    color: var(--ghibli-teal);
+    background-color: rgba(62, 147, 145, 0.08);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+/* Rating score styling */
+.rating-score {
+    font-weight: 700;
+    color: var(--ghibli-deep-blue);
+    margin-right: 5px;
+}
+
+.rating-count {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-left: 5px;
+}
+
+.no-rating {
+    color: #718096;
+    font-style: italic;
+}
+
+/* Review rating stars */
+.review-rating {
+    margin-bottom: 8px;
+}
+
+.review-rating i {
+    color: var(--ghibli-orange);
+    font-size: 0.9rem;
+}
+
+/* Read more link styling */
+.read-more-link {
+    color: var(--ghibli-teal);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 5px;
+    transition: all 0.2s ease;
+}
+
+.read-more-link:hover {
+    color: var(--ghibli-deep-blue);
+    text-decoration: underline;
+}
+
+/* No reviews message */
+.no-reviews-message {
+    text-align: center;
+    padding: 20px;
+    color: #718096;
+}
+
+.no-reviews-message i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.6;
+}
+
+/* Animation for reviews and photos */
+.review-item, .photos-grid img {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

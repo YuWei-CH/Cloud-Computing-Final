@@ -1701,6 +1701,35 @@
         // Check for activity changes periodically to update save button state
         setInterval(updateSaveButtonState, 2000);
         
+        // Fix for day tabs not being clickable - directly handle tab clicks in the inline script
+        document.addEventListener('click', function(e) {
+            // Find the day-tab that was clicked (either the element or its parent)
+            const dayTab = e.target.closest('.day-tab');
+            if (!dayTab) return; // Not clicking on a day tab
+            
+            console.log("Day tab clicked:", dayTab.getAttribute('data-day'));
+            
+            // Get all tabs and remove active class
+            const tabs = document.querySelectorAll('.day-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to the clicked tab
+            dayTab.classList.add('active');
+            
+            // Show the corresponding day content
+            const dayId = dayTab.getAttribute('data-day');
+            const contentItems = document.querySelectorAll('.day-content-item');
+            
+            contentItems.forEach(item => {
+                item.style.display = 'none';
+            });
+            
+            const dayContent = document.getElementById(`day-${dayId}`);
+            if (dayContent) {
+                dayContent.style.display = 'block';
+            }
+        });
+        
         // Global variables for attraction slideshow
         let attractionsData = [];
         let selectedIds = [];

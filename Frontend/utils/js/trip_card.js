@@ -1274,17 +1274,20 @@ function displayLocationDetails(place) {
     // Update header
     document.getElementById('location-name').textContent = place.name;
 
-    // Update rating
+    // Update rating with Ghibli-styled stars
     const ratingElement = document.getElementById('location-rating');
     if (place.rating) {
+        // Create a more visually appealing rating display with Ghibli colors
         ratingElement.innerHTML = `
-            ${place.rating.toFixed(1)} 
+            <span class="rating-score">${place.rating.toFixed(1)}</span> 
             ${'<i class="fas fa-star"></i>'.repeat(Math.floor(place.rating))}
             ${place.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : ''}
-            (${place.user_ratings_total || 0} reviews)
+            ${place.rating % 1 < 0.5 && place.rating % 1 > 0 ? '<i class="far fa-star"></i>' : ''}
+            ${'<i class="far fa-star"></i>'.repeat(Math.max(0, 5 - Math.ceil(place.rating)))}
+            <span class="rating-count">(${place.user_ratings_total || 0} reviews)</span>
         `;
     } else {
-        ratingElement.innerHTML = 'No ratings available';
+        ratingElement.innerHTML = '<span class="no-rating">No ratings available</span>';
     }
 
     // Update address
@@ -1312,56 +1315,182 @@ function displayLocationDetails(place) {
         websiteElement.textContent = 'No website available';
     }
 
-    // Update opening hours
+    // Update opening hours with improved styling
     const hoursElement = document.querySelector('.hours-list');
     if (place.opening_hours && place.opening_hours.weekday_text) {
-        hoursElement.innerHTML = place.opening_hours.weekday_text
-            .map(text => `<div>${text}</div>`)
-            .join('');
+        // Find today's day of the week (0 = Sunday, 1 = Monday, etc.)
+        const today = new Date().getDay();
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const todayName = daysOfWeek[today];
+        
+        // Generate HTML for hours
+        let hoursHTML = '';
+        
+        place.opening_hours.weekday_text.forEach(text => {
+            const [day, hours] = text.split(': ');
+            // Check if this is today
+            const isToday = day === todayName;
+            const todayClass = isToday ? 'hours-today' : '';
+            
+            hoursHTML += `
+                <div class="${todayClass}">
+                    <strong>${day.substring(0, 3)}</strong>
+                    <span>${hours}</span>
+                </div>
+            `;
+        });
+        
+        // Set the inner HTML
+        hoursElement.innerHTML = hoursHTML;
+        
+        // Add compact class initially
+        hoursElement.classList.add('hours-compact');
+        
+        // Make the hours list itself clickable to toggle
+        hoursElement.style.cursor = 'pointer';
+        hoursElement.title = 'Click to expand/collapse hours';
+        hoursElement.addEventListener('click', function(e) {
+            // Prevent this from firing when clicking on the toggle button
+            if (e.target.closest('.hours-toggle')) return;
+            
+            toggleHours();
+        });
+        
+        // Add toggle link after the hours list
+        const hoursItemContainer = document.getElementById('location-hours');
+        let hoursToggle = document.querySelector('.hours-toggle');
+        
+        // Remove existing toggle if any
+        if (hoursToggle) {
+            hoursToggle.remove();
+        }
+        
+        // Create new toggle
+        hoursToggle = document.createElement('div');
+        hoursToggle.className = 'hours-toggle';
+        hoursToggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show all hours';
+        hoursToggle.onclick = toggleHours;
+        
+        // Function to toggle hours visibility
+        function toggleHours() {
+            hoursElement.classList.toggle('hours-compact');
+            if (hoursElement.classList.contains('hours-compact')) {
+                hoursToggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show all hours';
+            } else {
+                hoursToggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show less';
+            }
+        }
+        
+        // Add toggle after hours list
+        hoursItemContainer.appendChild(hoursToggle);
     } else {
         hoursElement.innerHTML = '<div>Opening hours not available</div>';
     }
 
-    // Update photos
+    // Update photos with Ghibli-style animation
     const photosElement = document.getElementById('location-photos-gallery');
     if (place.photos && place.photos.length > 0) {
         photosElement.innerHTML = place.photos
             .slice(0, 6) // Show up to 6 photos
-            .map(photo => {
-                // Use the getUrl() method provided by Google Maps API
+            .map((photo, index) => {
+                // Add a slight delay to each photo for a cascading effect
                 const photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
-                return `<img src="${photoUrl}" alt="${place.name}">`;
+                return `<img src="${photoUrl}" alt="${place.name}" style="animation-delay: ${index * 0.1}s">`;
             })
             .join('');
     } else {
         photosElement.innerHTML = '<p>No photos available</p>';
     }
 
-    // Update reviews
+    // Update reviews with enhanced Ghibli styling
     const reviewsElement = document.getElementById('location-reviews-list');
     if (place.reviews && place.reviews.length > 0) {
         reviewsElement.innerHTML = place.reviews
-            .slice(0, 5) // Show up to 5 reviews
-            .map(review => `
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="review-author">
-                            <img src="${review.profile_photo_url || 'https://via.placeholder.com/40'}" 
-                                 alt="${review.author_name}">
-                            <span>${review.author_name}</span>
+            .map((review, index) => {
+                // Format the review text to show only first 150 chars with "Read more" option if longer
+                const shortText = review.text.length > 150 ? 
+                    review.text.substring(0, 150) + '...' : 
+                    review.text;
+                
+                // Create rating stars for each review
+                const reviewRating = `${'<i class="fas fa-star"></i>'.repeat(review.rating)}${'<i class="far fa-star"></i>'.repeat(5 - review.rating)}`;
+                
+                return `
+                    <div class="review-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="review-header">
+                            <div class="review-author">
+                                <img src="${review.profile_photo_url || 'https://trip-planner-cover-storage.s3.us-east-2.amazonaws.com/user_avatar.png'}" 
+                                     alt="${review.author_name}">
+                                <span>${review.author_name}</span>
+                            </div>
+                            <div class="review-time">${review.relative_time_description}</div>
                         </div>
-                        <div class="review-time">${review.relative_time_description}</div>
+                        <div class="review-rating">${reviewRating}</div>
+                        <div class="review-text" data-full-text="${review.text}">
+                            ${shortText}
+                            ${review.text.length > 150 ? `<a href="#" class="read-more-link" onclick="expandReview(this, event)">Read more</a>` : ''}
+                        </div>
                     </div>
-                    <div class="review-text">${review.text}</div>
-                </div>
-            `)
+                `;
+            })
             .join('');
     } else {
-        reviewsElement.innerHTML = '<p>No reviews available</p>';
+        // Display a more friendly "no reviews" message
+        reviewsElement.innerHTML = `
+            <div class="no-reviews-message">
+                <i class="fas fa-comment-slash"></i>
+                <p>No reviews available for this location yet.</p>
+            </div>
+        `;
     }
 
-    // Show the modal
+    // Show the modal with a subtle animation
     modal.style.display = 'block';
+    
+    // Prevent scrolling on the body when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    // Close modal when clicking the close button or outside the modal
+    document.querySelector('#location-modal .close').onclick = function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        // Clean up
+        cleanupLocationDetails();
+    };
+    
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            
+            // Clean up
+            cleanupLocationDetails();
+        }
+    };
+}
+
+// Function to clean up after closing modal
+function cleanupLocationDetails() {
+    // Remove the hours toggle button
+    const hoursToggle = document.querySelector('.hours-toggle');
+    if (hoursToggle) {
+        hoursToggle.remove();
+    }
+    
+    // Reset the hours list class
+    const hoursList = document.querySelector('.hours-list');
+    if (hoursList) {
+        hoursList.classList.remove('hours-compact');
+    }
+}
+
+// Add function to expand review text
+function expandReview(element, event) {
+    event.preventDefault();
+    const reviewTextElement = element.parentElement;
+    const fullText = reviewTextElement.getAttribute('data-full-text');
+    reviewTextElement.innerHTML = fullText;
 }
 
 // Helper function to extract city name from address
