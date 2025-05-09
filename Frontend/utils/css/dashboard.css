@@ -549,6 +549,26 @@ section {
     animation: deleteAnimation 0.5s forwards;
 }
 
+/* Hide edit button in trip cards */
+.trip-actions .edit-btn,
+.trip-actions button[data-action="edit"],
+.trip-actions button.edit-trip-btn,
+.trip-actions button:has(i.fa-edit),
+.trip-actions button:has(i.fa-pen),
+.trip-actions button:has(i.fa-pencil-alt) {
+    display: none !important;
+}
+
+/* Hide clone button in trip cards */
+.trip-actions .clone-btn,
+.trip-actions button[data-action="clone"],
+.trip-actions button.clone-trip-btn,
+.trip-actions button:has(i.fa-clone),
+.trip-actions button:has(i.fa-copy),
+.trip-actions button:has(i.fa-files-o) {
+    display: none !important;
+}
+
 /* Buttons */
 .btn-primary {
     background-color: var(--primary-color);
