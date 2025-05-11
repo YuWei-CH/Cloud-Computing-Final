@@ -1,0 +1,53 @@
+Project Name: Travel Planner
+
+Project Overview:
+This is a serverless architecture full-stack travel planning application. It integrates AWS cloud services, relational databases, and large language models (LLM) to help users generate multi-day travel itineraries based on preferences, weather information, and uploaded ticket information.
+
+Key Features:
+• Personalized travel recommendations based on user preferences
+• Dynamic itinerary adjustments using real-time weather data
+• Flight status monitoring with delay/cancellation notifications 
+• PDF/image ticket processing to extract departure locations, times, and other key information
+• Secure authentication using AWS Cognito
+• User and trip data storage in AWS Aurora MySQL database
+• Google Maps integration for route planning and visualization
+• Image storage and retrieval via AWS S3 for trip destinations
+• Mobile-responsive frontend with dark mode support
+
+Technologies Used:
+• Frontend: JavaScript, HTML/CSS, responsive design with custom themes
+• Backend: Python (running on AWS Lambda), API Gateway, MySQL (Aurora)
+• Route Planning: Google Maps APIs for location search, routing, and visualization
+• Weather & Flight APIs: Integration with aviation and weather data providers
+• AI Engine: OpenAI multi-modal models for recommendations
+• Cloud Infrastructure: AWS Lambda, S3, RDS Aurora, API Gateway, SQS, SES
+
+System Architecture:
+The frontend (HTML/JS/CSS) is deployed on S3 and communicates with the backend via API Gateway. The Gateway routes requests to various Lambda functions, which connect to the Aurora MySQL database and/or external APIs (OpenAI, weather API, flight API). For asynchronous tasks like email notifications, SQS is used as a message queue.
+
+Deployment Steps:
+1. Clone the code repository
+2. Configure environment variables (database credentials, API keys, etc.)
+3. Deploy Lambda functions using AWS SAM or CloudFormation
+4. Build the frontend and upload to S3 with website hosting enabled
+5. Configure CloudWatch triggers for scheduled Lambda functions (weather updates, flight checks)
+6. Set up API Gateway with proper CORS and authentication settings
+7. Configure SQS queues and SES for email notifications
+
+Project Directory Structure:
+• Lambda/: AWS Lambda functions organized by functionality
+  - User management (registration, preferences, profiles)
+  - Trip management (creation, editing, cloning, deletion)
+  - Data processing (weather reports, flight status)
+  - Notification services (email sending)
+• Frontend/: Web client interface
+  - utils/: Shared JS, CSS, and theme files
+  - pages/: Main application pages and views
+  - dashboard/: User dashboard components
+  - trip_card/: Trip visualization and management
+• Database/: SQL schema definitions and migrations
+
+CI/CD Overview:
+• AWS SAM/CloudFormation for infrastructure automation
+• GitHub Actions for automated testing and deployment
+• S3 bucket versioning for frontend rollback capability

@@ -137,11 +137,10 @@ The application uses a RESTful API structure with the following endpoints:
   - pages/: Main application pages and views
   - dashboard/: User dashboard components
   - trip_card/: Trip visualization and management
-- **Database/**: SQL schema definitions and migrations
+- **Database/**: SQL schema definitions and migrations ![Database schema](Docs/images/DB.png)
 
 ## CI/CD Overview
-- AWS SAM/CloudFormation for infrastructure automation
-- GitHub Actions for automated testing and deployment
+- CloudFormation for infrastructure automation
 - S3 bucket versioning for frontend rollback capability
 
 ## Security Considerations
@@ -154,7 +153,4 @@ This application implements several security best practices:
 - **Secure Dependencies**: Regular updates to dependencies to patch vulnerabilities
 - **Least Privilege**: IAM roles following least privilege principle
 
-## Future Improvements
-Potential enhancements for future versions:
-
-- Machine learning model for personalized activity recommendations- Integration with more travel APIs (hotel bookings, car rentals)- Social features to share and collaborate on trips- Mobile app version using React Native- Offline capabilities for saved trips- Multi-language support## ContributorsThis project was developed by the Cloud Computing course team at NYU.## LicenseThis project is licensed under the MIT License - see the LICENSE file for details.
+Thank you for Reading.
